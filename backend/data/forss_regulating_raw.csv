@@ -1,0 +1,468 @@
+brand,model,column,parameter,value,unit,source
+Baldwin,стандарт,1,РСІ УЛИРОВОЧНЫЙ ПАРАМЕТР,1,,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,РСІ УЛИРОВОЧНЫЙ ПАРАМЕТР,2,,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,РСІ УЛИРОВОЧНЫЙ ПАРАМЕТР,4,,tmp_forss/crops/p1_right_table.png.tsv
+Fazioli,стандарт,5,РСІ УЛИРОВОЧНЫЙ ПАРАМЕТР,5,,tmp_forss/crops/p1_right_table.png.tsv
+Aug. Förster,стандарт,6,РСІ УЛИРОВОЧНЫЙ ПАРАМЕТР,6,,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Высота белых клавиш без облицовки над штульрамой,64,,tmp_forss/crops/p1_right_table.png.tsv
+Aug. Förster,стандарт,6,Высота белых клавиш без облицовки над штульрамой,65,,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Высота белых клавиш без облицовки над штульрамой,64,,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,Высота белых клавиш с облицовкой над штульрамой,62,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,стандарт,3a,Высота белых клавиш с облицовкой над штульрамой,720,мм,tmp_forss/crops/p1_right_table.png.tsv
+Aug. Förster,стандарт,6,Высота белых клавиш с облицовкой над штульрамой,67*,мм,tmp_forss/crops/p1_right_table.png.tsv
+Baldwin,стандарт,1,Высота черных клавиш над белыми,12.7,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,Высота черных клавиш над белыми,12,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Высота черных клавиш над белыми,12.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Fazioli,стандарт,5,Высота черных клавиш над белыми,12.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Aug. Förster,стандарт,6,Высота черных клавиш над белыми,12,мм,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Высота черных клавиш над белыми,12.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Baldwin,стандарт,1,Нажатая черная клавиша над ненажатой белой,3.2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,Нажатая черная клавиша над ненажатой белой,2.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Нажатая черная клавиша над ненажатой белой,2.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Fazioli,стандарт,5,Нажатая черная клавиша над ненажатой белой,2.7,мм,tmp_forss/crops/p1_right_table.png.tsv
+Aug. Förster,стандарт,6,Нажатая черная клавиша над ненажатой белой,2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Нажатая черная клавиша над ненажатой белой,2.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Baldwin,стандарт,1,"Возвышение середины клавиатуры над краями (мм) Высота фильца на задних кромках клавиш для подьема демпферов, относительно штульрамы",0,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,"Возвышение середины клавиатуры над краями (мм) Высота фильца на задних кромках клавиш для подьема демпферов, относительно штульрамы",0,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,Друк белых клавиш,9.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,патентованная механика,3b,Друк белых клавиш,9.00,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Друк белых клавиш,10.3,мм,tmp_forss/crops/p1_right_table.png.tsv
+Fazioli,стандарт,5,Друк белых клавиш,10.0,мм,tmp_forss/crops/p1_right_table.png.tsv
+Aug. Förster,стандарт,6,Друк белых клавиш,10*,мм,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Друк белых клавиш,10,мм,tmp_forss/crops/p1_right_table.png.tsv
+Baldwin,стандарт,1,Друк черных клавиш,9.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,Друк черных клавиш,9.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,стандарт,3a,Друк черных клавиш,10,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,патентованная механика,3b,Друк черных клавиш,9.00,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Друк черных клавиш,10.3,мм,tmp_forss/crops/p1_right_table.png.tsv
+Fazioli,стандарт,5,Друк черных клавиш,9.8,мм,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Друк черных клавиш,10,мм,tmp_forss/crops/p1_right_table.png.tsv
+Baldwin,стандарт,1,Штульрама плоская или с возвышением,0,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Штульрама плоская или с возвышением,0,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Люфт клавиш на средних и передних штифтах,0.2,,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,ранние механики,7b,Люфт клавиш на средних и передних штифтах,105,,tmp_forss/crops/p1_right_table.png.tsv
+Baldwin,стандарт,1,Расстояние между осями фигур и молотков,112.3,,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Расстояние между осями фигур и молотков,113.5,,tmp_forss/crops/p1_right_table.png.tsv
+Aug. Förster,стандарт,6,Расстояние между осями фигур и молотков,114,,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Расстояние между осями фигур и молотков,114,,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,Расстояние между осями фигур и молотков,45,,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,ранние механики,7b,Расстояние между осями фигур и молотков,45,,tmp_forss/crops/p1_right_table.png.tsv
+Baldwin,стандарт,1,Штейнунг,47.6,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,стандарт,3a,Штейнунг,45,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,патентованная механика,3b,Штейнунг,45,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Штейнунг,46,мм,tmp_forss/crops/p1_right_table.png.tsv
+Fazioli,стандарт,5,Штейнунг,47,мм,tmp_forss/crops/p1_right_table.png.tsv
+Aug. Förster,стандарт,6,Штейнунг,45,мм,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Штейнунг,45,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,Штейнунг,47,мм,tmp_forss/crops/p1_right_table.png.tsv
+Baldwin,стандарт,1,Расстояние от гаммерштилей до польстера рулейстика,3.2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,Расстояние от гаммерштилей до польстера рулейстика,2-3,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Расстояние от гаммерштилей до польстера рулейстика,3,мм,tmp_forss/crops/p1_right_table.png.tsv
+Aug. Förster,стандарт,6,Расстояние от гаммерштилей до польстера рулейстика,2-3,мм,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,ранние механики,7b,Расстояние от гаммерштилей до польстера рулейстика,2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Baldwin,стандарт,1,Расстояние ауслезунга в басах,1.6,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,Расстояние ауслезунга в басах,2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,стандарт,3a,Расстояние ауслезунга в басах,3,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Расстояние ауслезунга в басах,1.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Aug. Förster,стандарт,6,Расстояние ауслезунга в басах,2*,мм,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Расстояние ауслезунга в басах,2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,ранние механики,7b,Расстояние ауслезунга в басах,2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Baldwin,стандарт,1,Расстояние ауслезунга от струн в середине,1.6,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,Расстояние ауслезунга от струн в середине,1,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,стандарт,3a,Расстояние ауслезунга от струн в середине,2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,патентованная механика,3b,Расстояние ауслезунга от струн в середине,2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Расстояние ауслезунга от струн в середине,1.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Fazioli,стандарт,5,Расстояние ауслезунга от струн в середине,1.0,мм,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Расстояние ауслезунга от струн в середине,2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,ранние механики,7b,Расстояние ауслезунга от струн в середине,2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Baldwin,стандарт,1,Расстояние ауслезунга от струн в дискантах,1.6,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bechstein,стандарт,2,Расстояние ауслезунга от струн в дискантах,1,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,стандарт,3a,Расстояние ауслезунга от струн в дискантах,15,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,патентованная механика,3b,Расстояние ауслезунга от струн в дискантах,1.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Расстояние ауслезунга от струн в дискантах,1.0,мм,tmp_forss/crops/p1_right_table.png.tsv
+Fazioli,стандарт,5,Расстояние ауслезунга от струн в дискантах,1.0,мм,tmp_forss/crops/p1_right_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Расстояние ауслезунга от струн в дискантах,2,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,патентованная механика,3b,Расстояние абника от струн в басах,4.5,мм,tmp_forss/crops/p1_right_table.png.tsv
+Bösendorfer,стандарт,4,Расстояние абника от струн в басах,3.0,мм,tmp_forss/crops/p1_right_table.png.tsv
+Blüthner,патентованная механика,3b,Расстояные абника от струн в середине,3.5,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Расстояные абника от струн в середине,3.0,мм,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,патентованная механика,3b,Расстояние абника от струн в дискантах,3,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Расстояние абника от струн в дискантах,2.5,мм,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,Расстояние абника от струн в дискантах,2,мм,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Расстояние абника от струн в дискантах,2,мм,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,ранние механики,7b,Расстояние абника от струн в дискантах,2,мм,tmp_forss/crops/p2_left_table.png.tsv
+Rud. Ibach,стандарт,8,Расстояние абника от струн в дискантах,2,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bechstein,стандарт,2,Расстомние абника от уровня ауслезунга в басах,2,мм,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,стандарт,3a,Расстомние абника от уровня ауслезунга в басах,1.5,мм,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,патентованная механика,3b,Расстомние абника от уровня ауслезунга в басах,1.5,мм,tmp_forss/crops/p2_left_table.png.tsv
+Fazioli,стандарт,5,Расстомние абника от уровня ауслезунга в басах,2.0,мм,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,Расстомние абника от уровня ауслезунга в басах,2,мм,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Расстомние абника от уровня ауслезунга в басах,1.5,мм,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,ранние механики,7b,Расстомние абника от уровня ауслезунга в басах,1.5,мм,tmp_forss/crops/p2_left_table.png.tsv
+Rud. Ibach,стандарт,8,Расстомние абника от уровня ауслезунга в басах,2,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bechstein,стандарт,2,Расстояние абника от уровня ауслезунга в середине (мм) Расстояние абника от уровня ауслезунга в дискантах,15,мм,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,стандарт,3a,Расстояние абника от уровня ауслезунга в середине (мм) Расстояние абника от уровня ауслезунга в дискантах,15,мм,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,патентованная механика,3b,Расстояние абника от уровня ауслезунга в середине (мм) Расстояние абника от уровня ауслезунга в дискантах,21,мм,tmp_forss/crops/p2_left_table.png.tsv
+Fazioli,стандарт,5,Расстояние абника от уровня ауслезунга в середине (мм) Расстояние абника от уровня ауслезунга в дискантах,15,мм,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,Расстояние абника от уровня ауслезунга в середине (мм) Расстояние абника от уровня ауслезунга в дискантах,15-,мм,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Расстояние абника от уровня ауслезунга в середине (мм) Расстояние абника от уровня ауслезунга в дискантах,1.5,мм,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,ранние механики,7b,Расстояние абника от уровня ауслезунга в середине (мм) Расстояние абника от уровня ауслезунга в дискантах,1.5,мм,tmp_forss/crops/p2_left_table.png.tsv
+Rud. Ibach,стандарт,8,Расстояние абника от уровня ауслезунга в середине (мм) Расстояние абника от уровня ауслезунга в дискантах,13,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Расстояние абника от уровня ауслезунга в середине (мм) Расстояние абника от уровня ауслезунга в дискантах,14,мм,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,Подиват на фенгер от струн в басах,15-,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bechstein,стандарт,2,Подиват на фенгер от струн в басах,15,мм,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,стандарт,3a,Подиват на фенгер от струн в басах,15,мм,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,патентованная механика,3b,Подиват на фенгер от струн в басах,21,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Подиват на фенгер от струн в басах,14,мм,tmp_forss/crops/p2_left_table.png.tsv
+Fazioli,стандарт,5,Подиват на фенгер от струн в басах,15,мм,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Подиват на фенгер от струн в басах,14,мм,tmp_forss/crops/p2_left_table.png.tsv
+Rud. Ibach,стандарт,8,Подиват на фенгер от струн в басах,13,мм,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,Подхват на фенгер от струн в середине,15-,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bechstein,стандарт,2,Подхват на фенгер от струн в середине,15,мм,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,патентованная механика,3b,Подхват на фенгер от струн в середине,21,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Подхват на фенгер от струн в середине,14,мм,tmp_forss/crops/p2_left_table.png.tsv
+Fazioli,стандарт,5,Подхват на фенгер от струн в середине,15,мм,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Подхват на фенгер от струн в середине,14,мм,tmp_forss/crops/p2_left_table.png.tsv
+Rud. Ibach,стандарт,8,Подхват на фенгер от струн в середине,13,мм,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,Подхват на фенгер от струн в дискантах,16,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Позиция малотков относительно хоров струн,0-2.5,мм,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,патентованная механика,3b,"Нахдрук (мм) Усилие репетиционной пружины, измеренное на вершине",0,,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,"Нахдрук (мм) Усилие репетиционной пружины, измеренное на вершине",2,,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,репетиционного рычага фигуры с компенсационном пружиной в граммах,6-819,,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Позиция шпиллера относительно плоскости репетиционного рычага,0.1,мм,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,Позиция шпиллера относительно плоскости репетиционного рычага,0.1,мм,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Позиция шпиллера относительно плоскости репетиционного рычага,0.3,мм,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,"Положение шпиллера относительно задней грани керна барабанчика Зазор между шпиллером и ограничительным польстером, остающийся после зуслезунга",0,мм,tmp_forss/crops/p2_left_table.png.tsv
+Rud. Ibach,стандарт,8,Полукод/момент начала подьема демпфера (мм) Расстоян положе Люфт демпферных проволок в отверстиях направляющего лейстика,22,,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Полукод/момент начала подьема демпфера (мм) Расстоян положе Люфт демпферных проволок в отверстиях направляющего лейстика,23,,tmp_forss/crops/p2_left_table.png.tsv
+Fazioli,стандарт,5,Полукод/момент начала подьема демпфера (мм) Расстоян положе Люфт демпферных проволок в отверстиях направляющего лейстика,23.5,,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,Полукод/момент начала подьема демпфера (мм) Расстоян положе Люфт демпферных проволок в отверстиях направляющего лейстика,20,,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,патентованная механика,3b,Расстояние до упора демпферных фигур в демпферлейстик при нажатых,2,,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,клавишах,0.2,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Расстопние до упора демпферных фигур в демпферлейстик при нажатой,0,,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,привой педали (мм) Расстояние между черными клавишами и шуцлейстиком или фильцем,2,,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,клапа,2,мм,tmp_forss/crops/p2_left_table.png.tsv
+Bechstein,стандарт,2,Минимальный статический игровой вес без демпферов в басах,50*,г,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,стандарт,3a,Минимальный статический игровой вес без демпферов в басах,55,г,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,Минимальный статический игровой вес без демпферов в басах,50,г,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Минимальный статический игровой вес без демпферов в басах,52,г,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Минимальный статический игровой вес без демпферов в басах,52,г,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,стандарт,3a,Минимальный статический игровой вес без демпферов в середине,55,г,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Минимальный статический игровой вес без демпферов в середине,50,г,tmp_forss/crops/p2_left_table.png.tsv
+Rud. Ibach,стандарт,8,Минимальный статический игровой вес без демпферов в середине,52,г,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,Минимальный статический игровой вес без демпферов в середине,50,г,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Минимальный статический игровой вес без демпферов в середине,52,г,tmp_forss/crops/p2_left_table.png.tsv
+Blüthner,стандарт,3a,Маскимальный статический игровой вес без демпферов в дискантах,55,г,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Маскимальный статический игровой вес без демпферов в дискантах,48,г,tmp_forss/crops/p2_left_table.png.tsv
+Aug. Förster,стандарт,6,Маскимальный статический игровой вес без демпферов в дискантах,48,г,tmp_forss/crops/p2_left_table.png.tsv
+Grotrian-Steinweg,стандарт,7a,Маскимальный статический игровой вес без демпферов в дискантах,50,г,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Мансимальный статический игровой вес с демпферами в басах,75,г,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Максимальный статический игровой вес с демпферами в середине,75,г,tmp_forss/crops/p2_left_table.png.tsv
+Bösendorfer,стандарт,4,Максимальный ссатеческий игровой вес с демпферами в дискантах,65,г,tmp_forss/crops/p2_left_table.png.tsv
+Baldwin,стандарт,1,"Вес подъема клавиши в басах, середине и дискантах (г) Оригинальная длина басовых головок молотков (мм) Оригинальная длина головок молотков в середине и дискантах",22,мм,tmp_forss/crops/p2_right_top_end.png.tsv
+Grotrian-Steinweg,стандарт,7a,Оригинальный вес головок молотков (г) и номер размера,6*,,tmp_forss/crops/p2_right_top_end.png.tsv
+Baldwin,стандарт,1,"Сдвиг механики от левой педали (мм) Трение в осях, измеренное в граммах у отверстия капсюля под шуруп - капсюль молотка - капсюль фигуры",3,,tmp_forss/crops/p2_right_top_end.png.tsv
+Aug. Förster,стандарт,6,капсюль репетиционного рычага - капсюль шпиллера,5,,tmp_forss/crops/p2_right_top_end.png.tsv
+Aug. Förster,стандарт,6,каспюль демпферной фигуры,2,,tmp_forss/crops/p2_right_top_end.png.tsv
+Aug. Förster,стандарт,6,каспюль демпфера - капсюль язычка тонхальтера Расстояние от штанги до язычков тонхальтера,2-4,,tmp_forss/crops/p2_right_top_end.png.tsv
+Petrof,Model IV 174 см,10,Высота белых клавиш без облицовки над штульрамой,63,мм,tmp_forss/crops/p2_right_table.png.tsv
+Sauter,стандарт,11,Высота белых клавиш с облицовкой над штульрамой,65,мм,tmp_forss/crops/p2_right_table.png.tsv
+Schimmel,<200 см,12a,Высота белых клавиш с облицовкой над штульрамой,62,мм,tmp_forss/crops/p2_right_table.png.tsv
+Schimmel,>200 см,12b,Высота белых клавиш с облицовкой над штульрамой,12.0-,мм,tmp_forss/crops/p2_right_table.png.tsv
+Kimball,стандарт,9,Высота черных клавиш над белыми,12.7,мм,tmp_forss/crops/p2_right_table.png.tsv
+Petrof,Model IV 174 см,10,Высота черных клавиш над белыми,12,мм,tmp_forss/crops/p2_right_table.png.tsv
+Sauter,стандарт,11,Высота черных клавиш над белыми,12.5,мм,tmp_forss/crops/p2_right_table.png.tsv
+Schimmel,<200 см,12a,Высота черных клавиш над белыми,11.5,мм,tmp_forss/crops/p2_right_table.png.tsv
+Schimmel,>200 см,12b,Высота черных клавиш над белыми,12.5,мм,tmp_forss/crops/p2_right_table.png.tsv
+Kimball,стандарт,9,Нажатая черная клавиша над ненажатой белой,2.4,мм,tmp_forss/crops/p2_right_table.png.tsv
+Petrof,Model IV 174 см,10,Нажатая черная клавиша над ненажатой белой,1.5,мм,tmp_forss/crops/p2_right_table.png.tsv
+Sauter,стандарт,11,Нажатая черная клавиша над ненажатой белой,1.5,мм,tmp_forss/crops/p2_right_table.png.tsv
+Schimmel,<200 см,12a,Нажатая черная клавиша над ненажатой белой,1.0,мм,tmp_forss/crops/p2_right_table.png.tsv
+Schimmel,>200 см,12b,"Возвышение середины клавиатуры над краями (мм) Высота фильца на задних кромках клавиш для подъема демпферов, относительно штульрамы",10.1-,мм,tmp_forss/crops/p2_right_table.png.tsv
+Schimmel,<200 см,12a,"Возвышение середины клавиатуры над краями (мм) Высота фильца на задних кромках клавиш для подъема демпферов, относительно штульрамы",9.80-,мм,tmp_forss/crops/p2_right_table.png.tsv
+Kimball,стандарт,9,Друк белых клавиш,10.3,мм,tmp_forss/crops/p2_right_table.png.tsv
+Petrof,Model IV 174 см,10,Друк белых клавиш,10.5,мм,tmp_forss/crops/p2_right_table.png.tsv
+Sauter,стандарт,11,Друк белых клавиш,10.0,мм,tmp_forss/crops/p2_right_table.png.tsv
+Schimmel,<200 см,12a,Друк белых клавиш,10.2,мм,tmp_forss/crops/p2_right_table.png.tsv
+Schimmel,>200 см,12b,Друк белых клавиш,10.5,мм,tmp_forss/crops/p2_right_table.png.tsv
+Kimball,стандарт,9,Друк черных клавиш,10.3,мм,tmp_forss/crops/p2_right_table.png.tsv
+Petrof,Model IV 174 см,10,Друк черных клавиш,10.5,мм,tmp_forss/crops/p2_right_table.png.tsv
+Sauter,стандарт,11,Друк черных клавиш,10,мм,tmp_forss/crops/p2_right_table.png.tsv
+Kimball,стандарт,9,Штульрама плоская или с возвышением,0,мм,tmp_forss/crops/p2_right_table.png.tsv
+Petrof,Model IV 174 см,10,Штульрама плоская или с возвышением,0,мм,tmp_forss/crops/p2_right_table.png.tsv
+Sauter,стандарт,11,Штульрама плоская или с возвышением,0,мм,tmp_forss/crops/p2_right_table.png.tsv
+Schimmel,<200 см,12a,Штульрама плоская или с возвышением,0,мм,tmp_forss/crops/p2_right_table.png.tsv
+Petrof,Model IV 174 см,10,Расстояние между осями фигур и молотков,93,,tmp_forss/crops/p3_left_table.png.tsv
+Sauter,стандарт,11,Расстояние между осями фигур и молотков,45,,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,Расстояние между осями фигур и молотков,44-47,,tmp_forss/crops/p3_left_table.png.tsv
+Kimball,стандарт,9,Расстояние между осями фигур и молотков,47.6 45,,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Расстояние между осями фигур и молотков,44-,,tmp_forss/crops/p3_left_table.png.tsv
+Seiler,"180, 206, 240",13,Расстояние между осями фигур и молотков,45,,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Штейнунг,47,мм,tmp_forss/crops/p3_left_table.png.tsv
+Petrof,Model IV 174 см,10,Расстойяие от гаммерштилей до польстера рулейстика,4.0,мм,tmp_forss/crops/p3_left_table.png.tsv
+Sauter,стандарт,11,Расстойяие от гаммерштилей до польстера рулейстика,4.0,мм,tmp_forss/crops/p3_left_table.png.tsv
+Kimball,стандарт,9,Расстояние зуслёзунга в басах,3.2*,мм,tmp_forss/crops/p3_left_table.png.tsv
+Petrof,Model IV 174 см,10,Расстояние зуслёзунга в басах,3,мм,tmp_forss/crops/p3_left_table.png.tsv
+Sauter,стандарт,11,Расстояние зуслёзунга в басах,2,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Расстояние зуслёзунга в басах,2.5,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,Расстояние зуслёзунга в басах,2.5,мм,tmp_forss/crops/p3_left_table.png.tsv
+Kimball,стандарт,9,Расстояние ауслёзунга от струн в середине,3.2 2,мм,tmp_forss/crops/p3_left_table.png.tsv
+Sauter,стандарт,11,Расстояние ауслёзунга от струн в середине,1,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Расстояние ауслёзунга от струн в середине,2.0,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,Расстояние ауслёзунга от струн в середине,2.0,мм,tmp_forss/crops/p3_left_table.png.tsv
+Kimball,стандарт,9,Расстояние ауслезунга от струн в дискантах,3.2*,мм,tmp_forss/crops/p3_left_table.png.tsv
+Petrof,Model IV 174 см,10,Расстояние ауслезунга от струн в дискантах,2,мм,tmp_forss/crops/p3_left_table.png.tsv
+Sauter,стандарт,11,Расстояние ауслезунга от струн в дискантах,1,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Расстояние ауслезунга от струн в дискантах,1.5,мм,tmp_forss/crops/p3_left_table.png.tsv
+Seiler,"180, 206, 240",13,Расстояние ауслезунга от струн в дискантах,1.5,мм,tmp_forss/crops/p3_left_table.png.tsv
+Kimball,стандарт,9,Расстояние абмика от струн в басах,4.80,мм,tmp_forss/crops/p3_left_table.png.tsv
+Petrof,Model IV 174 см,10,Расстояние абмика от струн в басах,4.0,мм,tmp_forss/crops/p3_left_table.png.tsv
+Kimball,стандарт,9,Расстояние абника от струн в середине,4.80,мм,tmp_forss/crops/p3_left_table.png.tsv
+Petrof,Model IV 174 см,10,Расстояние абника от струн в середине,4.0,мм,tmp_forss/crops/p3_left_table.png.tsv
+Kimball,стандарт,9,Расстояние абника от струм в дискантах,4.8*,мм,tmp_forss/crops/p3_left_table.png.tsv
+Petrof,Model IV 174 см,10,Расстояние абника от струм в дискантах,4.0,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Расстоямие абника от уровня ауслёзунга в басах,2.0,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,Расстоямие абника от уровня ауслёзунга в басах,2.0,мм,tmp_forss/crops/p3_left_table.png.tsv
+Seiler,"180, 206, 240",13,Расстоямие абника от уровня ауслёзунга в басах,1.5,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Расстояние абника от уровня ауслёзунга в середине,1.5,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,Расстояние абника от уровня ауслёзунга в середине,1.5,мм,tmp_forss/crops/p3_left_table.png.tsv
+Seiler,"180, 206, 240",13,Расстояние абника от уровня ауслёзунга в середине,1.5,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Расстовние абника от уровня ауслезунга в дискантах,1.5,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,Расстовние абника от уровня ауслезунга в дискантах,1.5,мм,tmp_forss/crops/p3_left_table.png.tsv
+Seiler,"180, 206, 240",13,Расстовние абника от уровня ауслезунга в дискантах,1.5,мм,tmp_forss/crops/p3_left_table.png.tsv
+Kimball,стандарт,9,Подхват на фенгер от струн в басах,16,мм,tmp_forss/crops/p3_left_table.png.tsv
+Petrof,Model IV 174 см,10,Подхват на фенгер от струн в басах,16,мм,tmp_forss/crops/p3_left_table.png.tsv
+Sauter,стандарт,11,Подхват на фенгер от струн в басах,15,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Подхват на фенгер от струн в басах,14,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,Подхват на фенгер от струн в басах,17-14,мм,tmp_forss/crops/p3_left_table.png.tsv
+Seiler,"180, 206, 240",13,Подхват на фенгер от струн в басах,15,мм,tmp_forss/crops/p3_left_table.png.tsv
+Kimball,стандарт,9,Подиват на фенгер от струн в середине,16,мм,tmp_forss/crops/p3_left_table.png.tsv
+Petrof,Model IV 174 см,10,Подиват на фенгер от струн в середине,16,мм,tmp_forss/crops/p3_left_table.png.tsv
+Sauter,стандарт,11,Подиват на фенгер от струн в середине,15,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Подиват на фенгер от струн в середине,13,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,Подиват на фенгер от струн в середине,16-13,мм,tmp_forss/crops/p3_left_table.png.tsv
+Seiler,"180, 206, 240",13,Подиват на фенгер от струн в середине,15,мм,tmp_forss/crops/p3_left_table.png.tsv
+Kimball,стандарт,9,Подхват на фенгер от струн в дискантах,16,мм,tmp_forss/crops/p3_left_table.png.tsv
+Petrof,Model IV 174 см,10,Подхват на фенгер от струн в дискантах,16,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Подхват на фенгер от струн в дискантах,12,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,Подхват на фенгер от струн в дискантах,15-12,мм,tmp_forss/crops/p3_left_table.png.tsv
+Seiler,"180, 206, 240",13,Подхват на фенгер от струн в дискантах,15,мм,tmp_forss/crops/p3_left_table.png.tsv
+Petrof,Model IV 174 см,10,Позиция молотков относительно хоров струн,0-3,мм,tmp_forss/crops/p3_left_table.png.tsv
+Petrof,Model IV 174 см,10,"Нахдрук (мм) Усилне репетиционной пружины, измеренное на вершине репетиционного рымага фигуры с компенсационной пружиной в граммах",2.0,,tmp_forss/crops/p3_left_table.png.tsv
+Sauter,стандарт,11,"Нахдрук (мм) Усилне репетиционной пружины, измеренное на вершине репетиционного рымага фигуры с компенсационной пружиной в граммах",2.0,,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,"Нахдрук (мм) Усилне репетиционной пружины, измеренное на вершине репетиционного рымага фигуры с компенсационной пружиной в граммах",2.0,,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,"Нахдрук (мм) Усилне репетиционной пружины, измеренное на вершине репетиционного рымага фигуры с компенсационной пружиной в граммах",2.0,,tmp_forss/crops/p3_left_table.png.tsv
+Sauter,стандарт,11,Позиция шпиллера стностельно плоскости репетиционного рычага,0.3,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Позиция шпиллера стностельно плоскости репетиционного рычага,0.1,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,Позиция шпиллера стностельно плоскости репетиционного рычага,0.1,мм,tmp_forss/crops/p3_left_table.png.tsv
+Sauter,стандарт,11,пожение шлиялера относительно задней грами керна барабанчика,0.5,,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,"Зазор между шпиллиром и ограничительным польстером, остающийся",1.5,,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,тосве зуслезунга,2.0,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,>200 см,12b,тосве зуслезунга,1.5-2.0,мм,tmp_forss/crops/p3_left_table.png.tsv
+Schimmel,<200 см,12a,Полуход / момент начала подъема демпфера,19,мм,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,>200 см,12b,Полуход / момент начала подъема демпфера,23-19,мм,tmp_forss/crops/p3_right_table.png.tsv
+Petrof,Model IV 174 см,10,Расстояние между фильцем клавиш и ложками демпфера в исходном положении,3.0,мм,tmp_forss/crops/p3_right_table.png.tsv
+Petrof,Model IV 174 см,10,Люфт демпферных проволок в отверстиях направляющего лейстика Расстояние до упора демпферных фигур в демпферлейстик при нажатых клавишах (мм) Расстояние до упора демпферных фигур в демпферлейстик при нажатой правой педали,0.3,мм,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,<200 см,12a,Люфт демпферных проволок в отверстиях направляющего лейстика Расстояние до упора демпферных фигур в демпферлейстик при нажатых клавишах (мм) Расстояние до упора демпферных фигур в демпферлейстик при нажатой правой педали,0.2,мм,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,>200 см,12b,Люфт демпферных проволок в отверстиях направляющего лейстика Расстояние до упора демпферных фигур в демпферлейстик при нажатых клавишах (мм) Расстояние до упора демпферных фигур в демпферлейстик при нажатой правой педали,0.1-0.2,мм,tmp_forss/crops/p3_right_table.png.tsv
+Petrof,Model IV 174 см,10,Расстояние между черными клавишами и шуцлейстиком или фильцем,2.0,,tmp_forss/crops/p3_right_table.png.tsv
+Sauter,стандарт,11,Расстояние между черными клавишами и шуцлейстиком или фильцем,20,,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,<200 см,12a,Расстояние между черными клавишами и шуцлейстиком или фильцем,1.0-,,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,>200 см,12b,Расстояние между черными клавишами и шуцлейстиком или фильцем,1.0-1.5,,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,<200 см,12a,клапа,1.5,мм,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,>200 см,12b,клапа,2,мм,tmp_forss/crops/p3_right_table.png.tsv
+Petrof,Model IV 174 см,10,Минимальный статический игровой вес без демпферов в басах,53,г,tmp_forss/crops/p3_right_table.png.tsv
+Sauter,стандарт,11,Минимальный статический игровой вес без демпферов в басах,52,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,<200 см,12a,Минимальный статический игровой вес без демпферов в басах,58,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,>200 см,12b,Минимальный статический игровой вес без демпферов в басах,58,г,tmp_forss/crops/p3_right_table.png.tsv
+Petrof,Model IV 174 см,10,Минимальный статический игровой вес без демпферов в середине,53,г,tmp_forss/crops/p3_right_table.png.tsv
+Sauter,стандарт,11,Минимальный статический игровой вес без демпферов в середине,52,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,<200 см,12a,Минимальный статический игровой вес без демпферов в середине,53,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,>200 см,12b,Минимальный статический игровой вес без демпферов в середине,53,г,tmp_forss/crops/p3_right_table.png.tsv
+Petrof,Model IV 174 см,10,Минимальный статический игровой вес без демпферов в дискантах,53,г,tmp_forss/crops/p3_right_table.png.tsv
+Sauter,стандарт,11,Минимальный статический игровой вес без демпферов в дискантах,52,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,<200 см,12a,Минимальный статический игровой вес без демпферов в дискантах,50,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,>200 см,12b,Минимальный статический игровой вес без демпферов в дискантах,50,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,<200 см,12a,Максимальный статический игровой вес с демпферами в басах,114,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,>200 см,12b,Максимальный статический игровой вес с демпферами в басах,114,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,<200 см,12a,Максимальный статический игровой вес с демпферами в середине,95,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,>200 см,12b,Максимальный статический игровой вес с демпферами в середине,95,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,<200 см,12a,Максимальный статический игровой вес с демпферами в дискантах,72,г,tmp_forss/crops/p3_right_table.png.tsv
+Schimmel,>200 см,12b,Максимальный статический игровой вес с демпферами в дискантах,72,г,tmp_forss/crops/p3_right_table.png.tsv
+Petrof,Model IV 174 см,10,"Вес подъема клавиши в басах, середине и дискантах (г) Оригинальная длина басовых головок молотков (мм) Оригинальная длина головок молотков в середине и дискантах",19,мм,tmp_forss/crops/p3_right_table.png.tsv
+Sauter,стандарт,11,"Вес подъема клавиши в басах, середине и дискантах (г) Оригинальная длина басовых головок молотков (мм) Оригинальная длина головок молотков в середине и дискантах",28,мм,tmp_forss/crops/p3_right_table.png.tsv
+Petrof,Model IV 174 см,10,Сдвиг механики от левой педали,4,мм,tmp_forss/crops/p3_right_table.png.tsv
+Sauter,стандарт,11,Сдвиг механики от левой педали,2,мм,tmp_forss/crops/p3_right_table.png.tsv
+Kimball,стандарт,9,"Трение в осях, измеренное в граммах у отверстия капсюля под шуруп - капсюль молотка",3-8,,tmp_forss/crops/p3_right_table.png.tsv
+Kimball,стандарт,9,капсюль фигуры -капсюль репетиционного рычага,4-10,,tmp_forss/crops/p3_right_table.png.tsv
+Kimball,стандарт,9,капсюль шпиллера - капсюль демпферной фигуры капсюль демпфера,2-4,,tmp_forss/crops/p3_right_table.png.tsv
+Samick,SG-140A,14a,Расстояние абника от уровня ауслезунга в басах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-155,14b,Расстояние абника от уровня ауслезунга в басах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-172,14c,Расстояние абника от уровня ауслезунга в басах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,G-3A,14d,Расстояние абника от уровня ауслезунга в басах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-185,14e,Расстояние абника от уровня ауслезунга в басах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-205,14f,Расстояние абника от уровня ауслезунга в басах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-140A,14a,Расстояние абника от уровня ауслезунга в середине,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-155,14b,Расстояние абника от уровня ауслезунга в середине,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-172,14c,Расстояние абника от уровня ауслезунга в середине,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,G-3A,14d,Расстояние абника от уровня ауслезунга в середине,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-185,14e,Расстояние абника от уровня ауслезунга в середине,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-205,14f,Расстояние абника от уровня ауслезунга в середине,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-140A,14a,Расстояние абника от уровня ауслезунга в дискантах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-155,14b,Расстояние абника от уровня ауслезунга в дискантах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-172,14c,Расстояние абника от уровня ауслезунга в дискантах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,G-3A,14d,Расстояние абника от уровня ауслезунга в дискантах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-185,14e,Расстояние абника от уровня ауслезунга в дискантах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-205,14f,Расстояние абника от уровня ауслезунга в дискантах,2-3,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-140A,14a,Подхват на фенгер от струн в басах,15,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-155,14b,Подхват на фенгер от струн в басах,15,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-172,14c,Подхват на фенгер от струн в басах,15,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,G-3A,14d,Подхват на фенгер от струн в басах,15,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-185,14e,Подхват на фенгер от струн в басах,15,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-205,14f,Подхват на фенгер от струн в басах,15,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-140A,14a,Подхват на фенгер от струн в середине,15,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-155,14b,Подхват на фенгер от струн в середине,15,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-172,14c,Подхват на фенгер от струн в середине,15,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-185,14e,Подхват на фенгер от струн в середине,15,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-205,14f,Подхват на фенгер от струн в середине,15,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-140A,14a,"Подхват на фенгер от струн в дискантах (мм) Позиция молотков относительно хоров струн (мм) Нахдрук (мм) Усилие репетиционной пружины, измеренное на вершине репетиционного рычага фигуры с компенсационной пружиной в граммах",15,,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-155,14b,"Подхват на фенгер от струн в дискантах (мм) Позиция молотков относительно хоров струн (мм) Нахдрук (мм) Усилие репетиционной пружины, измеренное на вершине репетиционного рычага фигуры с компенсационной пружиной в граммах",15,,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-172,14c,"Подхват на фенгер от струн в дискантах (мм) Позиция молотков относительно хоров струн (мм) Нахдрук (мм) Усилие репетиционной пружины, измеренное на вершине репетиционного рычага фигуры с компенсационной пружиной в граммах",15,,tmp_forss/crops/p4_right_table.png.tsv
+Samick,G-3A,14d,"Подхват на фенгер от струн в дискантах (мм) Позиция молотков относительно хоров струн (мм) Нахдрук (мм) Усилие репетиционной пружины, измеренное на вершине репетиционного рычага фигуры с компенсационной пружиной в граммах",15,,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-185,14e,"Подхват на фенгер от струн в дискантах (мм) Позиция молотков относительно хоров струн (мм) Нахдрук (мм) Усилие репетиционной пружины, измеренное на вершине репетиционного рычага фигуры с компенсационной пружиной в граммах",15,,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-205,14f,"Подхват на фенгер от струн в дискантах (мм) Позиция молотков относительно хоров струн (мм) Нахдрук (мм) Усилие репетиционной пружины, измеренное на вершине репетиционного рычага фигуры с компенсационной пружиной в граммах",15,,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-140A,14a,"Позиция шпиллера относительно плоскости репетиционного рычага (мм) Положение шпиллера относительно задней грани керна барабанчика Зазор между шпиллером и ограничительным польстером, остающиися после ауслезунга",0.2,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-155,14b,"Позиция шпиллера относительно плоскости репетиционного рычага (мм) Положение шпиллера относительно задней грани керна барабанчика Зазор между шпиллером и ограничительным польстером, остающиися после ауслезунга",0.2,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-172,14c,"Позиция шпиллера относительно плоскости репетиционного рычага (мм) Положение шпиллера относительно задней грани керна барабанчика Зазор между шпиллером и ограничительным польстером, остающиися после ауслезунга",0.2,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,G-3A,14d,"Позиция шпиллера относительно плоскости репетиционного рычага (мм) Положение шпиллера относительно задней грани керна барабанчика Зазор между шпиллером и ограничительным польстером, остающиися после ауслезунга",0.2,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-185,14e,"Позиция шпиллера относительно плоскости репетиционного рычага (мм) Положение шпиллера относительно задней грани керна барабанчика Зазор между шпиллером и ограничительным польстером, остающиися после ауслезунга",0.2,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-205,14f,"Позиция шпиллера относительно плоскости репетиционного рычага (мм) Положение шпиллера относительно задней грани керна барабанчика Зазор между шпиллером и ограничительным польстером, остающиися после ауслезунга",0.2,мм,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-140A,14a,Полуход / момент начала подьема демпфера (мм) Расстояние между фильцем клавиш и ложками демпфера в исходном полажении (мм) Люфт демпферных проволок в отверстиях направляющего лейстика Расстояние до упора демпферных фигур в демпферлейстик при нажатых клавишах (мм) Расстояние до упора демпферных фигур в демпферлейстик при нажатои правой педали (мм) Расстояние между черными клавишами и шуцлейстиком или фильцем клапа (мм) Минимальный статический игровой вес без демпферов в басах (г) Минимальный статический игровой вес без демпферов в середине,23.5,г,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-155,14b,Полуход / момент начала подьема демпфера (мм) Расстояние между фильцем клавиш и ложками демпфера в исходном полажении (мм) Люфт демпферных проволок в отверстиях направляющего лейстика Расстояние до упора демпферных фигур в демпферлейстик при нажатых клавишах (мм) Расстояние до упора демпферных фигур в демпферлейстик при нажатои правой педали (мм) Расстояние между черными клавишами и шуцлейстиком или фильцем клапа (мм) Минимальный статический игровой вес без демпферов в басах (г) Минимальный статический игровой вес без демпферов в середине,23.5,г,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-172,14c,Полуход / момент начала подьема демпфера (мм) Расстояние между фильцем клавиш и ложками демпфера в исходном полажении (мм) Люфт демпферных проволок в отверстиях направляющего лейстика Расстояние до упора демпферных фигур в демпферлейстик при нажатых клавишах (мм) Расстояние до упора демпферных фигур в демпферлейстик при нажатои правой педали (мм) Расстояние между черными клавишами и шуцлейстиком или фильцем клапа (мм) Минимальный статический игровой вес без демпферов в басах (г) Минимальный статический игровой вес без демпферов в середине,23.5 23.5,г,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-185,14e,Полуход / момент начала подьема демпфера (мм) Расстояние между фильцем клавиш и ложками демпфера в исходном полажении (мм) Люфт демпферных проволок в отверстиях направляющего лейстика Расстояние до упора демпферных фигур в демпферлейстик при нажатых клавишах (мм) Расстояние до упора демпферных фигур в демпферлейстик при нажатои правой педали (мм) Расстояние между черными клавишами и шуцлейстиком или фильцем клапа (мм) Минимальный статический игровой вес без демпферов в басах (г) Минимальный статический игровой вес без демпферов в середине,23.5,г,tmp_forss/crops/p4_right_table.png.tsv
+Samick,SG-205,14f,Полуход / момент начала подьема демпфера (мм) Расстояние между фильцем клавиш и ложками демпфера в исходном полажении (мм) Люфт демпферных проволок в отверстиях направляющего лейстика Расстояние до упора демпферных фигур в демпферлейстик при нажатых клавишах (мм) Расстояние до упора демпферных фигур в демпферлейстик при нажатои правой педали (мм) Расстояние между черными клавишами и шуцлейстиком или фильцем клапа (мм) Минимальный статический игровой вес без демпферов в басах (г) Минимальный статический игровой вес без демпферов в середине,23.5,г,tmp_forss/crops/p4_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Нажатая черная клавиша над ненажатой белой,2.5,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Нажатая черная клавиша над ненажатой белой,2.25,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Нажатая черная клавиша над ненажатой белой,2.0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Нажатая черная клавиша над ненажатой белой,2.0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,"Возвышение середины клавиатуры над краями (мм) Высота фильца на задних кромках клавиш для подъема демпферов, относительно штульрамы",2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,"Возвышение середины клавиатуры над краями (мм) Высота фильца на задних кромках клавиш для подъема демпферов, относительно штульрамы",2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,"Возвышение середины клавиатуры над краями (мм) Высота фильца на задних кромках клавиш для подъема демпферов, относительно штульрамы",0.8,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,"Возвышение середины клавиатуры над краями (мм) Высота фильца на задних кромках клавиш для подъема демпферов, относительно штульрамы",0.8,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Друк белых клавиш,9.5,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Друк белых клавиш,9.75,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Друк белых клавиш,9.9,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Друк белых клавиш,10.7,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Друк белых клавиш,10.0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,CF,20,Друк белых клавиш,10.0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Друк черных клавиш,10.0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,CF,20,Друк черных клавиш,10.0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Штульрама плоская или с возвышением,0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Штульрама плоская или с возвышением,0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Люфт клавиш на средних и передних штифтах,0.1,,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Люфт клавиш на средних и передних штифтах,0.1,,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Люфт клавиш на средних и передних штифтах,0.1,,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Люфт клавиш на средних и передних штифтах,0.1,,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Расстояние между осями фигур и молотков,114,,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Расстояние между осями фигур и молотков,114,,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Расстояние между осями фигур и молотков,112.5,,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,CF,20,Расстояние между осями фигур и молотков,112.5,,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Штейнунг,470,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Штейнунг,47*,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Штейнунг,45,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Штейнунг,48,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Штейнунг,47.5,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,CF,20,Штейнунг,47.5,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Расстояние от гаммерштилей до польстера рулейстика,3-4,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Расстояние от гаммерштилей до польстера рулейстика,3-4,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Расстояние от гаммерштилей до польстера рулейстика,5.0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Расстояние от гаммерштилей до польстера рулейстика,5.0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Расстаяние ауслезунга в басах,4-2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Расстаяние ауслезунга в басах,4-2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Расстаяние ауслезунга в басах,3,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,CF,20,Расстаяние ауслезунга в басах,3,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Расстояние ауслезунга от струн в середине,1.5,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Расстояние ауслезунга от струн в середине,1.5,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Расстояние ауслезунга от струн в середине,2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Расстояние ауслезунга от струн в середине,2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,CF,20,Расстояние ауслезунга от струн в середине,2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Расстояние ауслёзунга от струн в дискантах (мм) Расстояние абника от струн в басах (мм) Расстояние абника от струн в середине (мм) Расстояние абника от струн в дискантах,1.0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Расстояние ауслёзунга от струн в дискантах (мм) Расстояние абника от струн в басах (мм) Расстояние абника от струн в середине (мм) Расстояние абника от струн в дискантах,1.0,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Расстояние ауслёзунга от струн в дискантах (мм) Расстояние абника от струн в басах (мм) Расстояние абника от струн в середине (мм) Расстояние абника от струн в дискантах,1.6,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Расстояние ауслёзунга от струн в дискантах (мм) Расстояние абника от струн в басах (мм) Расстояние абника от струн в середине (мм) Расстояние абника от струн в дискантах,1.6,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Расстояние ауслёзунга от струн в дискантах (мм) Расстояние абника от струн в басах (мм) Расстояние абника от струн в середине (мм) Расстояние абника от струн в дискантах,2.2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,CF,20,Расстояние ауслёзунга от струн в дискантах (мм) Расстояние абника от струн в басах (мм) Расстояние абника от струн в середине (мм) Расстояние абника от струн в дискантах,22,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Расстояние абника от уровня ауслёзунга в басах,2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Расстояние абника от уровня ауслёзунга в басах,1.6,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Расстояние абника от уровня ауслёзунга в басах,1.6,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Расстояние абника от уровня ауслезунга в середине,2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Расстояние абника от уровня ауслезунга в середине,1.6,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Расстояние абника от уровня ауслезунга в середине,6,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Расстояние абника от уровня ауслезунга в середине,2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,CF,20,Расстояние абника от уровня ауслезунга в середине,2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Расстояние абника от уровня ауслезунга в дискантах,2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Расстояние абника от уровня ауслезунга в дискантах,1.6,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Расстояние абника от уровня ауслезунга в дискантах,1.6,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Расстояние абника от уровня ауслезунга в дискантах,2,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Подхват на фенгер от струн в басах,15,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Подхват на фенгер от струн в басах,15,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Подхват на фенгер от струн в басах,13,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Подхват на фенгер от струн в басах,16,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,CF,20,Подхват на фенгер от струн в басах,16,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Подхват на фенгер от струн в середине,15,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Подхват на фенгер от струн в середине,15,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–L New York,17,Подхват на фенгер от струн в середине,13,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Подхват на фенгер от струн в середине,13,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Подхват на фенгер от струн в середине,15,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,CF,20,Подхват на фенгер от струн в середине,15,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Подхват на фенгер от струн в дискантах,15,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Подхват на фенгер от струн в дискантах,15,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,B–D New York,18,Подхват на фенгер от струн в дискантах,13,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,стандарт,19,Подхват на фенгер от струн в дискантах,15,мм,tmp_forss/crops/p5_right_table.png.tsv
+Yamaha,CF,20,Подхват на фенгер от струн в дискантах,15,мм,tmp_forss/crops/p5_right_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Позиция шпиллера относительно плоскости репетиционного рычага,0.1,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Позиция шпиллера относительно плоскости репетиционного рычага,0.2,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,Позиция шпиллера относительно плоскости репетиционного рычага,0.1,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,B–D New York,18,Позиция шпиллера относительно плоскости репетиционного рычага,0.1,,tmp_forss/crops/p6_left_table.png.tsv
+Yamaha,стандарт,19,Позиция шпиллера относительно плоскости репетиционного рычага,0.1-,,tmp_forss/crops/p6_left_table.png.tsv
+Yamaha,CF,20,Позиция шпиллера относительно плоскости репетиционного рычага,0.1-,,tmp_forss/crops/p6_left_table.png.tsv
+Yamaha,стандарт,19,,0.2,мм,tmp_forss/crops/p6_left_table.png.tsv
+Yamaha,CF,20,,0.2,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Положение шпиллера относительно задней грани керна барабанчика,0.0,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Положение шпиллера относительно задней грани керна барабанчика,0.0,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,"Зазор между шпиллером и ограничительным польстером, остающийся после ауслезунга",4,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Полуход/момент начала подъема демпфера (мм) Расстояние между фильцем клавиш и пожками демпфера в исходном положении,23.5,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Полуход/момент начала подъема демпфера (мм) Расстояние между фильцем клавиш и пожками демпфера в исходном положении,23.5,мм,tmp_forss/crops/p6_left_table.png.tsv
+Yamaha,стандарт,19,Полуход/момент начала подъема демпфера (мм) Расстояние между фильцем клавиш и пожками демпфера в исходном положении,24,мм,tmp_forss/crops/p6_left_table.png.tsv
+Yamaha,CF,20,Полуход/момент начала подъема демпфера (мм) Расстояние между фильцем клавиш и пожками демпфера в исходном положении,24,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Люфт демпферных проволок в отвертиях направляющего лейстика,0.1,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,Люфт демпферных проволок в отвертиях направляющего лейстика,0.1,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,Расстояние до упора демпферных фигур в демпферлейстик при,2.5-,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,B–D New York,18,Расстояние до упора демпферных фигур в демпферлейстик при,2.5-,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,нажатых клавишах,1.6,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,B–D New York,18,нажатых клавишах,1.,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,нажатой правой педали (мм) Расстояние между черными клавишами и шутцлейстиком или фильцем клапа,1.6,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,B–D New York,18,нажатой правой педали (мм) Расстояние между черными клавишами и шутцлейстиком или фильцем клапа,1.6,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Минимальный статический игровой вес без демпферов в басах,47,г,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,Минимальный статический игровой вес без демпферов в басах,50,г,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Минимальный статический игровой вес без демпферов в середине,47%,г,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,Минимальный статический игровой вес без демпферов в середине,48,г,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,Минимальный статический игровой вес без демпферов в дискантах (г) Максимальный статический игровой вес с демпферами в басах (г) Максимальный статический игровой вес с демпферами в середине (г) Максимальный статический игровой вес с демпферами в дискантах,47*,г,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,Минимальный статический игровой вес без демпферов в дискантах (г) Максимальный статический игровой вес с демпферами в басах (г) Максимальный статический игровой вес с демпферами в середине (г) Максимальный статический игровой вес с демпферами в дискантах,47,г,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,"Вес подьема клавиши в басах, середине и дискантах",27,г,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,"Вес подьема клавиши в басах, середине и дискантах",27,г,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,Оригинальная длина басовых головок молотков,54*,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,B–D New York,18,Оригинальная длина басовых головок молотков,57%,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,Оригинальная длина головок молотков в середине и дискантах,46*,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,B–D New York,18,Оригинальная длина головок молотков в середине и дискантах,492,мм,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,Оригинальный вес головок молотков (г) и номер размера,7.30,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,B–D New York,18,Оригинальный вес головок молотков (г) и номер размера,8.2,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–B Hamburg,15,"Сдвит механики от левой педали (мм) Грение в ослх, измеренное в граммах у отверстия капсюля под шуруп",2.0,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,C–D Hamburg,16,"Сдвит механики от левой педали (мм) Грение в ослх, измеренное в граммах у отверстия капсюля под шуруп",2.0,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,капсоль молотка,3-6,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,B–D New York,18,капсоль молотка,3-6,,tmp_forss/crops/p6_left_table.png.tsv
+Steinway & Sons,S–L New York,17,капсюль фигуры - капсюль репетиционного рычага - капсюль шпиллера,3-8,,tmp_forss/crops/p6_right_table.png.tsv
+Steinway & Sons,B–D New York,18,капсюль фигуры - капсюль репетиционного рычага - капсюль шпиллера,3-8,,tmp_forss/crops/p6_right_table.png.tsv
+Steinway & Sons,S–L New York,17,капсюль демпферной фигуры - капсюль демпфера - капсюль язычка тонхальтера Расстояние от штанги до язычков тонхальтера,3-6,,tmp_forss/crops/p6_right_table.png.tsv
+Steinway & Sons,B–D New York,18,капсюль демпферной фигуры - капсюль демпфера - капсюль язычка тонхальтера Расстояние от штанги до язычков тонхальтера,3-6,,tmp_forss/crops/p6_right_table.png.tsv
