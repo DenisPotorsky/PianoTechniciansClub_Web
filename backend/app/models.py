@@ -114,3 +114,18 @@ class RegulatingParam(Base):
     def __repr__(self):
         return f"<RegulatingParam(brand={self.brand}, model={self.model}, parameter={self.parameter})>"
 
+
+# ============ ПОДТВЕРЖДЕНИЕ EMAIL ============
+class EmailVerification(Base):
+    """Модель для хранения токенов подтверждения email"""
+    __tablename__ = "email_verifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    email = Column(String(255), nullable=False)
+    token = Column(String(255), nullable=False, unique=True, index=True)
+    is_used = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(hours=24))
+
+    user = relationship("User", foreign_keys=[user_id])

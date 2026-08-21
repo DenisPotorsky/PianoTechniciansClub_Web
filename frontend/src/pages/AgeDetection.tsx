@@ -9,16 +9,39 @@ const AgeDetection: React.FC = () => {
   });
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+    setResult(null);
+
     try {
       const response = await api.post('/age/detect', form);
-      setResult(response.data);
+      console.log('Ответ сервера:', response.data);
+
+      // Проверяем на ошибку
+      if (response.data && response.data.detail) {
+        setError(response.data.detail);
+        return;
+      }
+
+      // Если есть данные — сохраняем
+      if (response.data && Object.keys(response.data).length > 0) {
+        setResult(response.data);
+      } else {
+        setError('Ничего не найдено');
+      }
     } catch (error: any) {
       console.error('Ошибка:', error);
-      alert(error.response?.data?.detail || 'Ошибка при определении возраста');
+      if (error.response?.data?.detail) {
+        setError(error.response.data.detail);
+      } else if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Ошибка при определении возраста');
+      }
     } finally {
       setLoading(false);
     }
@@ -26,22 +49,22 @@ const AgeDetection: React.FC = () => {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+      <div className="glass-card p-8">
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">🔍</div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-700 to-pink-700 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold text-white">
             Возраст инструмента
           </h2>
-          <p className="text-gray-500 mt-1">Определите год выпуска по бренду и серийному номеру</p>
+          <p className="text-white/50 mt-1">Определите год выпуска по бренду и серийному номеру</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 max-w-lg mx-auto">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Тип бренда</label>
+            <label className="block text-sm font-medium text-white/70 mb-1">Тип бренда</label>
             <select
               value={form.brand_type}
               onChange={(e) => setForm({...form, brand_type: e.target.value})}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all outline-none"
+              className="glass-select w-full"
             >
               <option value="foreign">🌍 Иностранные</option>
               <option value="russian">🇷🇺 Отечественные</option>
@@ -49,85 +72,90 @@ const AgeDetection: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Название бренда</label>
+            <label className="block text-sm font-medium text-white/70 mb-1">Название бренда</label>
             <input
               type="text"
               value={form.brand_name}
               onChange={(e) => setForm({...form, brand_name: e.target.value})}
-              placeholder="Например: Steinway, Bechstein, Yamaha..."
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all outline-none"
+              placeholder="Например: Steinway, Yamaha, Kawai..."
+              className="glass-input w-full"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Серийный номер</label>
+            <label className="block text-sm font-medium text-white/70 mb-1">Серийный номер</label>
             <input
               type="text"
               value={form.serial_number}
               onChange={(e) => setForm({...form, serial_number: e.target.value})}
-              placeholder="Введите серийный номер"
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all outline-none"
+              placeholder="Введите серийный номер (только цифры)"
+              className="glass-input w-full"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+            className="w-full glass-btn glass-btn-primary py-3 text-lg disabled:opacity-50"
           >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Поиск...
-              </span>
-            ) : (
-              '🔍 Определить возраст'
-            )}
+            {loading ? '⏳ Поиск...' : '🔍 Определить возраст'}
           </button>
         </form>
 
-        {result && !result.error && (
-          <div className="mt-8 p-6 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-2xl border border-purple-200 shadow-lg animate-fadeIn">
-            <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
+        {error && (
+          <div className="mt-6 glass p-5 rounded-2xl text-center border border-red-500/20">
+            <div className="text-3xl mb-2">❌</div>
+            <p className="text-red-300 font-medium">{error}</p>
+            <p className="text-red-300/50 text-sm mt-1">Проверьте правильность ввода</p>
+          </div>
+        )}
+
+        {result && !error && (
+          <div className="mt-8 glass p-6 rounded-2xl animate-fadeIn">
+            <h3 className="text-xl font-bold text-white mb-4 text-center">
               🎹 Результат определения
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white/80 backdrop-blur p-4 rounded-xl shadow-sm text-center hover:shadow-md transition">
-                <div className="text-sm text-gray-500">Бренд</div>
-                <div className="text-xl font-bold text-purple-700">{result.brand}</div>
-              </div>
-              <div className="bg-white/80 backdrop-blur p-4 rounded-xl shadow-sm text-center hover:shadow-md transition">
-                <div className="text-sm text-gray-500">Страна</div>
-                <div className="text-xl font-bold text-blue-700">{result.country}</div>
-              </div>
-              <div className="bg-white/80 backdrop-blur p-4 rounded-xl shadow-sm text-center hover:shadow-md transition">
-                <div className="text-sm text-gray-500">Серийный номер</div>
-                <div className="text-xl font-bold text-gray-800">{result.serial_number}</div>
-              </div>
-              <div className="bg-gradient-to-br from-yellow-100 to-amber-50 p-4 rounded-xl shadow-sm text-center border-2 border-yellow-300">
-                <div className="text-sm text-gray-600">📅 Год выпуска</div>
-                <div className="text-4xl font-bold text-amber-700">{result.year}</div>
-              </div>
+              {result.brand && (
+                <div className="glass-card p-4 text-center">
+                  <div className="text-sm text-white/50">Бренд</div>
+                  <div className="text-xl font-bold text-purple-300">{result.brand}</div>
+                </div>
+              )}
+              {result.country && (
+                <div className="glass-card p-4 text-center">
+                  <div className="text-sm text-white/50">Страна</div>
+                  <div className="text-xl font-bold text-blue-300">{result.country}</div>
+                </div>
+              )}
+              {result.serial_number && (
+                <div className="glass-card p-4 text-center">
+                  <div className="text-sm text-white/50">Серийный номер</div>
+                  <div className="text-xl font-bold text-white">{result.serial_number}</div>
+                </div>
+              )}
+              {result.year && (
+                <div className="glass-card p-4 text-center border border-amber-500/20">
+                  <div className="text-sm text-white/50">📅 Год выпуска</div>
+                  <div className="text-4xl font-bold text-amber-300">{result.year}</div>
+                </div>
+              )}
             </div>
 
             {result.info && (
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl text-center">
-                <span className="font-semibold text-blue-700">ℹ️</span>
-                <span className="ml-2 text-blue-800">{result.info}</span>
+              <div className="mt-4 glass p-4 rounded-xl text-center border border-blue-500/20">
+                <span className="font-semibold text-blue-300">ℹ️</span>
+                <span className="ml-2 text-white/70">{result.info}</span>
               </div>
             )}
-          </div>
-        )}
 
-        {result?.error && (
-          <div className="mt-6 p-5 bg-red-50 border-2 border-red-200 rounded-2xl text-center">
-            <div className="text-3xl mb-2">❌</div>
-            <p className="text-red-700 font-medium">{result.error}</p>
-            <p className="text-red-500 text-sm mt-1">Проверьте правильность ввода</p>
+            {/*<details className="mt-4 text-xs text-white/30">*/}
+            {/*  <summary>🔍 Отладка</summary>*/}
+            {/*  <pre className="mt-2 p-2 glass rounded overflow-auto max-h-40">*/}
+            {/*    {JSON.stringify(result, null, 2)}*/}
+            {/*  </pre>*/}
+            {/*</details>*/}
           </div>
         )}
       </div>

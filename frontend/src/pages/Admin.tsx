@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
+// ============ ИНТЕРФЕЙСЫ ============
 interface User {
   id: number;
   telegram_id: number;
@@ -14,13 +15,14 @@ interface User {
   created_at: string;
 }
 
-interface Brand {
+interface WhitelistUser {
   id: number;
-  name: string;
-  country: string;
-  type: string;
-  info: string | null;
-  ranges_count: number;
+  telegram_id: number;
+  username: string;
+  first_name: string;
+  last_name: string | null;
+  is_admin: boolean;
+  is_super_admin: boolean;
 }
 
 interface AccessRequest {
@@ -33,12 +35,32 @@ interface AccessRequest {
   created_at: string;
 }
 
+interface Brand {
+  id: number;
+  name: string;
+  country: string;
+  type: string;
+  info: string | null;
+  ranges_count: number;
+}
+
+interface Stats {
+  total_users: number;
+  subscribed_users: number;
+  admin_users: number;
+  pending_requests: number;
+  total_calculations: number;
+}
+
+// ============ КОМПОНЕНТ ============
 const Admin: React.FC = () => {
   const { user } = useAuth();
+
+  // Состояния
   const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'whitelist' | 'requests' | 'brands'>('stats');
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const [whitelist, setWhitelist] = useState<any[]>([]);
+  const [whitelist, setWhitelist] = useState<WhitelistUser[]>([]);
   const [requests, setRequests] = useState<AccessRequest[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,6 +79,7 @@ const Admin: React.FC = () => {
     new_password: ''
   });
 
+  // Добавление бренда
   const [newBrand, setNewBrand] = useState({
     name: '',
     country: '',
@@ -67,6 +90,7 @@ const Admin: React.FC = () => {
 
   const [newAdminId, setNewAdminId] = useState('');
 
+  // ============ ЗАГРУЗКА ДАННЫХ ============
   useEffect(() => {
     loadStats();
     loadUsers();
@@ -120,59 +144,7 @@ const Admin: React.FC = () => {
     }
   };
 
-  const handleAddAdmin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newAdminId) return;
-    setLoading(true);
-    try {
-      await api.post(`/admin/whitelist/add?telegram_id=${parseInt(newAdminId)}`);
-      alert('✅ Пользователь добавлен в белый список');
-      setNewAdminId('');
-      loadWhitelist();
-      loadUsers();
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'Ошибка');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRemoveAdmin = async (telegramId: number) => {
-    if (!window.confirm('Удалить пользователя из белого списка?')) return;
-    try {
-      await api.post(`/admin/whitelist/remove?telegram_id=${telegramId}`);
-      alert('✅ Пользователь удалён из белого списка');
-      loadWhitelist();
-      loadUsers();
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'Ошибка');
-    }
-  };
-
-  const handleProcessRequest = async (requestId: number, action: 'approve' | 'reject') => {
-    try {
-      await api.post(`/admin/requests/${requestId}/${action}`);
-      alert(action === 'approve' ? '✅ Заявка одобрена' : '❌ Заявка отклонена');
-      loadRequests();
-      loadUsers();
-      loadStats();
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'Ошибка');
-    }
-  };
-
-  const handleDeleteUser = async (userId: number) => {
-    if (!window.confirm('Удалить пользователя?')) return;
-    try {
-      await api.delete(`/admin/users/${userId}`);
-      alert('✅ Пользователь удалён');
-      loadUsers();
-      loadStats();
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'Ошибка');
-    }
-  };
-
+  // ============ ПОЛЬЗОВАТЕЛИ ============
   const handleEditUser = (user: User) => {
     setEditingUser(user);
     setEditForm({
@@ -215,6 +187,62 @@ const Admin: React.FC = () => {
     }
   };
 
+  const handleDeleteUser = async (userId: number) => {
+    if (!window.confirm('Удалить пользователя?')) return;
+    try {
+      await api.delete(`/admin/users/${userId}`);
+      alert('✅ Пользователь удалён');
+      loadUsers();
+      loadStats();
+    } catch (error: any) {
+      alert(error.response?.data?.detail || 'Ошибка');
+    }
+  };
+
+  // ============ БЕЛЫЙ СПИСОК ============
+  const handleAddAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAdminId) return;
+    setLoading(true);
+    try {
+      await api.post(`/admin/whitelist/add?telegram_id=${parseInt(newAdminId)}`);
+      alert('✅ Пользователь добавлен в белый список');
+      setNewAdminId('');
+      loadWhitelist();
+      loadUsers();
+    } catch (error: any) {
+      alert(error.response?.data?.detail || 'Ошибка');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveAdmin = async (telegramId: number) => {
+    if (!window.confirm('Удалить пользователя из белого списка?')) return;
+    try {
+      await api.post(`/admin/whitelist/remove?telegram_id=${telegramId}`);
+      alert('✅ Пользователь удалён из белого списка');
+      loadWhitelist();
+      loadUsers();
+    } catch (error: any) {
+      alert(error.response?.data?.detail || 'Ошибка');
+    }
+  };
+
+  // ============ ЗАЯВКИ ============
+  const handleProcessRequest = async (requestId: number, action: 'approve' | 'reject') => {
+    try {
+      await api.post(`/admin/requests/${requestId}/${action}`);
+      alert(action === 'approve' ? '✅ Заявка одобрена' : '❌ Заявка отклонена');
+      loadRequests();
+      loadUsers();
+      loadStats();
+    } catch (error: any) {
+      alert(error.response?.data?.detail || 'Ошибка');
+    }
+  };
+
+  // ============ БРЕНДЫ ============
   const handleDeleteBrand = async (brandId: number) => {
     if (!window.confirm('Удалить бренд?')) return;
     try {
@@ -283,141 +311,123 @@ const Admin: React.FC = () => {
     }
   };
 
+  // Фильтр пользователей
   const filteredUsers = users.filter(u =>
     u.username?.toLowerCase().includes(search.toLowerCase()) ||
     u.first_name?.toLowerCase().includes(search.toLowerCase()) ||
     String(u.telegram_id).includes(search)
   );
 
+  // ============ РЕНДЕР ============
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+      <div className="glass-card p-8">
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">👑</div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
-            Админ-панель
-          </h2>
-          <p className="text-gray-500 mt-1">Управление клубом</p>
+          <h2 className="text-3xl font-bold text-white">Админ-панель</h2>
+          <p className="text-white/50 mt-1">Управление клубом</p>
         </div>
 
         {/* Вкладки */}
-        <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 pb-2">
-          <button
-            onClick={() => setActiveTab('stats')}
-            className={`px-5 py-2.5 rounded-xl font-medium transition-all ${
-              activeTab === 'stats' 
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' 
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            📊 Статистика
-          </button>
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`px-5 py-2.5 rounded-xl font-medium transition-all ${
-              activeTab === 'users' 
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' 
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            👥 Пользователи
-          </button>
-          <button
-            onClick={() => setActiveTab('whitelist')}
-            className={`px-5 py-2.5 rounded-xl font-medium transition-all ${
-              activeTab === 'whitelist' 
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' 
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            🔓 Белый список
-          </button>
-          <button
-            onClick={() => setActiveTab('requests')}
-            className={`px-5 py-2.5 rounded-xl font-medium transition-all ${
-              activeTab === 'requests' 
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' 
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            📩 Заявки {stats?.pending_requests > 0 && `(${stats.pending_requests})`}
-          </button>
-          <button
-            onClick={() => setActiveTab('brands')}
-            className={`px-5 py-2.5 rounded-xl font-medium transition-all ${
-              activeTab === 'brands' 
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' 
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            📖 Атлас
-          </button>
+        <div className="flex flex-wrap gap-2 mb-6 border-b border-white/10 pb-2">
+          {['stats', 'users', 'whitelist', 'requests', 'brands'].map((tab) => {
+            const labels: Record<string, string> = {
+              stats: '📊 Статистика',
+              users: '👥 Пользователи',
+              whitelist: '🔓 Белый список',
+              requests: '📩 Заявки',
+              brands: '📖 Атлас'
+            };
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab as any)}
+                className={`px-5 py-2.5 rounded-xl font-medium transition-all ${
+                  activeTab === tab
+                    ? 'glass-btn glass-btn-primary'
+                    : 'text-white/50 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {labels[tab]}
+                {tab === 'requests' && stats?.pending_requests && stats.pending_requests > 0 && (
+                  <span className="ml-1 px-2 py-0.5 text-xs bg-red-500/30 text-red-300 rounded-full">
+                    {stats.pending_requests}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Статистика */}
+        {/* ===== СТАТИСТИКА ===== */}
         {activeTab === 'stats' && stats && (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-2xl text-center border border-blue-100 shadow-sm hover:shadow-md transition">
-              <div className="text-2xl font-bold text-blue-700">{stats.total_users}</div>
-              <div className="text-sm text-gray-600 mt-1">Всего пользователей</div>
+            <div className="glass-card p-5 text-center">
+              <div className="text-2xl font-bold text-white">{stats.total_users}</div>
+              <div className="text-sm text-white/50 mt-1">Всего пользователей</div>
             </div>
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-2xl text-center border border-green-100 shadow-sm hover:shadow-md transition">
-              <div className="text-2xl font-bold text-green-700">{stats.subscribed_users}</div>
-              <div className="text-sm text-gray-600 mt-1">Подписаны</div>
+            <div className="glass-card p-5 text-center border border-green-500/20">
+              <div className="text-2xl font-bold text-green-300">{stats.subscribed_users}</div>
+              <div className="text-sm text-white/50 mt-1">Подписаны</div>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-2xl text-center border border-purple-100 shadow-sm hover:shadow-md transition">
-              <div className="text-2xl font-bold text-purple-700">{stats.admin_users}</div>
-              <div className="text-sm text-gray-600 mt-1">Админы</div>
+            <div className="glass-card p-5 text-center border border-purple-500/20">
+              <div className="text-2xl font-bold text-purple-300">{stats.admin_users}</div>
+              <div className="text-sm text-white/50 mt-1">Админы</div>
             </div>
-            <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-5 rounded-2xl text-center border border-orange-100 shadow-sm hover:shadow-md transition">
-              <div className="text-2xl font-bold text-orange-700">{stats.total_calculations}</div>
-              <div className="text-sm text-gray-600 mt-1">Расчётов</div>
+            <div className="glass-card p-5 text-center border border-orange-500/20">
+              <div className="text-2xl font-bold text-orange-300">{stats.total_calculations || 0}</div>
+              <div className="text-sm text-white/50 mt-1">Расчётов</div>
             </div>
-            <div className="bg-gradient-to-br from-yellow-50 to-amber-50 p-5 rounded-2xl text-center border border-yellow-100 shadow-sm hover:shadow-md transition">
-              <div className="text-2xl font-bold text-yellow-700">{stats.pending_requests}</div>
-              <div className="text-sm text-gray-600 mt-1">Заявок</div>
+            <div className="glass-card p-5 text-center border border-yellow-500/20">
+              <div className="text-2xl font-bold text-yellow-300">{stats.pending_requests}</div>
+              <div className="text-sm text-white/50 mt-1">Заявок</div>
             </div>
           </div>
         )}
 
-        {/* Пользователи */}
+        {/* ===== ПОЛЬЗОВАТЕЛИ ===== */}
         {activeTab === 'users' && (
           <div>
             <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-              <h3 className="text-xl font-semibold text-gray-800">👥 Пользователи</h3>
+              <h3 className="text-xl font-semibold text-white">👥 Пользователи</h3>
               <input
                 type="text"
-                placeholder="🔍 Поиск..."
+                placeholder="🔍 Поиск по имени или Telegram ID..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                className="glass-input"
               />
             </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50">
+            <div className="glass-table">
+              <table className="min-w-full divide-y divide-white/5 text-sm">
+                <thead>
                   <tr>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">ID</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Имя</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Telegram ID</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Статус</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Роль</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Действия</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">ID</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Имя</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Telegram ID</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Статус</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Роль</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Действия</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-white/5">
                   {filteredUsers.map((u) => (
-                    <tr key={u.id} className="hover:bg-gray-50 transition">
-                      <td className="px-4 py-3">{u.id}</td>
-                      <td className="px-4 py-3 font-medium">{u.first_name} {u.last_name}</td>
-                      <td className="px-4 py-3">{u.telegram_id}</td>
+                    <tr key={u.id} className="hover:bg-white/5 transition">
+                      <td className="px-4 py-3 text-white/60">{u.id}</td>
+                      <td className="px-4 py-3 font-medium text-white">{u.first_name} {u.last_name}</td>
+                      <td className="px-4 py-3 text-white/60">{u.telegram_id}</td>
                       <td className="px-4 py-3">
-                        {u.is_subscribed ?
-                          <span className="px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">✅ Подписан</span> :
-                          <span className="px-2.5 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-semibold">⏳ Ожидает</span>
-                        }
+                        {u.is_subscribed ? (
+                          <span className="px-2.5 py-1 bg-green-500/20 text-green-300 rounded-full text-xs font-semibold border border-green-500/20">
+                            ✅ Подписан
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-1 bg-white/5 text-white/40 rounded-full text-xs font-semibold">
+                            ⏳ Ожидает
+                          </span>
+                        )}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 text-white/60">
                         {u.is_super_admin ? '👑 Супер-админ' : u.is_admin ? '⭐ Админ' : '👤 Пользователь'}
                       </td>
                       <td className="px-4 py-3 space-x-2">
@@ -425,13 +435,13 @@ const Admin: React.FC = () => {
                           <>
                             <button
                               onClick={() => handleEditUser(u)}
-                              className="text-blue-600 hover:text-blue-800 transition font-medium"
+                              className="text-blue-400 hover:text-blue-300 transition font-medium"
                             >
                               ✏️ Редактировать
                             </button>
                             <button
                               onClick={() => handleDeleteUser(u.id)}
-                              className="text-red-600 hover:text-red-800 transition font-medium"
+                              className="text-red-400 hover:text-red-300 transition font-medium"
                             >
                               🗑️ Удалить
                             </button>
@@ -446,11 +456,11 @@ const Admin: React.FC = () => {
           </div>
         )}
 
-        {/* Белый список */}
+        {/* ===== БЕЛЫЙ СПИСОК ===== */}
         {activeTab === 'whitelist' && (
           <div>
             <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-              <h3 className="text-xl font-semibold text-gray-800">🔓 Белый список (Администраторы)</h3>
+              <h3 className="text-xl font-semibold text-white">🔓 Белый список (Администраторы)</h3>
             </div>
 
             {user?.is_super_admin && (
@@ -460,42 +470,45 @@ const Admin: React.FC = () => {
                   placeholder="Telegram ID пользователя"
                   value={newAdminId}
                   onChange={(e) => setNewAdminId(e.target.value)}
-                  className="px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                  className="glass-input"
                   required
                 />
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
+                  className="glass-btn glass-btn-success"
                 >
                   ➕ Добавить админа
                 </button>
               </form>
             )}
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50">
+            <div className="glass-table">
+              <table className="min-w-full divide-y divide-white/5 text-sm">
+                <thead>
                   <tr>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">ID</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Имя</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Telegram ID</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Роль</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Действия</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">ID</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Имя</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Telegram ID</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Роль</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Действия</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {whitelist.map((a) => (
-                    <tr key={a.id} className="hover:bg-gray-50 transition">
-                      <td className="px-4 py-3">{a.id}</td>
-                      <td className="px-4 py-3 font-medium">{a.first_name} {a.last_name}</td>
-                      <td className="px-4 py-3">{a.telegram_id}</td>
-                      <td className="px-4 py-3">
-                        {a.is_super_admin ? '👑 Супер-админ' : '⭐ Админ'}
+                <tbody className="divide-y divide-white/5">
+                  {whitelist.map((u) => (
+                    <tr key={u.id} className="hover:bg-white/5 transition">
+                      <td className="px-4 py-3 text-white/60">{u.id}</td>
+                      <td className="px-4 py-3 font-medium text-white">{u.first_name} {u.last_name}</td>
+                      <td className="px-4 py-3 text-white/60">{u.telegram_id}</td>
+                      <td className="px-4 py-3 text-white/60">
+                        {u.is_super_admin ? '👑 Супер-админ' : '⭐ Админ'}
                       </td>
                       <td className="px-4 py-3">
-                        {!a.is_super_admin && user?.is_super_admin && (
-                          <button onClick={() => handleRemoveAdmin(a.telegram_id)} className="text-red-600 hover:text-red-800 transition font-medium">
+                        {!u.is_super_admin && user?.is_super_admin && (
+                          <button
+                            onClick={() => handleRemoveAdmin(u.telegram_id)}
+                            className="text-red-400 hover:text-red-300 transition font-medium"
+                          >
                             🗑️ Удалить
                           </button>
                         )}
@@ -508,42 +521,44 @@ const Admin: React.FC = () => {
           </div>
         )}
 
-        {/* Заявки */}
+        {/* ===== ЗАЯВКИ ===== */}
         {activeTab === 'requests' && (
           <div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">📩 Заявки на доступ</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">📩 Заявки на доступ</h3>
             {requests.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-white/50">
                 <div className="text-4xl mb-2">✅</div>
                 <p>Нет активных заявок</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 text-sm">
-                  <thead className="bg-gray-50">
+              <div className="glass-table">
+                <table className="min-w-full divide-y divide-white/5 text-sm">
+                  <thead>
                     <tr>
-                      <th className="px-4 py-3 text-left font-medium text-gray-500">Пользователь</th>
-                      <th className="px-4 py-3 text-left font-medium text-gray-500">Сообщение</th>
-                      <th className="px-4 py-3 text-left font-medium text-gray-500">Дата</th>
-                      <th className="px-4 py-3 text-left font-medium text-gray-500">Действия</th>
+                      <th className="px-4 py-3 text-left font-medium text-white/40">Пользователь</th>
+                      <th className="px-4 py-3 text-left font-medium text-white/40">Сообщение</th>
+                      <th className="px-4 py-3 text-left font-medium text-white/40">Дата</th>
+                      <th className="px-4 py-3 text-left font-medium text-white/40">Действия</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-white/5">
                     {requests.map((r) => (
-                      <tr key={r.id} className="hover:bg-gray-50 transition">
-                        <td className="px-4 py-3 font-medium">{r.full_name} (@{r.username})</td>
-                        <td className="px-4 py-3 text-gray-600">{r.message || '—'}</td>
-                        <td className="px-4 py-3 text-sm">{new Date(r.created_at).toLocaleDateString()}</td>
+                      <tr key={r.id} className="hover:bg-white/5 transition">
+                        <td className="px-4 py-3 font-medium text-white">{r.full_name} (@{r.username})</td>
+                        <td className="px-4 py-3 text-white/60">{r.message || '—'}</td>
+                        <td className="px-4 py-3 text-white/40 text-sm">
+                          {new Date(r.created_at).toLocaleDateString()}
+                        </td>
                         <td className="px-4 py-3 space-x-2">
                           <button
                             onClick={() => handleProcessRequest(r.id, 'approve')}
-                            className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition"
+                            className="glass-btn glass-btn-success text-sm py-1.5 px-3"
                           >
                             ✅ Одобрить
                           </button>
                           <button
                             onClick={() => handleProcessRequest(r.id, 'reject')}
-                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition"
+                            className="glass-btn glass-btn-danger text-sm py-1.5 px-3"
                           >
                             ❌ Отклонить
                           </button>
@@ -557,29 +572,30 @@ const Admin: React.FC = () => {
           </div>
         )}
 
-        {/* Атлас */}
+        {/* ===== БРЕНДЫ (АТЛАС) ===== */}
         {activeTab === 'brands' && (
           <div>
             <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-              <h3 className="text-xl font-semibold text-gray-800">📖 Атлас</h3>
+              <h3 className="text-xl font-semibold text-white">📖 Атлас (Бренды)</h3>
               <button
                 onClick={() => setShowAddForm(!showAddForm)}
-                className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                className="glass-btn glass-btn-success"
               >
                 {showAddForm ? '❌ Отмена' : '➕ Добавить бренд'}
               </button>
             </div>
 
+            {/* Форма добавления бренда */}
             {showAddForm && (
-              <form onSubmit={handleAddBrand} className="mb-6 p-6 bg-gray-50 rounded-2xl border-2 border-gray-200">
-                <h4 className="font-semibold text-gray-800 mb-4">➕ Добавление бренда</h4>
+              <form onSubmit={handleAddBrand} className="mb-6 glass p-6 rounded-2xl">
+                <h4 className="font-semibold text-white mb-4">➕ Добавление бренда</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input
                     type="text"
                     placeholder="Название бренда *"
                     value={newBrand.name}
                     onChange={(e) => setNewBrand({...newBrand, name: e.target.value})}
-                    className="px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                    className="glass-input"
                     required
                   />
                   <input
@@ -587,13 +603,13 @@ const Admin: React.FC = () => {
                     placeholder="Страна *"
                     value={newBrand.country}
                     onChange={(e) => setNewBrand({...newBrand, country: e.target.value})}
-                    className="px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                    className="glass-input"
                     required
                   />
                   <select
                     value={newBrand.type}
                     onChange={(e) => setNewBrand({...newBrand, type: e.target.value})}
-                    className="px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                    className="glass-select"
                   >
                     <option value="foreign">🌍 Иностранные</option>
                     <option value="russian">🇷🇺 Отечественные</option>
@@ -603,11 +619,11 @@ const Admin: React.FC = () => {
                     placeholder="Дополнительная информация"
                     value={newBrand.info}
                     onChange={(e) => setNewBrand({...newBrand, info: e.target.value})}
-                    className="px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                    className="glass-input"
                   />
                 </div>
 
-                <h5 className="font-medium mt-4 mb-2 text-gray-700">📊 Диапазоны серийных номеров</h5>
+                <h5 className="font-medium mt-4 mb-2 text-white/70">📊 Диапазоны серийных номеров</h5>
                 {newBrand.ranges.map((range, index) => (
                   <div key={index} className="flex gap-2 items-center mb-2 flex-wrap">
                     <input
@@ -615,27 +631,27 @@ const Admin: React.FC = () => {
                       placeholder="Начало"
                       value={range.serial_start}
                       onChange={(e) => updateRange(index, 'serial_start', e.target.value)}
-                      className="w-24 px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                      className="glass-input w-24"
                     />
-                    <span className="text-gray-500">—</span>
+                    <span className="text-white/40">—</span>
                     <input
                       type="number"
                       placeholder="Конец"
                       value={range.serial_end}
                       onChange={(e) => updateRange(index, 'serial_end', e.target.value)}
-                      className="w-24 px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                      className="glass-input w-24"
                     />
                     <input
                       type="number"
                       placeholder="Год"
                       value={range.year}
                       onChange={(e) => updateRange(index, 'year', e.target.value)}
-                      className="w-24 px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                      className="glass-input w-24"
                     />
                     <button
                       type="button"
                       onClick={() => removeRange(index)}
-                      className="text-red-600 hover:text-red-800 px-2 text-xl font-bold"
+                      className="text-red-400 hover:text-red-300 px-2 text-xl font-bold"
                     >
                       ✕
                     </button>
@@ -645,7 +661,7 @@ const Admin: React.FC = () => {
                 <button
                   type="button"
                   onClick={addRange}
-                  className="mt-2 text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                  className="mt-2 text-blue-400 hover:text-blue-300 text-sm font-medium"
                 >
                   + Добавить диапазон
                 </button>
@@ -654,7 +670,7 @@ const Admin: React.FC = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
+                    className="glass-btn glass-btn-primary"
                   >
                     {loading ? 'Добавление...' : '✅ Добавить бренд'}
                   </button>
@@ -662,30 +678,38 @@ const Admin: React.FC = () => {
               </form>
             )}
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50">
+            {/* Список брендов */}
+            <div className="glass-table">
+              <table className="min-w-full divide-y divide-white/5 text-sm">
+                <thead>
                   <tr>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Название</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Страна</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Тип</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Диапазонов</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Действия</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Название</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Страна</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Тип</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Диапазонов</th>
+                    <th className="px-4 py-3 text-left font-medium text-white/40">Действия</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-white/5">
                   {brands.map((b) => (
-                    <tr key={b.id} className="hover:bg-gray-50 transition">
-                      <td className="px-4 py-3 font-medium">{b.name}</td>
-                      <td className="px-4 py-3">{b.country}</td>
+                    <tr key={b.id} className="hover:bg-white/5 transition">
+                      <td className="px-4 py-3 font-medium text-white">{b.name}</td>
+                      <td className="px-4 py-3 text-white/60">{b.country}</td>
                       <td className="px-4 py-3">
-                        <span className={`px-2.5 py-1 text-xs rounded-full font-semibold ${b.type === 'foreign' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
+                        <span className={`px-2.5 py-1 text-xs rounded-full font-semibold ${
+                          b.type === 'foreign' 
+                            ? 'bg-blue-500/20 text-blue-300 border border-blue-500/20' 
+                            : 'bg-red-500/20 text-red-300 border border-red-500/20'
+                        }`}>
                           {b.type === 'foreign' ? '🌍 Иностранный' : '🇷🇺 Отечественный'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-center">{b.ranges_count}</td>
+                      <td className="px-4 py-3 text-center text-white/60">{b.ranges_count}</td>
                       <td className="px-4 py-3">
-                        <button onClick={() => handleDeleteBrand(b.id)} className="text-red-600 hover:text-red-800 transition font-medium">
+                        <button
+                          onClick={() => handleDeleteBrand(b.id)}
+                          className="text-red-400 hover:text-red-300 transition font-medium"
+                        >
                           🗑️ Удалить
                         </button>
                       </td>
@@ -698,86 +722,86 @@ const Admin: React.FC = () => {
         )}
       </div>
 
-      {/* Модальное окно редактирования пользователя */}
+      {/* ===== МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ ===== */}
       {showEditModal && editingUser && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">✏️ Редактирование пользователя</h3>
-            <p className="text-sm text-gray-500 mb-4">Редактирование: {editingUser.username}</p>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="glass-card p-8 max-w-md w-full">
+            <h3 className="text-2xl font-bold text-white mb-4">✏️ Редактирование пользователя</h3>
+            <p className="text-white/50 text-sm mb-4">{editingUser.username}</p>
 
             <form onSubmit={handleSaveUser} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Имя</label>
+                <label className="block text-sm font-medium text-white/70">Имя</label>
                 <input
                   type="text"
                   value={editForm.first_name}
                   onChange={(e) => setEditForm({...editForm, first_name: e.target.value})}
-                  className="mt-1 w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                  className="glass-input w-full"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Фамилия</label>
+                <label className="block text-sm font-medium text-white/70">Фамилия</label>
                 <input
                   type="text"
                   value={editForm.last_name}
                   onChange={(e) => setEditForm({...editForm, last_name: e.target.value})}
-                  className="mt-1 w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                  className="glass-input w-full"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Имя пользователя</label>
+                <label className="block text-sm font-medium text-white/70">Имя пользователя</label>
                 <input
                   type="text"
                   value={editForm.username}
                   onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                  className="mt-1 w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                  className="glass-input w-full"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Новый пароль (если нужно сбросить)</label>
+                <label className="block text-sm font-medium text-white/70">Новый пароль</label>
                 <input
                   type="text"
                   placeholder="Оставьте пустым, чтобы не менять"
                   value={editForm.new_password}
                   onChange={(e) => setEditForm({...editForm, new_password: e.target.value})}
-                  className="mt-1 w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 transition-all outline-none"
+                  className="glass-input w-full"
                 />
               </div>
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer text-white/70">
                   <input
                     type="checkbox"
                     checked={editForm.is_subscribed}
                     onChange={(e) => setEditForm({...editForm, is_subscribed: e.target.checked})}
-                    className="w-4 h-4 accent-indigo-600"
+                    className="w-4 h-4 accent-indigo-500"
                   />
-                  <span className="text-sm text-gray-700">Подписан</span>
+                  Подписан
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer text-white/70">
                   <input
                     type="checkbox"
                     checked={editForm.is_admin}
                     onChange={(e) => setEditForm({...editForm, is_admin: e.target.checked})}
-                    className="w-4 h-4 accent-indigo-600"
+                    className="w-4 h-4 accent-indigo-500"
                     disabled={editingUser.is_super_admin}
                   />
-                  <span className="text-sm text-gray-700">Администратор</span>
+                  Администратор
                 </label>
               </div>
               <div className="flex gap-3 mt-4">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
+                  className="flex-1 glass-btn glass-btn-primary"
                 >
                   {loading ? 'Сохранение...' : '💾 Сохранить'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl transition-all duration-200"
+                  className="flex-1 glass-btn"
                 >
                   Отмена
                 </button>
