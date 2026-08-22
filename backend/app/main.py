@@ -4,16 +4,15 @@ from app.api.v1.endpoints import router
 
 app = FastAPI(title="PianoTechniciansClub API", version="1.0.0")
 
-# CORS
+# ===== ИСПРАВЛЕННЫЕ CORS НАСТРОЙКИ =====
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ПОДКЛЮЧАЕМ РОУТЕР С ПРЕФИКСОМ /api/v1
 app.include_router(router, prefix="/api/v1")
 
 @app.get("/")

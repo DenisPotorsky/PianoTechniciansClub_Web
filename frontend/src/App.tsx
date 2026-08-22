@@ -6,7 +6,7 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Calculator from './pages/Calculator';
 import AgeDetection from './pages/AgeDetection';
-import Regulating from './pages/Regulating';  // 👈 НОВАЯ СТРАНИЦА
+import Regulating from './pages/Regulating';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import RequestAccess from './pages/RequestAccess';
@@ -18,42 +18,25 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Публичные страницы (без авторизации) */}
+          {/* Публичные страницы */}
           <Route path="/login" element={<Login />} />
-          <Route path="/request-access" element={<RequestAccess />} />
           <Route path="/whitelist-login" element={<WhitelistLogin />} />
 
-          {/* Защищённые страницы (с авторизацией) */}
-          <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+          {/* Страницы с Layout */}
+          <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
+          </Route>
+          <Route path="/request-access" element={<Layout />}>
+            <Route index element={<RequestAccess />} />
+          </Route>
+
+          {/* Защищённые страницы */}
+          <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route path="profile" element={<Profile />} />
-
-            {/* Доступно только для подписанных участников */}
-            <Route path="calculator" element={
-              <ProtectedRoute requireMember>
-                <Calculator />
-              </ProtectedRoute>
-            } />
-
-            <Route path="age" element={
-              <ProtectedRoute requireMember>
-                <AgeDetection />
-              </ProtectedRoute>
-            } />
-
-            {/* 👇 НОВЫЙ МАРШРУТ - РЕГУЛИРОВКА */}
-            <Route path="regulating" element={
-              <ProtectedRoute requireMember>
-                <Regulating />
-              </ProtectedRoute>
-            } />
-
-            {/* Доступно только для админов */}
-            <Route path="admin" element={
-              <ProtectedRoute requireAdmin>
-                <Admin />
-              </ProtectedRoute>
-            } />
+            <Route path="calculator" element={<ProtectedRoute requireMember><Calculator /></ProtectedRoute>} />
+            <Route path="age" element={<ProtectedRoute requireMember><AgeDetection /></ProtectedRoute>} />
+            <Route path="regulating" element={<ProtectedRoute requireMember><Regulating /></ProtectedRoute>} />
+            <Route path="admin" element={<ProtectedRoute requireAdmin><Admin /></ProtectedRoute>} />
           </Route>
         </Routes>
       </Router>

@@ -70,23 +70,23 @@ const Home: React.FC = () => {
           )}
         </div>
 
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-          <div className="glass-card p-4 text-center">
-            <div className="text-3xl">🔒</div>
-            <div className="font-semibold text-white mt-1">Закрытый клуб</div>
-            <div className="text-sm text-white/40">Только для избранных</div>
-          </div>
-          <div className="glass-card p-4 text-center">
-            <div className="text-3xl">🎯</div>
-            <div className="font-semibold text-white mt-1">Только для мастеров</div>
-            <div className="text-sm text-white/40">Профессиональное сообщество</div>
-          </div>
-          <div className="glass-card p-4 text-center">
-            <div className="text-3xl">🌟</div>
-            <div className="font-semibold text-white mt-1">Экстра-класс</div>
-            <div className="text-sm text-white/40">Высший уровень</div>
-          </div>
-        </div>
+        {/*<div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">*/}
+        {/*  <div className="glass-card p-4 text-center">*/}
+        {/*    <div className="text-3xl">🔒</div>*/}
+        {/*    /!*<div className="font-semibold text-white mt-1">Закрытый клуб</div>*!/*/}
+        {/*    <div className="text-sm text-white/40">Только для избранных</div>*/}
+        {/*  </div>*/}
+        {/*  <div className="glass-card p-4 text-center">*/}
+        {/*    <div className="text-3xl">🎯</div>*/}
+        {/*    <div className="font-semibold text-white mt-1">Только для мастеров</div>*/}
+        {/*    <div className="text-sm text-white/40">Профессиональное сообщество</div>*/}
+        {/*  </div>*/}
+        {/*  <div className="glass-card p-4 text-center">*/}
+        {/*    <div className="text-3xl">🌟</div>*/}
+        {/*    <div className="font-semibold text-white mt-1">Экстра-класс</div>*/}
+        {/*    <div className="text-sm text-white/40">Высший уровень</div>*/}
+        {/*  </div>*/}
+        {/*</div>*/}
       </div>
     </div>
   );

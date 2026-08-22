@@ -5,53 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="948d3fdf-0cb0-43de-99eb-c8ebc0fbb481" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/PianoTechniciansClub_Web.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/age_database.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/api/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/age.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/auth.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/calculator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/calculator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/core/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/core/security.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/database.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/services/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/services/age_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/services/calculation_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/services/user_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/app/utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/create_user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/fill_data.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/init_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/postcss.config.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/Layout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/NumberInput.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ProtectedRoute.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/contexts/AuthContext.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pages/Admin.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pages/AgeDetection.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pages/Calculator.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pages/Home.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pages/Login.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pages/Profile.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pages/Register.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/api.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tailwind.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/users.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/app/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/app/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/piano_club.db" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/piano_club.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Home.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/Profile.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Profile.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/RequestAccess.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/RequestAccess.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -68,23 +44,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/den/Downloads/PianoTechniciansClub_Web/frontend&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.python.group.settings&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/den/Downloads/PianoTechniciansClub_Web/frontend/node_modules/typescript/lib&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/den/Downloads/PianoTechniciansClub_Web/frontend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.jshint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.jshint": "",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "configurable.group.python.group.settings",
+    "ts.external.directory.path": "/Applications/PyCharm.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -104,6 +82,7 @@
       <workItem from="1786815248430" duration="1139000" />
       <workItem from="1786817963293" duration="1829000" />
       <workItem from="1786967757363" duration="21834000" />
+      <workItem from="1787161461840" duration="30135000" />
     </task>
     <servers />
   </component>

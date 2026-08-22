@@ -203,12 +203,14 @@ async def whitelist_login(
 
 # ============ ЗАПРОС ДОСТУПА ============
 @router.post("/access-request")
+@router.post("/access-request")
 async def request_access(
         request: AccessRequestCreate,
         db: Session = Depends(get_db)
 ):
     """Запрос на доступ в клуб"""
 
+    # Проверяем, не было ли уже заявки с таким email
     existing = db.query(AccessRequest).filter(
         AccessRequest.email == request.email,
         AccessRequest.status == "pending"
@@ -220,6 +222,7 @@ async def request_access(
             detail="Заявка уже отправлена, ожидайте рассмотрения"
         )
 
+    # Создаём новую заявку
     new_request = AccessRequest(
         email=request.email,
         full_name=request.full_name,

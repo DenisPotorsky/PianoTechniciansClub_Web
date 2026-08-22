@@ -1,97 +1,165 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 
 const Profile: React.FC = () => {
-  const { user, logout, requestAccess } = useAuth();
-  const [message, setMessage] = useState('');
+  const { user, logout } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState('');
+  const [form, setForm] = useState({
+    first_name: '',
+    last_name: '',
+    username: '',
+    email: '',
+  });
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
-  const handleRequestAccess = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      setForm({
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        username: user.username || '',
+        email: user.email || '',
+      });
+    }
+  }, [user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setSuccess('');
+    setMessage(null);
+
     try {
-      await requestAccess(message);
-      setSuccess('✅ Заявка отправлена! Ожидайте подтверждения администратора.');
-      setMessage('');
-    } catch (err: any) {
-      alert(err.response?.data?.detail || 'Ошибка');
+      // Отправляем данные на сервер
+      const response = await api.put('/users/profile', form);
+
+      setMessage({ text: '✅ Профиль успешно обновлён!', type: 'success' });
+
+      // Обновляем данные пользователя в контексте
+      const meResponse = await api.get('/auth/me');
+      // Здесь нужно обновить контекст (если есть функция updateUser)
+
+    } catch (error: any) {
+      console.error('Ошибка:', error);
+      setMessage({
+        text: error.response?.data?.detail || '❌ Ошибка при обновлении профиля',
+        type: 'error',
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  if (!user) return null;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-2xl p-8">
-        <h2 className="text-3xl font-bold text-center text-blue-800 mb-6">👤 Профиль</h2>
-
-        <div className="space-y-4">
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-medium text-gray-600">Имя пользователя</span>
-            <span className="text-gray-900">{user.username}</span>
-          </div>
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-medium text-gray-600">Имя</span>
-            <span className="text-gray-900">{user.first_name} {user.last_name || ''}</span>
-          </div>
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-medium text-gray-600">Telegram ID</span>
-            <span className="text-gray-900">{user.telegram_id}</span>
-          </div>
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-medium text-gray-600">Статус</span>
-            <span>
-              {user.is_subscribed ? (
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">✅ Участник</span>
-              ) : (
-                <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">⏳ Ожидает доступа</span>
-              )}
-            </span>
-          </div>
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-medium text-gray-600">Роль</span>
-            <span>
-              {user.is_super_admin ? '👑 Супер-админ' : user.is_admin ? '⭐ Админ' : '👤 Пользователь'}
-            </span>
-          </div>
+      <div className="glass-card p-8">
+        <div className="text-center mb-8">
+          <div className="text-6xl mb-3">👤</div>
+          <h2 className="text-3xl font-bold text-white">Профиль</h2>
+          <p className="text-white/50 mt-1">Управление личными данными</p>
         </div>
 
-        {!user.is_subscribed && (
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-            <h3 className="font-semibold text-yellow-800 mb-2">📩 Запросить доступ</h3>
-            <p className="text-sm text-yellow-700 mb-3">
-              Чтобы получить доступ к калькулятору и другим функциям, отправьте заявку администратору.
-            </p>
-            <form onSubmit={handleRequestAccess}>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Напишите сообщение администратору (необязательно)"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 mb-3"
-                rows={3}
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-              >
-                {loading ? 'Отправка...' : '📩 Отправить заявку'}
-              </button>
-            </form>
-            {success && <p className="mt-3 text-green-700">{success}</p>}
+        {message && (
+          <div className={`glass p-4 rounded-xl mb-6 text-center ${
+            message.type === 'success' ? 'border-green-500/30 text-green-300' : 'border-red-500/30 text-red-300'
+          }`}>
+            {message.text}
           </div>
         )}
 
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1">Имя</label>
+            <input
+              type="text"
+              name="first_name"
+              value={form.first_name}
+              onChange={handleChange}
+              className="glass-input w-full"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1">Фамилия</label>
+            <input
+              type="text"
+              name="last_name"
+              value={form.last_name}
+              onChange={handleChange}
+              className="glass-input w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1">Имя пользователя</label>
+            <input
+              type="text"
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              className="glass-input w-full"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              className="glass-input w-full"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full glass-btn glass-btn-primary py-3 text-lg disabled:opacity-50"
+          >
+            {loading ? '⏳ Сохранение...' : '💾 Сохранить изменения'}
+          </button>
+        </form>
+
+        <div className="mt-6 pt-6 border-t border-white/10">
+          <div className="glass p-4 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-white/50">Статус</p>
+                <p className="text-white font-medium">
+                  {user?.is_subscribed ? '✅ Подписан' : '⏳ Ожидает подписки'}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-white/50">Роль</p>
+                <p className="text-white font-medium">
+                  {user?.is_super_admin ? '👑 Супер-админ' :
+                   user?.is_admin ? '⭐ Админ' : '👤 Пользователь'}
+                </p>
+              </div>
+            </div>
+            {user?.telegram_id && (
+              <div className="mt-2 pt-2 border-t border-white/5">
+                <p className="text-sm text-white/50">Telegram ID</p>
+                <p className="text-white font-mono text-sm">{user.telegram_id}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
         <button
           onClick={logout}
-          className="mt-6 w-full py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+          className="mt-6 w-full glass-btn py-3 text-lg"
+          style={{ background: 'rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
         >
-          🚪 Выйти
+          🚪 Выйти из аккаунта
         </button>
       </div>
     </div>

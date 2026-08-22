@@ -1,105 +1,110 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { Link } from 'react-router-dom';
 
 const RequestAccess: React.FC = () => {
-  const [form, setForm] = useState({
-    email: '',
-    full_name: '',
-    message: '',
-  });
+  const [email, setEmail] = useState('');
+  const [full_name, setFullName] = useState('');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState('');
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setSuccess('');
+    setSuccess(false);
+
     try {
-      const response = await api.post('/auth/access-request', form);
-      setSuccess(response.data.message);
-      setForm({ email: '', full_name: '', message: '' });
+      await api.post('/auth/access-request', {
+        email,
+        full_name,
+        message,
+      });
+      setSuccess(true);
+      setEmail('');
+      setFullName('');
+      setMessage('');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Ошибка отправки');
+      setError(err.response?.data?.detail || '❌ Ошибка при отправке');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 py-12 px-4">
-      <div className="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-white/20">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-white">📩 Запрос доступа</h2>
-          <p className="mt-2 text-blue-200 text-sm">
+    <div className="max-w-2xl mx-auto">
+      <div className="glass-card p-8">
+        <div className="text-center mb-8">
+          <div className="text-5xl mb-3">📩</div>
+          <h2 className="text-3xl font-bold text-white">Запрос доступа</h2>
+          <p className="text-white/50 mt-1">
             Заполните форму, и администратор рассмотрит вашу заявку
           </p>
         </div>
 
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+        {success && (
+          <div className="glass p-4 rounded-xl mb-6 text-center border-green-500/30 text-green-300">
+            ✅ Заявка отправлена! Администратор рассмотрит её в ближайшее время.
+          </div>
+        )}
+
+        {error && (
+          <div className="glass p-4 rounded-xl mb-6 text-center border-red-500/30 text-red-300">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-blue-200">Email *</label>
+            <label className="block text-sm font-medium text-white/70 mb-1">Email *</label>
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              className="glass-input w-full"
               required
-              value={form.email}
-              onChange={(e) => setForm({...form, email: e.target.value})}
-              className="mt-1 w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Введите ваш email"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-blue-200">ФИО *</label>
+            <label className="block text-sm font-medium text-white/70 mb-1">ФИО *</label>
             <input
               type="text"
+              value={full_name}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Иван Иванов"
+              className="glass-input w-full"
               required
-              value={form.full_name}
-              onChange={(e) => setForm({...form, full_name: e.target.value})}
-              className="mt-1 w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Введите ваше полное имя"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-blue-200">Сообщение</label>
+            <label className="block text-sm font-medium text-white/70 mb-1">Сообщение</label>
             <textarea
-              rows={4}
-              value={form.message}
-              onChange={(e) => setForm({...form, message: e.target.value})}
-              className="mt-1 w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Расскажите о себе (необязательно)"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Расскажите о себе..."
+              className="glass-input w-full min-h-[100px]"
             />
           </div>
-
-          {error && (
-            <div className="text-red-400 text-sm text-center bg-red-500/10 border border-red-500/20 p-3 rounded-xl">
-              ❌ {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="text-green-400 text-sm text-center bg-green-500/10 border border-green-500/20 p-3 rounded-xl">
-              ✅ {success}
-            </div>
-          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+            className="w-full glass-btn glass-btn-primary py-3 text-lg disabled:opacity-50"
           >
-            {loading ? 'Отправка...' : '📨 Отправить запрос'}
+            {loading ? '⏳ Отправка...' : '📩 Отправить заявку'}
           </button>
-
-          <div className="text-center">
-            <Link to="/login" className="text-blue-300 hover:text-blue-200 text-sm transition">
-              🔑 Уже есть доступ? Войти
-            </Link>
-          </div>
         </form>
+
+        <div className="mt-6 text-center">
+          <Link to="/login" className="text-white/50 hover:text-white transition">
+            🔑 Уже есть доступ? Войти
+          </Link>
+        </div>
       </div>
     </div>
   );

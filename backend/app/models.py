@@ -82,7 +82,6 @@ class AccessRequest(Base):
 
     user = relationship("User", foreign_keys=[user_id], back_populates="access_requests")
 
-
 class Notification(Base):
     __tablename__ = "notifications"
 
