@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, admin, calculator, age, regulating, users  # Добавь users
+
+from app.api.v1.endpoints import auth, admin, calculator, age, regulating
 
 router = APIRouter()
 
@@ -8,4 +9,3 @@ router.include_router(admin.router, prefix="/admin", tags=["admin"])
 router.include_router(calculator.router, prefix="/calculator", tags=["calculator"])
 router.include_router(age.router, prefix="/age", tags=["age"])
 router.include_router(regulating.router, prefix="/regulating", tags=["regulating"])
-router.include_router(users.router, prefix="/users", tags=["users"])

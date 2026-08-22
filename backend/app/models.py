@@ -1,8 +1,7 @@
+from app.database import Base
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, Text, ForeignKey
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.orm import relationship
 from datetime import datetime
-
-Base = declarative_base()
 
 
 class User(Base):
@@ -10,11 +9,11 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     telegram_id = Column(Integer, unique=True, index=True, nullable=True)
-    email = Column(String(255), unique=True, index=True, nullable=True)
-    username = Column(String(100), nullable=True)
-    first_name = Column(String(100), nullable=False)
-    last_name = Column(String(100), nullable=True)
-    hashed_password = Column(String(255), nullable=True)
+    username = Column(String, unique=True, index=True, nullable=True)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=True)
+    email = Column(String, unique=True, index=True, nullable=True)
+    hashed_password = Column(String, nullable=True)
     is_subscribed = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
     is_super_admin = Column(Boolean, default=False)
@@ -22,21 +21,37 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)
 
-    calculations = relationship("Calculation", back_populates="user")
     access_requests = relationship("AccessRequest", foreign_keys="AccessRequest.user_id", back_populates="user")
-    notifications = relationship("Notification", back_populates="user")
+    calculations = relationship("Calculation", back_populates="user")
+
+
+class AccessRequest(Base):
+    __tablename__ = "access_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    email = Column(String, nullable=False)
+    full_name = Column(String, nullable=False)
+    message = Column(Text, nullable=True)
+    status = Column(String, default="pending")
+    processed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    processed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="access_requests")
+    processed_by_user = relationship("User", foreign_keys=[processed_by])
 
 
 class Brand(Base):
     __tablename__ = "brands"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(200), nullable=False, index=True)
-    country = Column(String(100), nullable=False)
+    name = Column(String, unique=True, index=True, nullable=False)
+    country = Column(String, nullable=False)
     info = Column(Text, nullable=True)
-    type = Column(String(20), nullable=False)
+    type = Column(String, default="foreign")
 
-    serial_ranges = relationship("SerialRange", back_populates="brand")
+    serial_ranges = relationship("SerialRange", back_populates="brand", cascade="all, delete-orphan")
 
 
 class SerialRange(Base):
@@ -56,7 +71,7 @@ class Calculation(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    winding_type = Column(String(20), nullable=False)
+    winding_type = Column(String, nullable=False)
     core_diameter = Column(Float, nullable=False)
     total_diameter = Column(Float, nullable=False)
     string_length = Column(Float, nullable=False)
@@ -67,64 +82,16 @@ class Calculation(Base):
     user = relationship("User", back_populates="calculations")
 
 
-class AccessRequest(Base):
-    __tablename__ = "access_requests"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    email = Column(String(255), nullable=False)
-    full_name = Column(String(255), nullable=False)
-    message = Column(Text, nullable=True)
-    status = Column(String(20), default="pending")
-    processed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    processed_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    user = relationship("User", foreign_keys=[user_id], back_populates="access_requests")
-
-class Notification(Base):
-    __tablename__ = "notifications"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    title = Column(String(255), nullable=False)
-    message = Column(Text, nullable=False)
-    is_read = Column(Boolean, default=False)
-    type = Column(String(50), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    user = relationship("User", back_populates="notifications")
-
-
-# ============ НОВАЯ МОДЕЛЬ ============
+# ============ РЕГУЛИРОВОЧНЫЕ ПАРАМЕТРЫ ============
 class RegulatingParam(Base):
-    """Регулировочные параметры роялей"""
+    """Таблица с параметрами настройки роялей"""
     __tablename__ = "regulating_params"
 
     id = Column(Integer, primary_key=True, index=True)
-    brand = Column(String(100), nullable=False, index=True)
-    model = Column(String(100), nullable=False, index=True)
+    brand = Column(String(100), nullable=False)
+    model = Column(String(100), nullable=False)
     parameter = Column(String(255), nullable=False)
     value = Column(String(255), nullable=False)
     unit = Column(String(50), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def __repr__(self):
-        return f"<RegulatingParam(brand={self.brand}, model={self.model}, parameter={self.parameter})>"
-
-
-# ============ ПОДТВЕРЖДЕНИЕ EMAIL ============
-class EmailVerification(Base):
-    """Модель для хранения токенов подтверждения email"""
-    __tablename__ = "email_verifications"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    email = Column(String(255), nullable=False)
-    token = Column(String(255), nullable=False, unique=True, index=True)
-    is_used = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    expires_at = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(hours=24))
-
-    user = relationship("User", foreign_keys=[user_id])

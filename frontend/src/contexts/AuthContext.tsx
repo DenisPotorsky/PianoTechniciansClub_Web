@@ -1,95 +1,174 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import api from '../services/api';
 
+// ============ ТИПЫ ============
 interface User {
   id: number;
-  telegram_id: number;
-  email: string | null;
+  email: string;
   username: string;
   first_name: string;
   last_name: string | null;
+  telegram_id: number | null;
   is_subscribed: boolean;
   is_admin: boolean;
   is_super_admin: boolean;
+  is_active: boolean;
+  created_at: string;
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  whitelistLogin: (telegram_id: number) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>; // ✅ ДОЛЖЕН ВОЗВРАЩАТЬ boolean
+  whitelistLogin: (telegramId: number) => Promise<boolean>;    // ✅ ДОЛЖЕН ВОЗВРАЩАТЬ boolean
   logout: () => void;
-  requestAccess: (message?: string) => Promise<void>;
+  requestAccess: (data: { full_name: string; email: string; message?: string }) => Promise<boolean>;
 }
 
+// ============ КОНТЕКСТ ============
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
+  // ===== ПРОВЕРКА ТОКЕНА ПРИ ЗАГРУЗКЕ =====
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    if (savedToken) {
-      setToken(savedToken);
-      fetchUser(savedToken);
-    } else {
+    const initAuth = async () => {
+      const savedToken = localStorage.getItem('token') || localStorage.getItem('access_token');
+
+      console.log('🔍 Проверка токена при загрузке:', savedToken ? 'ЕСТЬ' : 'НЕТ');
+
+      if (savedToken) {
+        try {
+          setToken(savedToken);
+          // Проверяем валидность токена
+          const response = await api.get('/auth/me', {
+            headers: { Authorization: `Bearer ${savedToken}` }
+          });
+          setUser(response.data);
+          console.log('✅ Пользователь авторизован:', response.data.first_name);
+        } catch (error) {
+          console.error('❌ Ошибка при проверке токена:', error);
+          localStorage.removeItem('token');
+          localStorage.removeItem('access_token');
+          setToken(null);
+          setUser(null);
+        }
+      }
       setLoading(false);
-    }
+    };
+
+    initAuth();
   }, []);
 
-  const fetchUser = async (t: string) => {
+  // ===== ВХОД ПО EMAIL =====
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await api.get('/auth/me', {
-        headers: { Authorization: `Bearer ${t}` }
-      });
-      setUser(response.data);
-    } catch (error) {
-      localStorage.removeItem('token');
-      setToken(null);
+      setLoading(true);
+      const response = await api.post('/auth/login', { email, password });
+
+      const { access_token, ...userData } = response.data;
+
+      // Сохраняем токен в localStorage
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('access_token', access_token); // Для совместимости
+
+      setToken(access_token);
+      setUser(userData);
+
+      console.log('✅ Вход выполнен успешно');
+      return true; // ✅ ВОЗВРАЩАЕМ boolean
+
+    } catch (error: any) {
+      console.error('❌ Ошибка входа:', error);
+      alert(error.response?.data?.detail || 'Ошибка входа');
+      return false; // ✅ ВОЗВРАЩАЕМ boolean
     } finally {
       setLoading(false);
     }
   };
 
-  const login = async (email: string, password: string) => {
-    const response = await api.post('/auth/login', { email, password });
-    const { access_token, ...userData } = response.data;
-    localStorage.setItem('token', access_token);
-    setToken(access_token);
-    setUser(userData);
+  // ===== ВХОД ПО TELEGRAM ID =====
+  const whitelistLogin = async (telegramId: number): Promise<boolean> => {
+    try {
+      setLoading(true);
+      const response = await api.post('/auth/whitelist-login', { telegram_id: telegramId });
+
+      const { access_token, ...userData } = response.data;
+
+      // Сохраняем токен в localStorage
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('access_token', access_token);
+
+      setToken(access_token);
+      setUser(userData);
+
+      console.log('✅ Вход по Telegram ID выполнен успешно');
+      return true; // ✅ ВОЗВРАЩАЕМ boolean
+
+    } catch (error: any) {
+      console.error('❌ Ошибка входа по Telegram ID:', error);
+      alert(error.response?.data?.detail || 'Ошибка входа');
+      return false; // ✅ ВОЗВРАЩАЕМ boolean
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const whitelistLogin = async (telegram_id: number) => {
-    const response = await api.post('/auth/whitelist-login', { telegram_id });
-    const { access_token, ...userData } = response.data;
-    localStorage.setItem('token', access_token);
-    setToken(access_token);
-    setUser(userData);
+  // ===== ЗАПРОС ДОСТУПА =====
+  const requestAccess = async (data: {
+    full_name: string;
+    email: string;
+    message?: string
+  }): Promise<boolean> => {
+    try {
+      setLoading(true);
+      await api.post('/auth/request-access', data);
+      alert('✅ Заявка отправлена! Ожидайте подтверждения.');
+      return true; // ✅ ВОЗВРАЩАЕМ boolean
+    } catch (error: any) {
+      console.error('❌ Ошибка отправки заявки:', error);
+      alert(error.response?.data?.detail || 'Ошибка отправки заявки');
+      return false; // ✅ ВОЗВРАЩАЕМ boolean
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ===== ВЫХОД =====
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
     setToken(null);
     setUser(null);
+    console.log('👋 Выход выполнен');
   };
 
-  const requestAccess = async (message?: string) => {
-    await api.post('/auth/access-request', { message });
-  };
-
+  // ===== ПРОВАЙДЕР =====
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, whitelistLogin, logout, requestAccess }}>
+    <AuthContext.Provider value={{
+      user,
+      token,
+      loading,
+      login,      // ✅ теперь соответствует типу
+      whitelistLogin, // ✅ теперь соответствует типу
+      logout,
+      requestAccess
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+// ===== ХУК ДЛЯ ИСПОЛЬЗОВАНИЯ =====
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   return context;
 };
 

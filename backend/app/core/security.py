@@ -1,98 +1,76 @@
+from passlib.context import CryptContext
 from datetime import datetime, timedelta
-import hashlib
 from jose import JWTError, jwt
-from fastapi import HTTPException, status, Depends
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User
+import os
 
-SECRET_KEY = "your-secret-key-change-in-production"
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
 
 def get_password_hash(password: str) -> str:
-    """Хеширует пароль с использованием SHA256"""
-    salt = "piano_club_salt_2026"
-    return hashlib.sha256(f"{salt}{password}".encode()).hexdigest()
+    return pwd_context.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Проверяет пароль"""
-    return get_password_hash(plain_password) == hashed_password
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def create_access_token(data: dict) -> str:
-    """Создает JWT токен"""
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
+def decode_access_token(token: str) -> dict:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        return {}
+
+
 async def get_current_user(
         credentials: HTTPAuthorizationCredentials = Depends(security),
         db: Session = Depends(get_db)
-):
-    """Получает текущего пользователя из токена"""
+) -> User:
     token = credentials.credentials
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = int(payload.get("sub"))
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Недействительный токен"
-        )
+    payload = decode_access_token(token)
+    user_id = payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Неверный токен")
 
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Пользователь не найден"
-        )
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    if user is None:
+        raise HTTPException(status_code=401, detail="Пользователь не найден")
+    if not user.is_active:
+        raise HTTPException(status_code=401, detail="Пользователь не активен")
+
     return user
 
 
-# ============ ПРОВЕРКА РОЛЕЙ ============
-async def require_any(current_user: User = Depends(get_current_user)):
-    """Требуется любой авторизованный пользователь"""
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Требуется авторизация"
-        )
+async def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    if not current_user.is_admin and not current_user.is_super_admin:
+        raise HTTPException(status_code=403, detail="Недостаточно прав")
     return current_user
 
 
-async def require_member(current_user: User = Depends(get_current_user)):
-    """Требуется подписанный пользователь (белый список)"""
-    if not current_user.is_subscribed:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Доступ только для участников клуба"
-        )
-    return current_user
-
-
-async def require_admin(current_user: User = Depends(get_current_user)):
-    """Требуется администратор"""
-    if not (current_user.is_admin or current_user.is_super_admin):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Недостаточно прав"
-        )
-    return current_user
-
-
-async def require_super_admin(current_user: User = Depends(get_current_user)):
-    """Требуется супер-администратор"""
+async def require_super_admin(current_user: User = Depends(get_current_user)) -> User:
     if not current_user.is_super_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Недостаточно прав"
-        )
+        raise HTTPException(status_code=403, detail="Требуются права супер-администратора")
+    return current_user
+
+
+async def require_member(current_user: User = Depends(get_current_user)) -> User:
+    if not current_user.is_subscribed:
+        raise HTTPException(status_code=403, detail="Требуется подписка")
     return current_user

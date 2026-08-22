@@ -9,8 +9,8 @@ const Home: React.FC = () => {
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
         <div className="glass-card max-w-5xl mx-auto p-8 md:p-12 text-center">
-          <div className="text-7xl mb-4">🎹</div>
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
+
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4"style={{ fontFamily: "'Herculanum', 'Herculanum', serif" }}>
             PianoTechniciansClub
           </h1>
           <p className="text-xl md:text-2xl text-white/70 mb-8">

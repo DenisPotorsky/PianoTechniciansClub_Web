@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from datetime import datetime
+import secrets
 
 from app.database import get_db
-from app.models import User, RegulatingParam, AccessRequest, Brand
-from app.core.security import require_admin, require_super_admin
+from app.models import User, AccessRequest, Brand, SerialRange
+from app.core.security import require_admin, require_super_admin, get_password_hash
 
 router = APIRouter()
 
@@ -15,7 +16,6 @@ async def get_stats(
         current_user: User = Depends(require_admin),
         db: Session = Depends(get_db)
 ):
-    """Получить статистику по клубу"""
     total_users = db.query(User).count()
     subscribed_users = db.query(User).filter(User.is_subscribed == True).count()
     admin_users = db.query(User).filter(User.is_admin == True).count()
@@ -25,7 +25,8 @@ async def get_stats(
         "total_users": total_users,
         "subscribed_users": subscribed_users,
         "admin_users": admin_users,
-        "pending_requests": pending_requests
+        "pending_requests": pending_requests,
+        "total_calculations": 0
     }
 
 
@@ -35,7 +36,6 @@ async def get_users(
         current_user: User = Depends(require_admin),
         db: Session = Depends(get_db)
 ):
-    """Получить всех пользователей"""
     users = db.query(User).all()
     return [{
         "id": u.id,
@@ -43,6 +43,7 @@ async def get_users(
         "username": u.username,
         "first_name": u.first_name,
         "last_name": u.last_name,
+        "email": u.email,
         "is_subscribed": u.is_subscribed,
         "is_admin": u.is_admin,
         "is_super_admin": u.is_super_admin,
@@ -57,7 +58,6 @@ async def update_user(
         current_user: User = Depends(require_super_admin),
         db: Session = Depends(get_db)
 ):
-    """Обновить пользователя"""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
@@ -76,7 +76,6 @@ async def delete_user(
         current_user: User = Depends(require_super_admin),
         db: Session = Depends(get_db)
 ):
-    """Удалить пользователя"""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
@@ -95,7 +94,6 @@ async def get_whitelist(
         current_user: User = Depends(require_admin),
         db: Session = Depends(get_db)
 ):
-    """Получить список администраторов (белый список)"""
     admins = db.query(User).filter(
         (User.is_admin == True) | (User.is_super_admin == True)
     ).all()
@@ -117,7 +115,6 @@ async def add_to_whitelist(
         current_user: User = Depends(require_super_admin),
         db: Session = Depends(get_db)
 ):
-    """Добавить пользователя в белый список"""
     user = db.query(User).filter(User.telegram_id == telegram_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
@@ -133,7 +130,6 @@ async def remove_from_whitelist(
         current_user: User = Depends(require_super_admin),
         db: Session = Depends(get_db)
 ):
-    """Удалить пользователя из белого списка"""
     user = db.query(User).filter(User.telegram_id == telegram_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
@@ -152,13 +148,11 @@ async def get_requests(
         current_user: User = Depends(require_admin),
         db: Session = Depends(get_db)
 ):
-    """Получить все заявки"""
-    requests = db.query(AccessRequest).all()
+    requests = db.query(AccessRequest).order_by(AccessRequest.created_at.desc()).all()
     return [{
         "id": r.id,
-        "user_id": r.user_id,
-        "username": r.user.username if r.user else None,
         "full_name": r.full_name,
+        "email": r.email,
         "message": r.message,
         "status": r.status,
         "created_at": r.created_at
@@ -171,22 +165,39 @@ async def approve_request(
         current_user: User = Depends(require_admin),
         db: Session = Depends(get_db)
 ):
-    """Одобрить заявку"""
     request = db.query(AccessRequest).filter(AccessRequest.id == request_id).first()
     if not request:
         raise HTTPException(status_code=404, detail="Заявка не найдена")
+    if request.status != "pending":
+        raise HTTPException(status_code=400, detail="Заявка уже обработана")
 
     request.status = "approved"
     request.processed_by = current_user.id
+    request.processed_at = datetime.utcnow()
 
-    # Если есть пользователь с таким email
-    if request.user_id:
-        user = db.query(User).filter(User.id == request.user_id).first()
-        if user:
-            user.is_subscribed = True
+    user = db.query(User).filter(User.email == request.email).first()
+    if not user:
+        temp_password = secrets.token_urlsafe(10)[:64]
+        user = User(
+            email=request.email,
+            username=request.full_name.lower().replace(" ", "_"),
+            first_name=request.full_name,
+            hashed_password=get_password_hash(temp_password),
+            is_subscribed=True,
+            is_active=True,
+            is_admin=False,
+            is_super_admin=False,
+            created_at=datetime.utcnow()
+        )
+        db.add(user)
+        print(f"✅ Создан пользователь: {user.email}")
+    else:
+        user.is_subscribed = True
+        user.is_active = True
+        print(f"✅ Обновлён пользователь: {user.email}")
 
     db.commit()
-    return {"message": "Заявка одобрена"}
+    return {"message": "Заявка одобрена, пользователь создан"}
 
 
 @router.post("/requests/{request_id}/reject")
@@ -195,24 +206,26 @@ async def reject_request(
         current_user: User = Depends(require_admin),
         db: Session = Depends(get_db)
 ):
-    """Отклонить заявку"""
     request = db.query(AccessRequest).filter(AccessRequest.id == request_id).first()
     if not request:
         raise HTTPException(status_code=404, detail="Заявка не найдена")
+    if request.status != "pending":
+        raise HTTPException(status_code=400, detail="Заявка уже обработана")
 
     request.status = "rejected"
     request.processed_by = current_user.id
+    request.processed_at = datetime.utcnow()
+
     db.commit()
     return {"message": "Заявка отклонена"}
 
 
-# ============ БРЕНДЫ (АТЛАС) ============
+# ============ БРЕНДЫ ============
 @router.get("/brands")
 async def get_brands_admin(
         current_user: User = Depends(require_admin),
         db: Session = Depends(get_db)
 ):
-    """Получить все бренды (для админки)"""
     brands = db.query(Brand).all()
     return [{
         "id": b.id,
@@ -224,13 +237,52 @@ async def get_brands_admin(
     } for b in brands]
 
 
+@router.post("/brands")
+async def create_brand(
+        brand_data: dict,
+        current_user: User = Depends(require_admin),
+        db: Session = Depends(get_db)
+):
+    new_brand = Brand(
+        name=brand_data["name"],
+        country=brand_data["country"],
+        type=brand_data["type"],
+        info=brand_data.get("info")
+    )
+    db.add(new_brand)
+    db.commit()
+    db.refresh(new_brand)
+    return {"message": "Бренд создан", "id": new_brand.id}
+
+
+@router.post("/brands/{brand_id}/ranges")
+async def add_range(
+        brand_id: int,
+        range_data: dict,
+        current_user: User = Depends(require_admin),
+        db: Session = Depends(get_db)
+):
+    brand = db.query(Brand).filter(Brand.id == brand_id).first()
+    if not brand:
+        raise HTTPException(status_code=404, detail="Бренд не найден")
+
+    new_range = SerialRange(
+        brand_id=brand_id,
+        serial_start=range_data["serial_start"],
+        serial_end=range_data["serial_end"],
+        year=range_data["year"]
+    )
+    db.add(new_range)
+    db.commit()
+    return {"message": "Диапазон добавлен"}
+
+
 @router.delete("/brands/{brand_id}")
 async def delete_brand(
         brand_id: int,
         current_user: User = Depends(require_admin),
         db: Session = Depends(get_db)
 ):
-    """Удалить бренд"""
     brand = db.query(Brand).filter(Brand.id == brand_id).first()
     if not brand:
         raise HTTPException(status_code=404, detail="Бренд не найден")
@@ -238,3 +290,61 @@ async def delete_brand(
     db.delete(brand)
     db.commit()
     return {"message": "Бренд удалён"}
+
+
+# ============ СТАТИСТИКА ============
+@router.get("/stats")
+async def get_stats(
+        current_user: User = Depends(require_admin),
+        db: Session = Depends(get_db)
+):
+    total_users = db.query(User).count()
+    subscribed_users = db.query(User).filter(User.is_subscribed == True).count()
+    admin_users = db.query(User).filter(User.is_admin == True).count()
+    pending_requests = db.query(AccessRequest).filter(AccessRequest.status == "pending").count()
+
+    return {
+        "total_users": total_users,
+        "subscribed_users": subscribed_users,
+        "admin_users": admin_users,
+        "pending_requests": pending_requests,
+        "total_calculations": 0
+    }
+
+
+# ============ БЕЛЫЙ СПИСОК ============
+@router.get("/whitelist")
+async def get_whitelist(
+        current_user: User = Depends(require_admin),
+        db: Session = Depends(get_db)
+):
+    admins = db.query(User).filter(
+        (User.is_admin == True) | (User.is_super_admin == True)
+    ).all()
+
+    return [{
+        "id": a.id,
+        "telegram_id": a.telegram_id,
+        "username": a.username,
+        "first_name": a.first_name,
+        "last_name": a.last_name,
+        "is_admin": a.is_admin,
+        "is_super_admin": a.is_super_admin
+    } for a in admins]
+
+
+# ============ БРЕНДЫ ============
+@router.get("/brands")
+async def get_brands_admin(
+        current_user: User = Depends(require_admin),
+        db: Session = Depends(get_db)
+):
+    brands = db.query(Brand).all()
+    return [{
+        "id": b.id,
+        "name": b.name,
+        "country": b.country,
+        "type": b.type,
+        "info": b.info,
+        "ranges_count": len(b.serial_ranges) if b.serial_ranges else 0
+    } for b in brands]
