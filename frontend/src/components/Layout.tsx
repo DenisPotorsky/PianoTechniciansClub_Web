@@ -11,10 +11,9 @@ const Layout: React.FC = () => {
     const menuRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // ===== ИСПРАВЛЕННАЯ ФУНКЦИЯ ВЫХОДА =====
     const handleLogout = () => {
         logout();
-        navigate('/');  // ← теперь на главную, а не на логин
+        navigate('/');
         setIsMenuOpen(false);
         setIsDropdownOpen(false);
     };
@@ -45,23 +44,21 @@ const Layout: React.FC = () => {
         <div className="min-h-screen bg-cover bg-center bg-fixed"
              style={{backgroundImage: "url('/images/background.jpg')"}}>
 
-            {/* ===== НАВИГАЦИЯ ===== */}
+            {/* НАВИГАЦИЯ — ТОЛЬКО ЛОГОТИП И БУРГЕР */}
             <nav className="glass-nav sticky top-0 z-50">
                 <div className="container mx-auto px-4">
                     <div className="flex justify-between items-center h-16">
-                        {/* Логотип слева */}
-                        <Link
-  to="/"
-  className="text-2xl md:text-3xl font-bold text-white hover:opacity-80 transition whitespace-nowrap"
-  style={{ fontFamily: "'Herculanum', 'Herculanum', serif" }}
->
-  🎹 PianoTechniciansClub
-</Link>
+                        {/* Логотип */}
+                        <Link to="/"
+                              className="text-2xl font-bold text-white hover:opacity-80 transition whitespace-nowrap">
+                            Piano Technicians Club
+                        </Link>
 
-                        {/* Профиль / Вход (только десктоп, без ссылок) */}
+                        {/* Профиль + Бургер (справа) */}
                         <div className="flex items-center gap-4">
-                            {user ? (
-                                <div className="relative" ref={dropdownRef}>
+                            {/* Профиль (только на больших экранах) */}
+                            {user && (
+                                <div className="hidden md:block relative" ref={dropdownRef}>
                                     <button
                                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                         className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 transition"
@@ -83,6 +80,10 @@ const Layout: React.FC = () => {
                                             <div className="px-4 py-2 border-b border-white/10">
                                                 <p className="text-sm font-semibold text-white">{user.first_name} {user.last_name || ''}</p>
                                                 <p className="text-xs text-white/50">@{user.username}</p>
+                                                {user.is_super_admin && <span
+                                                    className="text-xs text-amber-400 font-semibold">👑 Супер-админ</span>}
+                                                {user.is_admin && !user.is_super_admin && <span
+                                                    className="text-xs text-indigo-400 font-semibold">⭐ Админ</span>}
                                             </div>
                                             <Link to="/profile"
                                                   className="flex items-center gap-3 px-4 py-2 text-sm text-white/70 hover:bg-white/10 transition"
@@ -97,13 +98,15 @@ const Layout: React.FC = () => {
                                         </div>
                                     )}
                                 </div>
-                            ) : (
-                                <Link to="/login" className="glass-btn glass-btn-primary">
+                            )}
+
+                            {!user && (
+                                <Link to="/login" className="hidden md:block glass-btn glass-btn-primary">
                                     🔑 Вход
                                 </Link>
                             )}
 
-                            {/* ===== БУРГЕР ===== */}
+                            {/* БУРГЕР (всегда виден) */}
                             <button
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                                 className="flex flex-col gap-1.5 p-2 hover:bg-white/10 rounded-lg transition"
@@ -121,7 +124,7 @@ const Layout: React.FC = () => {
                 </div>
             </nav>
 
-            {/* ===== ОВЕРЛЕЙ ===== */}
+            {/* ЗАТЕМНЕНИЕ */}
             {isMenuOpen && (
                 <div
                     className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
@@ -129,7 +132,7 @@ const Layout: React.FC = () => {
                 />
             )}
 
-            {/* ===== ВЫЕЗЖАЮЩЕЕ МЕНЮ СПРАВА ===== */}
+            {/* ВЫЕЗЖАЮЩЕЕ МЕНЮ СПРАВА */}
             <div
                 ref={menuRef}
                 className={`fixed top-0 right-0 h-full w-80 glass-card rounded-l-2xl z-50 transition-transform duration-300 ease-in-out ${
@@ -142,7 +145,7 @@ const Layout: React.FC = () => {
                     borderLeft: '1px solid rgba(255,255,255,0.08)'
                 }}
             >
-                {/* Отступ сверху под шапку */}
+                {/* КРЕСТИК */}
                 <div className="h-16 flex items-center justify-end px-4 border-b border-white/5">
                     <button
                         onClick={() => setIsMenuOpen(false)}
@@ -192,6 +195,15 @@ const Layout: React.FC = () => {
                             >
                                 <span className="text-xl">🔧</span> Регулировка
                             </Link>
+                            <Link
+                                to="/strings"
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-white transition ${
+                                    isActive('/strings') ? 'bg-white/15' : 'hover:bg-white/10'
+                                }`}
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                <span className="text-xl">🎵</span> Мензуры
+                            </Link>
                         </>
                     )}
 
@@ -238,7 +250,6 @@ const Layout: React.FC = () => {
                 </div>
             </div>
 
-            {/* ===== КОНТЕНТ ===== */}
             <div className="container mx-auto p-4 md:p-8">
                 <Outlet/>
             </div>

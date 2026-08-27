@@ -342,8 +342,8 @@ const Admin: React.FC = () => {
             <p className="text-white/50 mt-1">Управление клубом</p>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => navigate(-1)} className="glass-btn">← Назад</button>
-            <button onClick={() => { logout(); navigate('/login'); }} className="glass-btn glass-btn-danger">🚪 Выйти</button>
+            {/*<button onClick={() => navigate(-1)} className="glass-btn">← Назад</button>*/}
+            {/*<button onClick={() => { logout(); navigate('/login'); }} className="glass-btn glass-btn-danger">🚪 Выйти</button>*/}
           </div>
         </div>
 

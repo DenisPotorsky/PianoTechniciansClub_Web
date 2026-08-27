@@ -1,7 +1,7 @@
 from app.database import Base
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, Text, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class User(Base):
@@ -95,3 +95,39 @@ class RegulatingParam(Base):
     unit = Column(String(50), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+# ============ МЕНЗУРЫ СТРУН ============
+class Scale(Base):
+    """Таблица с мензурами струн роялей"""
+    __tablename__ = "scales"
+
+    id = Column(Integer, primary_key=True, index=True)
+    brand = Column(String(100), nullable=False)
+    model = Column(String(100), nullable=False)
+    chor_nummer = Column(Integer, nullable=False)
+    saiten_im_chor = Column(Integer, nullable=True)
+    laenge_mm = Column(Float, nullable=True)
+    kern_mm = Column(Float, nullable=False)
+    erste_wicklung_mm = Column(Float, nullable=True)
+    zweite_wicklung_mm = Column(Float, nullable=True)
+    typ = Column(String(50), nullable=True)
+    year = Column(String(50), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+# ============ ПОДТВЕРЖДЕНИЕ EMAIL ============
+class EmailVerification(Base):
+    """Модель для хранения токенов подтверждения email"""
+    __tablename__ = "email_verifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    email = Column(String(255), nullable=False)
+    token = Column(String(255), nullable=False, unique=True, index=True)
+    is_used = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(hours=24))
+
+    user = relationship("User", foreign_keys=[user_id])

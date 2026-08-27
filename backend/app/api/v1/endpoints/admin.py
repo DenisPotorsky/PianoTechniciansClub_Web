@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timedelta
 import secrets
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
 
 from app.database import get_db
 from app.models import User, AccessRequest, Brand, SerialRange
@@ -171,10 +175,12 @@ async def approve_request(
     if request.status != "pending":
         raise HTTPException(status_code=400, detail="Заявка уже обработана")
 
+    # Обновляем заявку
     request.status = "approved"
     request.processed_by = current_user.id
     request.processed_at = datetime.utcnow()
 
+    # Создаём пользователя
     user = db.query(User).filter(User.email == request.email).first()
     if not user:
         temp_password = secrets.token_urlsafe(10)[:64]
@@ -192,9 +198,51 @@ async def approve_request(
         db.add(user)
         print(f"✅ Создан пользователь: {user.email}")
     else:
+        temp_password = None
         user.is_subscribed = True
         user.is_active = True
         print(f"✅ Обновлён пользователь: {user.email}")
+
+    # ===== ОТПРАВКА ПИСЬМА С ПАРОЛЕМ (ЕСЛИ ПОЛЬЗОВАТЕЛЬ НОВЫЙ) =====
+    if temp_password:
+        try:
+            smtp_user = os.getenv("SMTP_USER")
+            smtp_password = os.getenv("SMTP_PASSWORD")
+            smtp_host = os.getenv("SMTP_HOST")
+            smtp_port = int(os.getenv("SMTP_PORT", 587))
+            frontend_url = os.getenv("APP_URL", "http://localhost:3000")
+
+            if not all([smtp_user, smtp_password, smtp_host]):
+                print("⚠️ SMTP не настроен. Письмо не отправлено.")
+            else:
+                subject = "🎹 Ваш доступ в PianoTechniciansClub"
+                html = f"""
+                <html>
+                <body>
+                    <h2>Добро пожаловать в PianoTechniciansClub!</h2>
+                    <p>Ваша заявка одобрена.</p>
+                    <p><b>Ваш email:</b> {user.email}</p>
+                    <p><b>Временный пароль:</b> {temp_password}</p>
+                    <p><b>Войти:</b> <a href="{frontend_url}/login">Нажмите сюда</a></p>
+                    <p>Рекомендуем сменить пароль после первого входа.</p>
+                </body>
+                </html>
+                """
+
+                msg = MIMEMultipart("alternative")
+                msg["Subject"] = subject
+                msg["From"] = smtp_user
+                msg["To"] = user.email
+                msg.attach(MIMEText(html, "html"))
+
+                with smtplib.SMTP(smtp_host, smtp_port) as server:
+                    server.starttls()
+                    server.login(smtp_user, smtp_password)
+                    server.sendmail(smtp_user, user.email, msg.as_string())
+
+                print(f"📧 Пароль отправлен на {user.email}")
+        except Exception as e:
+            print(f"⚠️ Ошибка отправки письма пользователю: {e}")
 
     db.commit()
     return {"message": "Заявка одобрена, пользователь создан"}
@@ -290,61 +338,3 @@ async def delete_brand(
     db.delete(brand)
     db.commit()
     return {"message": "Бренд удалён"}
-
-
-# ============ СТАТИСТИКА ============
-@router.get("/stats")
-async def get_stats(
-        current_user: User = Depends(require_admin),
-        db: Session = Depends(get_db)
-):
-    total_users = db.query(User).count()
-    subscribed_users = db.query(User).filter(User.is_subscribed == True).count()
-    admin_users = db.query(User).filter(User.is_admin == True).count()
-    pending_requests = db.query(AccessRequest).filter(AccessRequest.status == "pending").count()
-
-    return {
-        "total_users": total_users,
-        "subscribed_users": subscribed_users,
-        "admin_users": admin_users,
-        "pending_requests": pending_requests,
-        "total_calculations": 0
-    }
-
-
-# ============ БЕЛЫЙ СПИСОК ============
-@router.get("/whitelist")
-async def get_whitelist(
-        current_user: User = Depends(require_admin),
-        db: Session = Depends(get_db)
-):
-    admins = db.query(User).filter(
-        (User.is_admin == True) | (User.is_super_admin == True)
-    ).all()
-
-    return [{
-        "id": a.id,
-        "telegram_id": a.telegram_id,
-        "username": a.username,
-        "first_name": a.first_name,
-        "last_name": a.last_name,
-        "is_admin": a.is_admin,
-        "is_super_admin": a.is_super_admin
-    } for a in admins]
-
-
-# ============ БРЕНДЫ ============
-@router.get("/brands")
-async def get_brands_admin(
-        current_user: User = Depends(require_admin),
-        db: Session = Depends(get_db)
-):
-    brands = db.query(Brand).all()
-    return [{
-        "id": b.id,
-        "name": b.name,
-        "country": b.country,
-        "type": b.type,
-        "info": b.info,
-        "ranges_count": len(b.serial_ranges) if b.serial_ranges else 0
-    } for b in brands]
