@@ -21,17 +21,25 @@ async def get_params(
 ):
     query = db.query(RegulatingParam)
 
-    if search:
-        query = query.filter(
-            RegulatingParam.brand.ilike(f"%{search}%") |
-            RegulatingParam.model.ilike(f"%{search}%") |
-            RegulatingParam.parameter.ilike(f"%{search}%")
-        )
+    # Загружаем все данные
+    all_params = query.all()
 
+    # Фильтр по бренду (регистронезависимый через Python)
     if brand:
-        query = query.filter(RegulatingParam.brand == brand)
+        all_params = [p for p in all_params if p.brand.lower() == brand.lower()]
 
-    results = query.order_by(RegulatingParam.brand, RegulatingParam.model).limit(limit).all()
+    # Поиск (регистронезависимый через Python)
+    if search:
+        search_lower = search.lower()
+        all_params = [
+            r for r in all_params
+            if search_lower in r.brand.lower()
+            or search_lower in r.model.lower()
+            or search_lower in r.parameter.lower()
+        ]
+
+    # Сортировка и лимит
+    all_params = sorted(all_params, key=lambda x: (x.brand, x.model))[:limit]
 
     return [{
         "id": r.id,
@@ -40,7 +48,7 @@ async def get_params(
         "parameter": r.parameter,
         "value": r.value,
         "unit": r.unit
-    } for r in results]
+    } for r in all_params]
 
 
 @router.get("/brands")
@@ -106,6 +114,9 @@ async def import_csv(
     added = 0
     errors = []
 
+    # Загружаем все существующие записи для проверки дубликатов
+    existing_params = db.query(RegulatingParam).all()
+
     for row in reader:
         try:
             brand = row.get('brand', '').strip()
@@ -118,11 +129,14 @@ async def import_csv(
                 errors.append(f"Пропущены поля в строке: {row}")
                 continue
 
-            existing = db.query(RegulatingParam).filter(
-                RegulatingParam.brand == brand,
-                RegulatingParam.model == model,
-                RegulatingParam.parameter == parameter
-            ).first()
+            # Проверка дубликатов через Python (регистронезависимо)
+            existing = None
+            for p in existing_params:
+                if (p.brand.lower() == brand.lower() and
+                        p.model.lower() == model.lower() and
+                        p.parameter.lower() == parameter.lower()):
+                    existing = p
+                    break
 
             if existing:
                 errors.append(f"Дубликат: {brand} {model} {parameter}")
@@ -136,6 +150,7 @@ async def import_csv(
                 unit=unit
             )
             db.add(new_param)
+            existing_params.append(new_param)  # Добавляем в список для проверки следующих строк
             added += 1
 
         except Exception as e:
@@ -147,5 +162,3 @@ async def import_csv(
         "added": added,
         "errors": errors[:10]
     }
-
-

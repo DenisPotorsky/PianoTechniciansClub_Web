@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from pydantic import BaseModel
 from typing import Optional
 
@@ -27,17 +28,19 @@ async def update_profile(
 
     # Проверяем, не занят ли username другим пользователем
     existing = db.query(User).filter(
-        User.username == data.username,
+        func.lower(User.username) == func.lower(data.username),
         User.id != current_user.id
     ).first()
+
     if existing:
         raise HTTPException(status_code=400, detail="Имя пользователя уже занято")
 
     # Проверяем, не занят ли email другим пользователем
     existing = db.query(User).filter(
-        User.email == data.email,
+        func.lower(User.email) == func.lower(data.email),
         User.id != current_user.id
     ).first()
+
     if existing:
         raise HTTPException(status_code=400, detail="Email уже используется")
 
@@ -46,7 +49,6 @@ async def update_profile(
     current_user.last_name = data.last_name
     current_user.username = data.username
     current_user.email = data.email
-
     db.commit()
     db.refresh(current_user)
 

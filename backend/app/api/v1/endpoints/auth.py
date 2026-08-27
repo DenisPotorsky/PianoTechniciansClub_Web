@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from datetime import datetime, timedelta
 from typing import Optional
 import jwt
@@ -68,11 +69,11 @@ async def register(
         user_data: UserCreate,
         db: Session = Depends(get_db)
 ):
-    existing = db.query(User).filter(User.email == user_data.email).first()
+    existing = db.query(User).filter(func.lower(User.email) == func.lower(user_data.email)).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email уже зарегистрирован")
 
-    existing = db.query(User).filter(User.username == user_data.username).first()
+    existing = db.query(User).filter(func.lower(User.username) == func.lower(user_data.username)).first()
     if existing:
         raise HTTPException(status_code=400, detail="Username уже занят")
 
@@ -109,7 +110,7 @@ async def login(
         login_data: UserLogin,
         db: Session = Depends(get_db)
 ):
-    user = db.query(User).filter(User.email == login_data.email).first()
+    user = db.query(User).filter(func.lower(User.email) == func.lower(login_data.email)).first()
 
     if not user:
         raise HTTPException(status_code=401, detail="Неверный email или пароль")
@@ -184,7 +185,7 @@ async def request_access(
         db: Session = Depends(get_db)
 ):
     existing = db.query(AccessRequest).filter(
-        AccessRequest.email == request.email,
+        func.lower(AccessRequest.email) == func.lower(request.email),
         AccessRequest.status == "pending"
     ).first()
 
@@ -214,16 +215,11 @@ async def request_access(
         else:
             subject = "📩 Новая заявка на доступ в PianoTechniciansClub"
             html = f"""
-            <html>
-            <body>
-                <h2>📩 Новая заявка на доступ</h2>
-                <p><b>ФИО:</b> {access_request.full_name}</p>
-                <p><b>Email:</b> {access_request.email}</p>
-                <p><b>Сообщение:</b> {access_request.message or '—'}</p>
-                <br>
-                <a href="{os.getenv('APP_URL', 'http://localhost:3000')}/admin">Перейти в админку →</a>
-            </body>
-            </html>
+            <h2>📩 Новая заявка на доступ</h2>
+            <p><b>ФИО:</b> {access_request.full_name}</p>
+            <p><b>Email:</b> {access_request.email}</p>
+            <p><b>Сообщение:</b> {access_request.message or '—'}</p>
+            <p><a href="{os.getenv('APP_URL', 'http://localhost:3000')}/admin">Перейти в админку →</a></p>
             """
 
             msg = MIMEMultipart("alternative")
@@ -256,7 +252,7 @@ async def request_password_reset(
 ):
     """Запрос на сброс пароля"""
 
-    user = db.query(User).filter(User.email == email).first()
+    user = db.query(User).filter(func.lower(User.email) == func.lower(email)).first()
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь с таким email не найден")
 

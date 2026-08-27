@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
@@ -69,7 +70,6 @@ class ScaleResponse(BaseModel):
 
 
 # ============ ПОЛУЧЕНИЕ ДАННЫХ (ДЛЯ ВСЕХ УЧАСТНИКОВ) ============
-
 @router.get("/brands")
 async def get_brands(
         current_user: User = Depends(require_member),
@@ -88,7 +88,7 @@ async def get_models(
 ):
     result = db.execute(
         text(
-            "SELECT DISTINCT model FROM PIANO_STRINGS WHERE brand = :brand AND model IS NOT NULL AND model != '' ORDER BY model"),
+            "SELECT DISTINCT model FROM PIANO_STRINGS WHERE LOWER(brand) = LOWER(:brand) AND model IS NOT NULL AND model != '' ORDER BY model"),
         {"brand": brand}
     )
     return [{"model": row[0]} for row in result.fetchall()]
@@ -103,7 +103,7 @@ async def get_choruses(
 ):
     result = db.execute(
         text(
-            "SELECT DISTINCT chor_nummer FROM PIANO_STRINGS WHERE brand = :brand AND model = :model AND chor_nummer IS NOT NULL ORDER BY chor_nummer"),
+            "SELECT DISTINCT chor_nummer FROM PIANO_STRINGS WHERE LOWER(brand) = LOWER(:brand) AND LOWER(model) = LOWER(:model) AND chor_nummer IS NOT NULL ORDER BY chor_nummer"),
         {"brand": brand, "model": model}
     )
     return [{"chor_nummer": row[0]} for row in result.fetchall()]
@@ -118,23 +118,14 @@ async def get_string_data(
         db: Session = Depends(get_string_db)
 ):
     result = db.execute(
-        text("""SELECT id,
-                       brand,
-                       model,
-                       chor_nummer,
-                       saiten_im_chor,
-                       laenge_mm,
-                       kern_mm,
-                       erste_wicklung_mm,
-                       zweite_wicklung_mm,
-                       typ, year
-                FROM PIANO_STRINGS
-                WHERE brand = :brand AND model = :model AND chor_nummer = :chor_nummer
-                ORDER BY id"""),
+        text("""SELECT id, brand, model, chor_nummer, saiten_im_chor, laenge_mm, kern_mm,
+               erste_wicklung_mm, zweite_wicklung_mm, typ, year
+               FROM PIANO_STRINGS
+               WHERE LOWER(brand) = LOWER(:brand) AND LOWER(model) = LOWER(:model) AND chor_nummer = :chor_nummer
+               ORDER BY id"""),
         {"brand": brand, "model": model, "chor_nummer": chor_nummer}
     )
     rows = result.fetchall()
-
     return [
         {
             "id": row[0],
@@ -154,7 +145,6 @@ async def get_string_data(
 
 
 # ============ АДМИНСКИЕ ЭНДПОИНТЫ ============
-
 @router.post("/data")
 async def create_string_data(
         data: ScaleCreate,
@@ -224,7 +214,6 @@ async def update_string_data(
     query = f"UPDATE PIANO_STRINGS SET {', '.join(updates)} WHERE id = :id"
     db.execute(text(query), params)
     db.commit()
-
     return {"message": "Запись обновлена"}
 
 
@@ -240,7 +229,6 @@ async def delete_string_data(
 
     db.execute(text("DELETE FROM PIANO_STRINGS WHERE id = :id"), {"id": record_id})
     db.commit()
-
     return {"message": "Запись удалена"}
 
 
@@ -315,21 +303,18 @@ async def export_csv(
         current_user: User = Depends(require_admin),
         db: Session = Depends(get_string_db)
 ):
-    from fastapi.responses import StreamingResponse
-
     result = db.execute(text(
         "SELECT id, brand, model, chor_nummer, saiten_im_chor, laenge_mm, kern_mm, erste_wicklung_mm, zweite_wicklung_mm, typ, year FROM PIANO_STRINGS ORDER BY brand, model, chor_nummer"))
     rows = result.fetchall()
+
     columns = ['id', 'brand', 'model', 'chor_nummer', 'saiten_im_chor', 'laenge_mm', 'kern_mm', 'erste_wicklung_mm',
                'zweite_wicklung_mm', 'typ', 'year']
 
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(columns)
-
     for row in rows:
         writer.writerow(row)
-
     output.seek(0)
 
     return StreamingResponse(

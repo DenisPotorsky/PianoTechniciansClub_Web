@@ -106,17 +106,17 @@ const Regulating: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="glass-card p-8">
-        <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🔧</div>
-          <h2 className="text-3xl font-bold text-white">
+      <div className="glass-card p-4 md:p-6 lg:p-8">
+        <div className="text-center mb-6 md:mb-8">
+          <div className="text-4xl md:text-5xl mb-3">🔧</div>
+          <h2 className="text-2xl md:text-3xl font-bold text-white">
             Регулировочные параметры рояля
           </h2>
-          <p className="text-white/50 mt-1">Технические данные для настройки фортепиано</p>
+          <p className="text-white/50 mt-1 text-sm md:text-base">Технические данные для настройки фортепиано</p>
         </div>
 
         {/* Поиск и кнопки */}
-        <div className="flex flex-wrap gap-4 mb-6">
+        <div className="flex flex-col md:flex-row flex-wrap gap-3 md:gap-4 mb-6">
           <input
             type="text"
             placeholder="🔍 Поиск по бренду, модели, параметру..."
@@ -124,18 +124,16 @@ const Regulating: React.FC = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="glass-input flex-1 min-w-[200px]"
           />
-
           <select
             value={selectedBrand}
             onChange={(e) => setSelectedBrand(e.target.value)}
-            className="glass-input"
+            className="glass-input md:w-auto"
           >
             <option value="">Все бренды</option>
             {brands.map((b) => (
               <option key={b} value={b}>{b}</option>
             ))}
           </select>
-
           {isAdmin && (
             <>
               <label className="glass-btn glass-btn-primary cursor-pointer">
@@ -159,14 +157,14 @@ const Regulating: React.FC = () => {
 
         {/* Форма добавления */}
         {showAddForm && isAdmin && (
-          <form onSubmit={handleAdd} className="glass p-6 rounded-2xl mb-6">
+          <form onSubmit={handleAdd} className="glass p-4 md:p-6 rounded-2xl mb-6">
             <h4 className="font-semibold text-white mb-4">➕ Добавление параметра</h4>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
               <input
                 type="text"
                 placeholder="Бренд *"
                 value={newParam.brand}
-                onChange={(e) => setNewParam({...newParam, brand: e.target.value})}
+                onChange={(e) => setNewParam({ ...newParam, brand: e.target.value })}
                 className="glass-input"
                 required
               />
@@ -174,7 +172,7 @@ const Regulating: React.FC = () => {
                 type="text"
                 placeholder="Модель *"
                 value={newParam.model}
-                onChange={(e) => setNewParam({...newParam, model: e.target.value})}
+                onChange={(e) => setNewParam({ ...newParam, model: e.target.value })}
                 className="glass-input"
                 required
               />
@@ -182,7 +180,7 @@ const Regulating: React.FC = () => {
                 type="text"
                 placeholder="Параметр *"
                 value={newParam.parameter}
-                onChange={(e) => setNewParam({...newParam, parameter: e.target.value})}
+                onChange={(e) => setNewParam({ ...newParam, parameter: e.target.value })}
                 className="glass-input"
                 required
               />
@@ -190,7 +188,7 @@ const Regulating: React.FC = () => {
                 type="text"
                 placeholder="Значение *"
                 value={newParam.value}
-                onChange={(e) => setNewParam({...newParam, value: e.target.value})}
+                onChange={(e) => setNewParam({ ...newParam, value: e.target.value })}
                 className="glass-input"
                 required
               />
@@ -198,7 +196,7 @@ const Regulating: React.FC = () => {
                 type="text"
                 placeholder="Ед. измерения (мм, г...)"
                 value={newParam.unit}
-                onChange={(e) => setNewParam({...newParam, unit: e.target.value})}
+                onChange={(e) => setNewParam({ ...newParam, unit: e.target.value })}
                 className="glass-input"
               />
             </div>
@@ -224,7 +222,7 @@ const Regulating: React.FC = () => {
             {isAdmin && <p className="text-sm text-white/30 mt-1">Загрузите CSV или добавьте вручную</p>}
           </div>
         ) : (
-          <div className="glass-table">
+          <div className="glass-table overflow-x-auto">
             <table className="min-w-full divide-y divide-white/5 text-sm">
               <thead>
                 <tr>
@@ -242,7 +240,8 @@ const Regulating: React.FC = () => {
                     <td className="px-4 py-3 text-white/80">{p.model}</td>
                     <td className="px-4 py-3 text-white/80">{p.parameter}</td>
                     <td className="px-4 py-3 font-semibold text-indigo-300">
-                      {p.value} {p.unit && <span className="text-white/40 text-xs">{p.unit}</span>}
+                      {p.value}
+                      {p.unit && <span className="text-white/40 text-xs ml-1">{p.unit}</span>}
                     </td>
                     {isAdmin && (
                       <td className="px-4 py-3">

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from datetime import datetime, timedelta
 import secrets
 import smtplib
@@ -180,8 +181,8 @@ async def approve_request(
     request.processed_by = current_user.id
     request.processed_at = datetime.utcnow()
 
-    # Создаём пользователя
-    user = db.query(User).filter(User.email == request.email).first()
+    # Создаём пользователя (РЕГИСТРОНЕЗАВИСИМЫЙ ПОИСК ПО EMAIL)
+    user = db.query(User).filter(func.lower(User.email) == func.lower(request.email)).first()
     if not user:
         temp_password = secrets.token_urlsafe(10)[:64]
         user = User(
@@ -217,16 +218,12 @@ async def approve_request(
             else:
                 subject = "🎹 Ваш доступ в PianoTechniciansClub"
                 html = f"""
-                <html>
-                <body>
-                    <h2>Добро пожаловать в PianoTechniciansClub!</h2>
-                    <p>Ваша заявка одобрена.</p>
-                    <p><b>Ваш email:</b> {user.email}</p>
-                    <p><b>Временный пароль:</b> {temp_password}</p>
-                    <p><b>Войти:</b> <a href="{frontend_url}/login">Нажмите сюда</a></p>
-                    <p>Рекомендуем сменить пароль после первого входа.</p>
-                </body>
-                </html>
+                <h2>Добро пожаловать в PianoTechniciansClub!</h2>
+                <p>Ваша заявка одобрена.</p>
+                <p><b>Ваш email:</b> {user.email}</p>
+                <p><b>Временный пароль:</b> {temp_password}</p>
+                <p><a href="{frontend_url}/login">Войти →</a></p>
+                <p><i>Рекомендуем сменить пароль после первого входа.</i></p>
                 """
 
                 msg = MIMEMultipart("alternative")
