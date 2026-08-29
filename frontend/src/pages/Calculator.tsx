@@ -3,30 +3,23 @@ import api from '../services/api';
 
 const Calculator: React.FC = () => {
   const [form, setForm] = useState({
-    user_id: 1,
     winding_type: 'single',
     core_diameter: '1.2',
     total_diameter: '1.8',
-    string_length: '1500',
+    winding_length: '1500',
+    ratio: '2.5',
+    end_allowance: '60',
   });
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  // Функция для преобразования запятой в точку
-  const normalizeNumber = (value: string): string => {
-    // Заменяем запятую на точку
-    return value.replace(',', '.');
-  };
-
-  // Функция для парсинга числа
   const parseNumber = (value: string): number => {
-    const normalized = normalizeNumber(value);
+    const normalized = value.replace(',', '.');
     const parsed = parseFloat(normalized);
     return isNaN(parsed) ? 0 : parsed;
   };
 
-  // Функция для валидации поля
   const validateField = (name: string, value: string): string => {
     if (value.trim() === '') {
       return 'Поле обязательно для заполнения';
@@ -38,13 +31,9 @@ const Calculator: React.FC = () => {
     return '';
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-
-    // Обновляем значение
     setForm({ ...form, [name]: value });
-
-    // Проверяем ошибку
     const error = validateField(name, value);
     setErrors({ ...errors, [name]: error });
   };
@@ -52,11 +41,14 @@ const Calculator: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Проверяем все поля
+    const fieldsToValidate = form.winding_type === 'double'
+      ? ['core_diameter', 'total_diameter', 'winding_length', 'ratio', 'end_allowance']
+      : ['core_diameter', 'total_diameter', 'winding_length', 'end_allowance'];
+
     const newErrors: { [key: string]: string } = {};
     let hasError = false;
 
-    ['core_diameter', 'total_diameter', 'string_length'].forEach((field) => {
+    fieldsToValidate.forEach((field) => {
       const value = form[field as keyof typeof form] as string;
       const error = validateField(field, value);
       if (error) {
@@ -70,27 +62,25 @@ const Calculator: React.FC = () => {
       return;
     }
 
-    // Подготавливаем данные для отправки
-    const payload = {
-      user_id: form.user_id,
+    const payload: any = {
       winding_type: form.winding_type,
       core_diameter: parseNumber(form.core_diameter),
       total_diameter: parseNumber(form.total_diameter),
-      string_length: parseNumber(form.string_length),
+      winding_length: parseNumber(form.winding_length),
+      end_allowance: parseNumber(form.end_allowance),
     };
+
+    if (form.winding_type === 'double') {
+      payload.ratio = parseNumber(form.ratio);
+    }
 
     setLoading(true);
     try {
       const response = await api.post('/calculator/calculate', payload);
-
-      if (response.data && response.data.result) {
-        setResult(response.data.result);
-      } else {
-        setResult(response.data);
-      }
-    } catch (error) {
+      setResult(response.data.result || response.data);
+    } catch (error: any) {
       console.error('Ошибка:', error);
-      alert('Ошибка при расчете');
+      alert(error.response?.data?.detail || 'Ошибка при расчёте');
     } finally {
       setLoading(false);
     }
@@ -98,27 +88,71 @@ const Calculator: React.FC = () => {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="glass-card p-8">
-        <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🧮</div>
-          <h2 className="text-3xl font-bold text-white">
+      <div className="glass-card p-4 md:p-8">
+        <div className="text-center mb-6 md:mb-8">
+          <div className="text-4xl md:text-5xl mb-3">🧮</div>
+          <h2 className="text-2xl md:text-3xl font-bold text-white">
             Калькулятор басовых струн
           </h2>
-          <p className="text-white/50 mt-1">Расчёт параметров навивки</p>
+          <p className="text-white/50 mt-1 text-sm md:text-base">
+            Расчёт меди по измерениям старой струны
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 max-w-lg mx-auto">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 max-w-lg mx-auto">
           <div>
             <label className="block text-sm font-medium text-white/70 mb-1">Тип навивки</label>
             <select
+              name="winding_type"
               value={form.winding_type}
-              onChange={(e) => setForm({...form, winding_type: e.target.value})}
+              onChange={handleInputChange}
               className="glass-select w-full"
             >
               <option value="single">Одиночная</option>
               <option value="double">Двойная</option>
             </select>
           </div>
+
+          {/* Соотношение — только для двойной навивки */}
+          {form.winding_type === 'double' && (
+            <div>
+              <label className="block text-sm font-medium text-white/70 mb-1">
+                Соотношение проволок (верхняя / нижняя)
+              </label>
+              <div className="flex gap-2">
+                <select
+                  value={['2', '2.5', '3'].includes(form.ratio) ? form.ratio : 'custom'}
+                  onChange={(e) => {
+                    if (e.target.value !== 'custom') {
+                      setForm({ ...form, ratio: e.target.value });
+                      setErrors({ ...errors, ratio: '' });
+                    } else {
+                      setForm({ ...form, ratio: '' });
+                    }
+                  }}
+                  className="glass-select flex-1"
+                >
+                  <option value="2">1 : 2</option>
+                  <option value="2.5">1 : 2,5</option>
+                  <option value="3">1 : 3</option>
+                  <option value="custom">Своё значение...</option>
+                </select>
+                {!['2', '2.5', '3'].includes(form.ratio) && (
+                  <input
+                    type="text"
+                    name="ratio"
+                    value={form.ratio}
+                    onChange={handleInputChange}
+                    placeholder="Например: 2.7"
+                    className={`glass-input flex-1 ${errors.ratio ? 'border-red-500/50' : ''}`}
+                  />
+                )}
+              </div>
+              {errors.ratio && (
+                <p className="text-red-400 text-xs mt-1">{errors.ratio}</p>
+              )}
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-white/70 mb-1">
@@ -129,15 +163,12 @@ const Calculator: React.FC = () => {
               name="core_diameter"
               value={form.core_diameter}
               onChange={handleInputChange}
-              placeholder="Например: 1.35 или 1,35"
+              placeholder="Например: 0.95 или 0,95"
               className={`glass-input w-full ${errors.core_diameter ? 'border-red-500/50' : ''}`}
             />
             {errors.core_diameter && (
               <p className="text-red-400 text-xs mt-1">{errors.core_diameter}</p>
             )}
-            <p className="text-white/30 text-xs mt-1">
-              Используйте точку или запятую как разделитель
-            </p>
           </div>
 
           <div>
@@ -149,35 +180,46 @@ const Calculator: React.FC = () => {
               name="total_diameter"
               value={form.total_diameter}
               onChange={handleInputChange}
-              placeholder="Например: 2.9 или 2,9"
+              placeholder="Например: 4.3 или 4,3"
               className={`glass-input w-full ${errors.total_diameter ? 'border-red-500/50' : ''}`}
             />
             {errors.total_diameter && (
               <p className="text-red-400 text-xs mt-1">{errors.total_diameter}</p>
             )}
-            <p className="text-white/30 text-xs mt-1">
-              Используйте точку или запятую как разделитель
-            </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-white/70 mb-1">
-              Длина струны (мм)
+              Длина обмотанной части (мм)
             </label>
             <input
               type="text"
-              name="string_length"
-              value={form.string_length}
+              name="winding_length"
+              value={form.winding_length}
               onChange={handleInputChange}
-              placeholder="Например: 1800.5 или 1800,5"
-              className={`glass-input w-full ${errors.string_length ? 'border-red-500/50' : ''}`}
+              placeholder="Например: 1500 или 1500,0"
+              className={`glass-input w-full ${errors.winding_length ? 'border-red-500/50' : ''}`}
             />
-            {errors.string_length && (
-              <p className="text-red-400 text-xs mt-1">{errors.string_length}</p>
+            {errors.winding_length && (
+              <p className="text-red-400 text-xs mt-1">{errors.winding_length}</p>
             )}
-            <p className="text-white/30 text-xs mt-1">
-              Используйте точку или запятую как разделитель
-            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1">
+              Припуск на концы (мм)
+            </label>
+            <input
+              type="text"
+              name="end_allowance"
+              value={form.end_allowance}
+              onChange={handleInputChange}
+              placeholder="По умолчанию: 60"
+              className={`glass-input w-full ${errors.end_allowance ? 'border-red-500/50' : ''}`}
+            />
+            {errors.end_allowance && (
+              <p className="text-red-400 text-xs mt-1">{errors.end_allowance}</p>
+            )}
           </div>
 
           <button
@@ -185,71 +227,106 @@ const Calculator: React.FC = () => {
             disabled={loading}
             className="w-full glass-btn glass-btn-primary py-3 text-lg disabled:opacity-50"
           >
-            {loading ? '⏳ Расчет...' : '🧮 Рассчитать'}
+            {loading ? '⏳ Расчёт...' : '🧮 Рассчитать'}
           </button>
         </form>
 
         {result && (
-          <div className="mt-8 glass p-6 rounded-2xl animate-fadeIn">
-            <h3 className="text-xl font-bold text-white mb-4 text-center">
-              📊 Результат расчета
+          <div className="mt-6 md:mt-8 glass p-4 md:p-6 rounded-2xl animate-fadeIn">
+            <h3 className="text-lg md:text-xl font-bold text-white mb-4 text-center">
+              📊 Результат расчёта
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {result.copper_diameter !== undefined && (
-                <>
-                  <div className="glass-card p-4 text-center">
-                    <div className="text-sm text-white/50">Диаметр меди</div>
-                    <div className="text-2xl font-bold text-orange-300">
-                      {result.copper_diameter.toFixed(2)} <span className="text-sm text-white/40">мм</span>
-                    </div>
+            {/* Одиночная навивка */}
+            {result.copper_diameter !== undefined && (
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
+                <div className="glass-card p-4 text-center">
+                  <div className="text-xs md:text-sm text-white/50">Диаметр меди</div>
+                  <div className="text-xl md:text-2xl font-bold text-orange-300">
+                    {result.copper_diameter.toFixed(2)}{' '}
+                    <span className="text-sm text-white/40">мм</span>
                   </div>
-                  <div className="glass-card p-4 text-center">
-                    <div className="text-sm text-white/50">Длина меди</div>
-                    <div className="text-2xl font-bold text-green-300">
-                      {result.copper_length.toFixed(2)} <span className="text-sm text-white/40">мм</span>
-                    </div>
+                </div>
+                <div className="glass-card p-4 text-center">
+                  <div className="text-xs md:text-sm text-white/50">Число витков</div>
+                  <div className="text-xl md:text-2xl font-bold text-blue-300">
+                    {result.turns}
                   </div>
-                </>
-              )}
-
-              {result.primary_copper_diameter !== undefined && (
-                <>
-                  <div className="glass-card p-4 text-center">
-                    <div className="text-sm text-white/50">Диаметр первичной меди</div>
-                    <div className="text-xl font-bold text-orange-300">
-                      {result.primary_copper_diameter.toFixed(2)} мм
-                    </div>
+                </div>
+                <div className="glass-card p-4 text-center">
+                  <div className="text-xs md:text-sm text-white/50">Длина меди</div>
+                  <div className="text-xl md:text-2xl font-bold text-green-300">
+                    {result.copper_length_m.toFixed(2)}{' '}
+                    <span className="text-sm text-white/40">м</span>
                   </div>
-                  <div className="glass-card p-4 text-center">
-                    <div className="text-sm text-white/50">Диаметр вторичной меди</div>
-                    <div className="text-xl font-bold text-purple-300">
-                      {result.secondary_copper_diameter.toFixed(2)} мм
-                    </div>
+                </div>
+                <div className="glass-card p-4 text-center">
+                  <div className="text-xs md:text-sm text-white/50">Вес меди</div>
+                  <div className="text-xl md:text-2xl font-bold text-amber-300">
+                    {result.weight_g.toFixed(1)}{' '}
+                    <span className="text-sm text-white/40">г</span>
                   </div>
-                  <div className="glass-card p-4 text-center">
-                    <div className="text-sm text-white/50">Длина первичной меди</div>
-                    <div className="text-xl font-bold text-green-300">
-                      {result.primary_copper_length.toFixed(2)} мм
-                    </div>
-                  </div>
-                  <div className="glass-card p-4 text-center">
-                    <div className="text-sm text-white/50">Длина вторичной меди</div>
-                    <div className="text-xl font-bold text-green-300">
-                      {result.secondary_copper_length.toFixed(2)} мм
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {result.weight_estimate && (
-              <div className="mt-4 glass p-4 rounded-xl text-center border border-amber-500/20">
-                <span className="font-semibold text-white/70">⚖️ Вес меди:</span>
-                <span className="ml-2 text-2xl font-bold text-amber-300">
-                  {result.weight_estimate.toFixed(2)} г
-                </span>
+                </div>
               </div>
+            )}
+
+            {/* Двойная навивка */}
+            {result.primary_copper_diameter !== undefined && (
+              <>
+                {result.ratio !== undefined && (
+                  <div className="text-center text-white/50 text-sm mb-3">
+                    Соотношение 1 : {result.ratio}
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-3 md:gap-4 mb-3 md:mb-4">
+                  <div className="glass-card p-4 text-center">
+                    <div className="text-xs md:text-sm text-white/50">Первичка ⌀</div>
+                    <div className="text-lg md:text-xl font-bold text-orange-300">
+                      {result.primary_copper_diameter.toFixed(2)}{' '}
+                      <span className="text-sm text-white/40">мм</span>
+                    </div>
+                  </div>
+                  <div className="glass-card p-4 text-center">
+                    <div className="text-xs md:text-sm text-white/50">Вторичка ⌀</div>
+                    <div className="text-lg md:text-xl font-bold text-purple-300">
+                      {result.secondary_copper_diameter.toFixed(2)}{' '}
+                      <span className="text-sm text-white/40">мм</span>
+                    </div>
+                  </div>
+                  <div className="glass-card p-4 text-center">
+                    <div className="text-xs md:text-sm text-white/50">Витков первички</div>
+                    <div className="text-lg md:text-xl font-bold text-blue-300">
+                      {result.primary_turns}
+                    </div>
+                  </div>
+                  <div className="glass-card p-4 text-center">
+                    <div className="text-xs md:text-sm text-white/50">Витков вторички</div>
+                    <div className="text-lg md:text-xl font-bold text-blue-300">
+                      {result.secondary_turns}
+                    </div>
+                  </div>
+                  <div className="glass-card p-4 text-center">
+                    <div className="text-xs md:text-sm text-white/50">Длина первички</div>
+                    <div className="text-lg md:text-xl font-bold text-green-300">
+                      {result.primary_copper_length_m.toFixed(2)}{' '}
+                      <span className="text-sm text-white/40">м</span>
+                    </div>
+                  </div>
+                  <div className="glass-card p-4 text-center">
+                    <div className="text-xs md:text-sm text-white/50">Длина вторички</div>
+                    <div className="text-lg md:text-xl font-bold text-green-300">
+                      {result.secondary_copper_length_m.toFixed(2)}{' '}
+                      <span className="text-sm text-white/40">м</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="glass p-4 rounded-xl text-center border border-amber-500/20">
+                  <span className="font-semibold text-white/70">⚖️ Общий вес меди:</span>
+                  <span className="ml-2 text-xl md:text-2xl font-bold text-amber-300">
+                    {result.weight_g.toFixed(1)} г
+                  </span>
+                </div>
+              </>
             )}
           </div>
         )}

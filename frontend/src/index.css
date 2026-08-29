@@ -316,3 +316,31 @@ code {
   -webkit-overflow-scrolling: touch !important;
   max-width: 100%;
 }
+/* Глобальная прокрутка для всех таблиц на мобильных */
+@media (max-width: 768px) {
+  .glass-table,
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+}
+/* ============ ТЕНИ ПОД КАРТОЧКАМИ ============ */
+.glass-card {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.glass-card:hover {
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+/* На телефонах не "приподнимаем" карточку после касания */
+@media (hover: none) {
+  .glass-card:hover {
+    transform: none;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}

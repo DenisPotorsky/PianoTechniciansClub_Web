@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'http://192.168.0.4:8000/api/v1';
+const API_BASE = process.env.REACT_APP_API_URL || `http://${window.location.hostname}:8000/api/v1`;
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -17,7 +17,6 @@ api.interceptors.request.use(
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('✅ Токен добавлен в запрос');
     }
 
     return config;

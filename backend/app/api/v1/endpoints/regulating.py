@@ -20,15 +20,11 @@ async def get_params(
         db: Session = Depends(get_db)
 ):
     query = db.query(RegulatingParam)
-
-    # Загружаем все данные
     all_params = query.all()
 
-    # Фильтр по бренду (регистронезависимый через Python)
     if brand:
         all_params = [p for p in all_params if p.brand.lower() == brand.lower()]
 
-    # Поиск (регистронезависимый через Python)
     if search:
         search_lower = search.lower()
         all_params = [
@@ -38,7 +34,6 @@ async def get_params(
             or search_lower in r.parameter.lower()
         ]
 
-    # Сортировка и лимит
     all_params = sorted(all_params, key=lambda x: (x.brand, x.model))[:limit]
 
     return [{
@@ -114,7 +109,6 @@ async def import_csv(
     added = 0
     errors = []
 
-    # Загружаем все существующие записи для проверки дубликатов
     existing_params = db.query(RegulatingParam).all()
 
     for row in reader:
@@ -129,7 +123,6 @@ async def import_csv(
                 errors.append(f"Пропущены поля в строке: {row}")
                 continue
 
-            # Проверка дубликатов через Python (регистронезависимо)
             existing = None
             for p in existing_params:
                 if (p.brand.lower() == brand.lower() and
@@ -150,7 +143,7 @@ async def import_csv(
                 unit=unit
             )
             db.add(new_param)
-            existing_params.append(new_param)  # Добавляем в список для проверки следующих строк
+            existing_params.append(new_param)
             added += 1
 
         except Exception as e:
