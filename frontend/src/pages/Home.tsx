@@ -69,7 +69,7 @@ const Home: React.FC = () => {
         <div className="glass-card max-w-5xl mx-auto p-4 md:p-8 lg:p-10 text-center">
           {/*<div className="text-4xl md:text-6xl mb-3">🎹</div>*/}
           <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-2 md:mb-3">
-            Piano Technicians Club
+            PianoTechniciansClub
           </h1>
           <p className="text-base md:text-xl text-white/70 mb-4 md:mb-5">
             Закрытый клуб для фортепианных мастеров экстра-класса
@@ -135,7 +135,7 @@ const Home: React.FC = () => {
           </div>
 
           <p className="text-white/70 text-base md:text-lg text-center max-w-3xl mx-auto mb-8 md:mb-10">
-            <span className="text-white font-semibold">Piano Technicians Club</span> — закрытое
+            <span className="text-white font-semibold">PianoTechniciansClub</span> — закрытое
             сообщество фортепианных мастеров, реставраторов и настройщиков экстра-класса.
             Базы данных, профессиональные инструменты расчёта и обмен опытом
             между лучшими специалистами отрасли.

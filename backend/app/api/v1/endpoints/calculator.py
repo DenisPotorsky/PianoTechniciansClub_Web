@@ -57,3 +57,32 @@ async def calculate(
     db.commit()
 
     return {"result": result}
+
+
+from typing import List
+
+
+# ... (существующий код) ...
+
+@router.get("/history", response_model=List[dict])
+async def get_calculation_history(
+        current_user: User = Depends(require_member),
+        db: Session = Depends(get_db)
+):
+    """Получить историю расчетов текущего пользователя"""
+    calculations = db.query(Calculation).filter(
+        Calculation.user_id == current_user.id
+    ).order_by(Calculation.created_at.desc()).limit(10).all()
+
+    return [
+        {
+            "id": calc.id,
+            "winding_type": calc.winding_type,
+            "core_diameter": calc.core_diameter,
+            "total_diameter": calc.total_diameter,
+            "string_length": calc.string_length,
+            "result_data": calc.result_data,  # Это строка, распарсим на фронте
+            "created_at": calc.created_at.isoformat()
+        }
+        for calc in calculations
+    ]

@@ -5,20 +5,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="948d3fdf-0cb0-43de-99eb-c8ebc0fbb481" name="Changes" comment="git">
-      <change beforePath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/calculator.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/calculator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/regulating.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/app/api/v1/endpoints/regulating.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/.idea/dbnavigator.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dbnavigator.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/PianoTechniciansClub_Web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/PianoTechniciansClub_Web.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/app.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/app/calculator.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/app/calculator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/piano_club.db" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/piano_club.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Home.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/Calculator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Calculator.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DBNavigator.Project.Workspace.Settings">
+    <assistant-settings>
+      <credential-settings>
+        <credentials />
+      </credential-settings>
+      <profile-settings>
+        <profiles />
+      </profile-settings>
+      <mcp-server-settings>
+        <workspace-integration value="false" />
+        <mcp-servers />
+        <mcp-tool-approvals />
+      </mcp-server-settings>
+    </assistant-settings>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -248,6 +263,10 @@
       <workItem from="1787844168596" duration="1025000" />
       <workItem from="1787846361974" duration="9512000" />
       <workItem from="1787925598238" duration="3798000" />
+      <workItem from="1787977322990" duration="3646000" />
+      <workItem from="1787987971006" duration="153000" />
+      <workItem from="1787996919281" duration="1983000" />
+      <workItem from="1788002366779" duration="1367000" />
     </task>
     <task id="LOCAL-00001" summary="предварительный проект собран">
       <option name="closed" value="true" />

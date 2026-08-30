@@ -51,7 +51,7 @@ const Layout: React.FC = () => {
                         {/* Логотип */}
                         <Link to="/"
                               className="text-2xl font-bold text-white hover:opacity-80 transition whitespace-nowrap">
-                            Piano Technicians Club
+                            PianoTechniciansClub
                         </Link>
 
                         {/* Профиль + Бургер (справа) */}

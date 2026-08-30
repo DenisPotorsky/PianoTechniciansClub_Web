@@ -79,6 +79,8 @@ class StringCalculator:
             "secondary_turns": int(round(turns2)),
             "primary_copper_length_m": round(primary_length_mm / 1000, 2),
             "secondary_copper_length_m": round(secondary_length_mm / 1000, 2),
+            "primary_weight_g": round(weight1, 1),
+            "secondary_weight_g": round(weight2, 1),
             "weight_g": round(weight1 + weight2, 1)
         }
 
