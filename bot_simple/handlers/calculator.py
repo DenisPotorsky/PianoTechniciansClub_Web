@@ -72,13 +72,11 @@ class CalculatorHandler(BaseHandler):
         rows = [
             [InlineKeyboardButton("🧮 Калькулятор струн", callback_data="calc_start")],
             [InlineKeyboardButton("📅 Возраст фортепиано", callback_data="age_start")],
+            [InlineKeyboardButton("📏 Мензуры", callback_data="mensur_start")],
+            [InlineKeyboardButton("🔧 Регулировка", callback_data="reg_start")],
+            [InlineKeyboardButton("👤 Мой профиль", callback_data="profile_show")],
             [InlineKeyboardButton("🌐 Сайт клуба", url="https://piano-technicians.club")],
-            [
-                InlineKeyboardButton("📢 Канал", url=config.CHANNEL_URL),
-                InlineKeyboardButton("💬 Чат", url=config.CHAT_URL)
-            ]
         ]
-
         access_service = AccessService()
         if access_service.is_admin_panel_visible(db_user):
             role_icon = "" if db_user.is_super_admin else "️"

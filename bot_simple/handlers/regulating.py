@@ -70,11 +70,8 @@ class RegulatingHandler(BaseHandler):
             [InlineKeyboardButton("📅 Возраст фортепиано", callback_data="age_start")],
             [InlineKeyboardButton("📏 Мензуры", callback_data="mensur_start")],
             [InlineKeyboardButton("🔧 Регулировка", callback_data="reg_start")],
+            [InlineKeyboardButton("👤 Мой профиль", callback_data="profile_show")],
             [InlineKeyboardButton("🌐 Сайт клуба", url="https://piano-technicians.club")],
-            [
-                InlineKeyboardButton("📢 Канал", url=cfg.CHANNEL_URL),
-                InlineKeyboardButton("💬 Чат", url=cfg.CHAT_URL)
-            ]
         ]
         access_service = AccessService()
         if access_service.is_admin_panel_visible(db_user):

@@ -3,9 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from pydantic import BaseModel
 from typing import Optional
-
 from app.database import get_db
-from app.models import User
+from app.models import User, Calculation
 from app.core.security import require_member
 
 router = APIRouter()
@@ -13,9 +12,9 @@ router = APIRouter()
 
 class ProfileUpdate(BaseModel):
     first_name: str
-    last_name: Optional[str] = None
-    username: str
     email: str
+    phone: Optional[str] = None
+    city: Optional[str] = None
 
 
 @router.put("/profile")
@@ -24,39 +23,41 @@ async def update_profile(
         current_user: User = Depends(require_member),
         db: Session = Depends(get_db)
 ):
-    """Обновление профиля пользователя"""
+    if data.email:
+        existing = db.query(User).filter(func.lower(User.email) == func.lower(data.email),
+                                         User.id != current_user.id).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Email уже используется")
 
-    # Проверяем, не занят ли username другим пользователем
-    existing = db.query(User).filter(
-        func.lower(User.username) == func.lower(data.username),
-        User.id != current_user.id
-    ).first()
-
-    if existing:
-        raise HTTPException(status_code=400, detail="Имя пользователя уже занято")
-
-    # Проверяем, не занят ли email другим пользователем
-    existing = db.query(User).filter(
-        func.lower(User.email) == func.lower(data.email),
-        User.id != current_user.id
-    ).first()
-
-    if existing:
-        raise HTTPException(status_code=400, detail="Email уже используется")
-
-    # Обновляем
     current_user.first_name = data.first_name
-    current_user.last_name = data.last_name
-    current_user.username = data.username
     current_user.email = data.email
+    current_user.phone = data.phone
+    current_user.city = data.city
+
     db.commit()
     db.refresh(current_user)
+    return {"message": "Профиль обновлён"}
 
-    return {
-        "id": current_user.id,
-        "first_name": current_user.first_name,
-        "last_name": current_user.last_name,
-        "username": current_user.username,
-        "email": current_user.email,
-        "message": "Профиль обновлён"
-    }
+
+@router.get("/stats")
+async def get_stats(current_user: User = Depends(require_member), db: Session = Depends(get_db)):
+    count = db.query(func.count(Calculation.id)).filter(Calculation.user_id == current_user.id).scalar() or 0
+    last = db.query(func.max(Calculation.created_at)).filter(Calculation.user_id == current_user.id).scalar()
+    return {"count": count, "last_date": last}
+
+
+@router.post("/logout-club")
+async def logout_club(current_user: User = Depends(require_member), db: Session = Depends(get_db)):
+    db.query(Calculation).filter(Calculation.user_id == current_user.id).delete()
+    current_user.is_approved = False
+    current_user.is_admin = False
+    current_user.is_super_admin = False
+    db.commit()
+    return {"message": "Вы вышли из клуба"}
+
+
+@router.delete("/profile")
+async def delete_profile(current_user: User = Depends(require_member), db: Session = Depends(get_db)):
+    db.delete(current_user)
+    db.commit()
+    return {"message": "Профиль удалён"}

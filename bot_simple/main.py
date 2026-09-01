@@ -17,6 +17,7 @@ from handlers.age import AgeHandler
 from handlers.mensur import MensurHandler
 from handlers.regulating import RegulatingHandler
 from handlers.admin import AdminHandler
+from handlers.profile import ProfileHandler
 from app.logger import setup_logger
 
 logging.basicConfig(level=logging.INFO)
@@ -90,6 +91,7 @@ def main():
     age_handler = AgeHandler(user_service)
     mensur_handler = MensurHandler(user_service)
     regulating_handler = RegulatingHandler(user_service)
+    profile_handler = ProfileHandler(user_service, access_service, notification_service, user_mgmt_service)
     admin_handler = AdminHandler(admin_service, user_mgmt_service, access_service, user_service)
 
     application.add_handler(CommandHandler("start", start_handler.handle))
@@ -97,6 +99,8 @@ def main():
     application.add_handler(CommandHandler("age", age_handler.handle))
     application.add_handler(CommandHandler("mensur", mensur_handler.handle))
     application.add_handler(CommandHandler("reg", regulating_handler.handle))
+    application.add_handler(CommandHandler("profile", profile_handler.handle))
+    application.add_handler(profile_handler.get_conversation_handler())
     application.add_handler(CommandHandler("admin", admin_handler.handle))
 
     application.add_handler(calc_handler.get_conversation_handler())
@@ -272,6 +276,22 @@ def main():
                 await admin_handler.show_admins_management(update, context)
             else:
                 await query.answer("❌ Пользователь не найден")
+
+        # === ПРОФИЛЬ ===
+        elif data == "profile_show":
+            await profile_handler.show_profile(update, context)
+
+        elif data == "profile_logout":
+            await profile_handler.logout_confirm(update, context)
+
+        elif data == "profile_do_logout":
+            await profile_handler.do_logout(update, context)
+
+        elif data == "profile_delete_confirm":
+            await profile_handler.delete_confirm(update, context)
+
+        elif data == "profile_delete_final":
+            await profile_handler.delete_final(update, context)
 
         # === ГЛАВНОЕ МЕНЮ ===
         elif data == "back_menu":

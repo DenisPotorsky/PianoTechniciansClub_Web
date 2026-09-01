@@ -60,7 +60,7 @@ class StartHandler(BaseHandler):
 
         text = (
             f"Привет, {user.first_name}! 👋\n\n"
-            f"**PianoTechniciansClub** — это закрытый клуб для профессиональных фортепианных мастеров.\n\n"
+            f"**Piano Technicians Club** — это закрытый клуб для профессиональных фортепианных мастеров.\n\n"
             f"🔹 Калькулятор басовых струн\n"
             f"🔹 Атлас возрастов фортепиано\n"
             f"🔹 База мензур\n"
@@ -78,6 +78,7 @@ class StartHandler(BaseHandler):
             [InlineKeyboardButton("📅 Возраст фортепиано", callback_data="age_start")],
             [InlineKeyboardButton("📏 Мензуры", callback_data="mensur_start")],
             [InlineKeyboardButton("🔧 Регулировка", callback_data="reg_start")],
+            [InlineKeyboardButton("👤 Мой профиль", callback_data="profile_show")],
             [InlineKeyboardButton("🌐 Сайт клуба", url="https://piano-technicians.club")],
             [
                 InlineKeyboardButton("📢 Канал", url=config.CHANNEL_URL),
@@ -94,7 +95,7 @@ class StartHandler(BaseHandler):
 
         text = (
             f"Привет, {update.effective_user.first_name}! 👋\n\n"
-            f"Добро пожаловать в **PianoTechniciansClub**.\n"
+            f"Добро пожаловать в **Piano Technicians Club**.\n"
             f"✅ Статус: {status_text}\n\n"
             f"Выберите инструмент:"
         )

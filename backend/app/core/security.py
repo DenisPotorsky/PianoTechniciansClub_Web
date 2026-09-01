@@ -54,7 +54,6 @@ async def get_current_user(
         raise HTTPException(status_code=401, detail="Пользователь не найден")
     if not user.is_active:
         raise HTTPException(status_code=401, detail="Пользователь не активен")
-
     return user
 
 
@@ -71,6 +70,7 @@ async def require_super_admin(current_user: User = Depends(get_current_user)) ->
 
 
 async def require_member(current_user: User = Depends(get_current_user)) -> User:
-    if not current_user.is_subscribed:
-        raise HTTPException(status_code=403, detail="Требуется подписка")
+    # ИСПРАВЛЕНО: доступ по подписке ИЛИ по одобрению в боте
+    if not current_user.is_subscribed and not current_user.is_approved:
+        raise HTTPException(status_code=403, detail="Требуется подписка или одобрение")
     return current_user

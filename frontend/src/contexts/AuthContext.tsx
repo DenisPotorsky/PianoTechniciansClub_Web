@@ -8,8 +8,11 @@ interface User {
   username: string;
   first_name: string;
   last_name: string | null;
+  phone: string | null;      // <-- ДОБАВЛЕНО
+  city: string | null;       // <-- ДОБАВЛЕНО
   telegram_id: number | null;
   is_subscribed: boolean;
+  is_approved: boolean;      // <-- ДОБАВЛЕНО
   is_admin: boolean;
   is_super_admin: boolean;
   is_active: boolean;
@@ -20,8 +23,8 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>; // ✅ ДОЛЖЕН ВОЗВРАЩАТЬ boolean
-  whitelistLogin: (telegramId: number) => Promise<boolean>;    // ✅ ДОЛЖЕН ВОЗВРАЩАТЬ boolean
+  login: (email: string, password: string) => Promise<boolean>;
+  whitelistLogin: (telegramId: number) => Promise<boolean>;
   logout: () => void;
   requestAccess: (data: { full_name: string; email: string; message?: string }) => Promise<boolean>;
 }
@@ -44,7 +47,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (savedToken) {
         try {
           setToken(savedToken);
-          // Проверяем валидность токена
+          // Проверяем валидность токена и получаем свежие данные (включая phone/city)
           const response = await api.get('/auth/me', {
             headers: { Authorization: `Bearer ${savedToken}` }
           });
@@ -72,20 +75,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const { access_token, ...userData } = response.data;
 
-      // Сохраняем токен в localStorage
       localStorage.setItem('token', access_token);
-      localStorage.setItem('access_token', access_token); // Для совместимости
+      localStorage.setItem('access_token', access_token);
 
       setToken(access_token);
       setUser(userData);
 
       console.log('✅ Вход выполнен успешно');
-      return true; // ✅ ВОЗВРАЩАЕМ boolean
-
+      return true;
     } catch (error: any) {
       console.error('❌ Ошибка входа:', error);
       alert(error.response?.data?.detail || 'Ошибка входа');
-      return false; // ✅ ВОЗВРАЩАЕМ boolean
+      return false;
     } finally {
       setLoading(false);
     }
@@ -99,7 +100,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const { access_token, ...userData } = response.data;
 
-      // Сохраняем токен в localStorage
       localStorage.setItem('token', access_token);
       localStorage.setItem('access_token', access_token);
 
@@ -107,12 +107,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(userData);
 
       console.log('✅ Вход по Telegram ID выполнен успешно');
-      return true; // ✅ ВОЗВРАЩАЕМ boolean
-
+      return true;
     } catch (error: any) {
       console.error('❌ Ошибка входа по Telegram ID:', error);
       alert(error.response?.data?.detail || 'Ошибка входа');
-      return false; // ✅ ВОЗВРАЩАЕМ boolean
+      return false;
     } finally {
       setLoading(false);
     }
@@ -128,11 +127,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setLoading(true);
       await api.post('/auth/request-access', data);
       alert('✅ Заявка отправлена! Ожидайте подтверждения.');
-      return true; // ✅ ВОЗВРАЩАЕМ boolean
+      return true;
     } catch (error: any) {
       console.error('❌ Ошибка отправки заявки:', error);
       alert(error.response?.data?.detail || 'Ошибка отправки заявки');
-      return false; // ✅ ВОЗВРАЩАЕМ boolean
+      return false;
     } finally {
       setLoading(false);
     }
@@ -153,8 +152,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       user,
       token,
       loading,
-      login,      // ✅ теперь соответствует типу
-      whitelistLogin, // ✅ теперь соответствует типу
+      login,
+      whitelistLogin,
       logout,
       requestAccess
     }}>

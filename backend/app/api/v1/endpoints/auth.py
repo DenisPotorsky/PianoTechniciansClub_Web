@@ -1,220 +1,181 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
-from typing import Optional
+from sqlalchemy import func
 from pydantic import BaseModel, EmailStr
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
+from typing import Optional
+from datetime import datetime
+import secrets
 
 from app.database import get_db
 from app.models import User, AccessRequest, EmailVerification
 from app.core.security import (
-    get_password_hash,
     verify_password,
+    get_password_hash,
     create_access_token,
+    get_current_user,
     require_admin
 )
+
+# УБРАЛИ ИМПОРТ EMAIL ФУНКЦИЙ, ЧТОБЫ НЕ ПАДАЛО
+# from app.utils.email import send_verification_email, send_approval_email
 
 router = APIRouter()
 
 
-class UserLogin(BaseModel):
+# === СХЕМЫ ===
+
+class LoginRequest(BaseModel):
     email: str
     password: str
-
-
-class UserCreate(BaseModel):
-    email: EmailStr
-    username: str
-    first_name: str
-    last_name: Optional[str] = None
-    password: str
-
-
-class WhitelistLoginRequest(BaseModel):
-    telegram_id: int
-
-
-class AccessRequestCreate(BaseModel):
-    email: EmailStr
-    full_name: str
-    message: Optional[str] = None
 
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str
     id: int
+    email: str
     username: str
     first_name: str
     last_name: Optional[str]
-    email: Optional[str]
+    phone: Optional[str]
+    city: Optional[str]
     telegram_id: Optional[int]
     is_subscribed: bool
+    is_approved: bool
     is_admin: bool
     is_super_admin: bool
+    created_at: datetime
 
 
-@router.post("/register")
-async def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    existing = db.query(User).filter(User.email == user_data.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email уже зарегистрирован")
-
-    existing = db.query(User).filter(User.username == user_data.username).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Username уже занят")
-
-    hashed = get_password_hash(user_data.password)
-    new_user = User(
-        email=user_data.email,
-        username=user_data.username,
-        first_name=user_data.first_name,
-        last_name=user_data.last_name,
-        hashed_password=hashed,
-        is_active=False,
-        is_subscribed=False,
-        is_admin=False,
-        is_super_admin=False,
-        created_at=datetime.utcnow()
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return {
-        "id": new_user.id,
-        "email": new_user.email,
-        "username": new_user.username,
-        "first_name": new_user.first_name,
-        "message": "Пользователь зарегистрирован."
-    }
+class RequestAccessSchema(BaseModel):
+    full_name: str
+    email: EmailStr
+    message: Optional[str] = None
 
 
-@router.post("/login")
-async def login(login_data: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == login_data.email).first()
+class WhitelistLoginRequest(BaseModel):
+    telegram_id: int
 
-    if not user:
-        raise HTTPException(status_code=401, detail="Неверный email или пароль")
 
-    if not verify_password(login_data.password, user.hashed_password):
+# === ЭНДПОИНТЫ ===
+
+@router.post("/login", response_model=TokenResponse)
+async def login(data: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(func.lower(User.email) == func.lower(data.email)).first()
+
+    if not user or not verify_password(data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Неверный email или пароль")
 
     if not user.is_active:
-        raise HTTPException(status_code=403, detail="Аккаунт не активирован.")
-
-    token = create_access_token({"sub": str(user.id)})
-
-    return TokenResponse(
-        access_token=token,
-        token_type="bearer",
-        id=user.id,
-        username=user.username,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        email=user.email,
-        telegram_id=user.telegram_id,
-        is_subscribed=user.is_subscribed,
-        is_admin=user.is_admin,
-        is_super_admin=user.is_super_admin
-    )
-
-
-@router.post("/whitelist-login")
-async def whitelist_login(request: WhitelistLoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.telegram_id == request.telegram_id).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пользователь не найден"
-        )
-
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Аккаунт деактивирован"
-        )
+        raise HTTPException(status_code=403, detail="Аккаунт деактивирован")
 
     user.last_login = datetime.utcnow()
     db.commit()
 
-    token = create_access_token({"sub": str(user.id)})
-
-    return TokenResponse(
-        access_token=token,
-        token_type="bearer",
-        id=user.id,
-        username=user.username,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        email=user.email,
-        telegram_id=user.telegram_id,
-        is_subscribed=user.is_subscribed,
-        is_admin=user.is_admin,
-        is_super_admin=user.is_super_admin
-    )
-
-
-@router.post("/access-request")
-async def request_access(request: AccessRequestCreate, db: Session = Depends(get_db)):
-    existing = db.query(AccessRequest).filter(
-        AccessRequest.email == request.email,
-        AccessRequest.status == "pending"
-    ).first()
-
-    if existing:
-        raise HTTPException(status_code=400, detail="Заявка уже отправлена")
-
-    access_request = AccessRequest(
-        email=request.email,
-        full_name=request.full_name,
-        message=request.message,
-        status="pending",
-        created_at=datetime.utcnow()
-    )
-
-    db.add(access_request)
-    db.commit()
-    db.refresh(access_request)
+    access_token = create_access_token(data={"sub": str(user.id)})
 
     return {
-        "id": access_request.id,
-        "message": "Заявка отправлена на рассмотрение"
+        "access_token": access_token,
+        "token_type": "bearer",
+        "id": user.id,
+        "email": user.email,
+        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "phone": user.phone,
+        "city": user.city,
+        "telegram_id": user.telegram_id,
+        "is_subscribed": user.is_subscribed,
+        "is_approved": user.is_approved,
+        "is_admin": user.is_admin,
+        "is_super_admin": user.is_super_admin,
+        "created_at": user.created_at
     }
 
 
-@router.post("/request-password-reset")
-async def request_password_reset(email: str, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
-    return {"message": "Ссылка отправлена на почту"}
-
-
-@router.post("/reset-password")
-async def reset_password(token: str, new_password: str, db: Session = Depends(get_db)):
-    return {"message": "Пароль изменён"}
-
-
 @router.get("/me")
-async def get_current_user(current_user: User = Depends(require_admin), db: Session = Depends(get_db)):
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    """Получение данных текущего пользователя"""
     return {
         "id": current_user.id,
+        "email": current_user.email,
         "username": current_user.username,
         "first_name": current_user.first_name,
         "last_name": current_user.last_name,
-        "email": current_user.email,
+        "phone": current_user.phone,
+        "city": current_user.city,
         "telegram_id": current_user.telegram_id,
         "is_subscribed": current_user.is_subscribed,
+        "is_approved": current_user.is_approved,
         "is_admin": current_user.is_admin,
         "is_super_admin": current_user.is_super_admin,
-        "is_active": current_user.is_active
+        "is_active": current_user.is_active,
+        "created_at": current_user.created_at
+    }
+
+
+@router.post("/request-access")
+async def request_access(
+        data: RequestAccessSchema,
+        background_tasks: BackgroundTasks,
+        db: Session = Depends(get_db)
+):
+    existing_user = db.query(User).filter(func.lower(User.email) == func.lower(data.email)).first()
+    if existing_user:
+        if existing_user.is_approved or existing_user.is_subscribed:
+            raise HTTPException(status_code=400, detail="Вы уже зарегистрированы")
+        existing_req = db.query(AccessRequest).filter(
+            AccessRequest.email == data.email,
+            AccessRequest.status == "pending"
+        ).first()
+        if existing_req:
+            raise HTTPException(status_code=400, detail="Заявка уже на рассмотрении")
+
+    new_request = AccessRequest(
+        email=data.email,
+        full_name=data.full_name,
+        message=data.message,
+        status="pending"
+    )
+    db.add(new_request)
+    db.commit()
+
+    return {"message": "Заявка отправлена. Ожидайте подтверждения."}
+
+
+@router.post("/whitelist-login", response_model=TokenResponse)
+async def whitelist_login(data: WhitelistLoginRequest, db: Session = Depends(get_db)):
+    """Вход по Telegram ID"""
+    user = db.query(User).filter(User.telegram_id == data.telegram_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь с таким Telegram ID не найден")
+
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Аккаунт деактивирован")
+
+    if not user.is_approved and not user.is_subscribed:
+        raise HTTPException(status_code=403, detail="Доступ запрещен. Ожидает одобрения.")
+
+    user.last_login = datetime.utcnow()
+    db.commit()
+
+    access_token = create_access_token(data={"sub": str(user.id)})
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "id": user.id,
+        "email": user.email,
+        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "phone": user.phone,
+        "city": user.city,
+        "telegram_id": user.telegram_id,
+        "is_subscribed": user.is_subscribed,
+        "is_approved": user.is_approved,
+        "is_admin": user.is_admin,
+        "is_super_admin": user.is_super_admin,
+        "created_at": user.created_at
     }

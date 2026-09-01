@@ -12,17 +12,17 @@ class User(Base):
     username = Column(String, nullable=True)
     first_name = Column(String, nullable=False)
     email = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+    city = Column(String, nullable=True)
 
-    # Уровни доступа (Ваша архитектура)
     is_approved = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
     is_super_admin = Column(Boolean, default=False)
 
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Связи
-    calculations = relationship("Calculation", back_populates="user")
-    subscription = relationship("Subscription", back_populates="user", uselist=False)
+    calculations = relationship("Calculation", back_populates="user", cascade="all, delete-orphan")
+    subscription = relationship("Subscription", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
 
 class Calculation(Base):
