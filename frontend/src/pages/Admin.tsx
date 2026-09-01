@@ -9,7 +9,11 @@ interface User {
   username: string;
   first_name: string;
   last_name: string | null;
+  email: string | null;
+  phone: string | null;
+  city: string | null;
   is_subscribed: boolean;
+  is_approved: boolean;
   is_admin: boolean;
   is_super_admin: boolean;
   created_at: string;
@@ -72,9 +76,12 @@ const Admin: React.FC = () => {
   const [editForm, setEditForm] = useState({
     first_name: '',
     last_name: '',
-    username: '',
+    email: '',
+    phone: '',
+    city: '',
     is_subscribed: false,
     is_admin: false,
+    is_approved: false,
     new_password: ''
   });
 
@@ -146,9 +153,12 @@ const Admin: React.FC = () => {
     setEditForm({
       first_name: user.first_name,
       last_name: user.last_name || '',
-      username: user.username || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      city: user.city || '',
       is_subscribed: user.is_subscribed,
       is_admin: user.is_admin,
+      is_approved: user.is_approved,
       new_password: ''
     });
     setShowEditModal(true);
@@ -162,9 +172,12 @@ const Admin: React.FC = () => {
       await api.put(`/admin/users/${editingUser.id}`, {
         first_name: editForm.first_name,
         last_name: editForm.last_name || null,
-        username: editForm.username,
+        email: editForm.email || null,
+        phone: editForm.phone || null,
+        city: editForm.city || null,
         is_subscribed: editForm.is_subscribed,
-        is_admin: editForm.is_admin
+        is_admin: editForm.is_admin,
+        is_approved: editForm.is_approved
       });
 
       if (editForm.new_password) {
@@ -234,7 +247,7 @@ const Admin: React.FC = () => {
     if (!window.confirm(`Вы уверены, что хотите ${action === 'approve' ? 'одобрить' : 'отклонить'} заявку?`)) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/admin/requests/${requestId}/${action}`, {
+      const response = await fetch(`${api.defaults.baseURL}/admin/requests/${requestId}/${action}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -330,6 +343,9 @@ const Admin: React.FC = () => {
   const filteredUsers = users.filter(u =>
     u.username?.toLowerCase().includes(search.toLowerCase()) ||
     u.first_name?.toLowerCase().includes(search.toLowerCase()) ||
+    u.email?.toLowerCase().includes(search.toLowerCase()) ||
+    u.phone?.includes(search) ||
+    u.city?.toLowerCase().includes(search.toLowerCase()) ||
     String(u.telegram_id).includes(search)
   );
 
@@ -340,10 +356,6 @@ const Admin: React.FC = () => {
           <div>
             <h2 className="text-3xl font-bold text-white">👑 Админ-панель</h2>
             <p className="text-white/50 mt-1">Управление клубом</p>
-          </div>
-          <div className="flex gap-3">
-            {/*<button onClick={() => navigate(-1)} className="glass-btn">← Назад</button>*/}
-            {/*<button onClick={() => { logout(); navigate('/login'); }} className="glass-btn glass-btn-danger">🚪 Выйти</button>*/}
           </div>
         </div>
 
@@ -393,29 +405,43 @@ const Admin: React.FC = () => {
               <h3 className="text-xl font-semibold text-white">👥 Пользователи</h3>
               <input type="text" placeholder="🔍 Поиск..." value={search} onChange={(e) => setSearch(e.target.value)} className="glass-input" />
             </div>
-            <div className="glass-table">
+            <div className="overflow-x-auto glass-table">
               <table className="min-w-full divide-y divide-white/5 text-sm">
                 <thead><tr>
-                  <th className="px-4 py-3 text-left font-medium text-white/40">ID</th>
-                  <th className="px-4 py-3 text-left font-medium text-white/40">Имя</th>
-                  <th className="px-4 py-3 text-left font-medium text-white/40">Telegram ID</th>
-                  <th className="px-4 py-3 text-left font-medium text-white/40">Статус</th>
-                  <th className="px-4 py-3 text-left font-medium text-white/40">Роль</th>
-                  <th className="px-4 py-3 text-left font-medium text-white/40">Действия</th>
+                  <th className="px-3 py-3 text-left font-medium text-white/40">ID</th>
+                  <th className="px-3 py-3 text-left font-medium text-white/40">Имя</th>
+                  <th className="px-3 py-3 text-left font-medium text-white/40">TG ID</th>
+                  <th className="px-3 py-3 text-left font-medium text-white/40">Email</th>
+                  <th className="px-3 py-3 text-left font-medium text-white/40">Телефон</th>
+                  <th className="px-3 py-3 text-left font-medium text-white/40">Город</th>
+                  <th className="px-3 py-3 text-left font-medium text-white/40">Статус</th>
+                  <th className="px-3 py-3 text-left font-medium text-white/40">Роль</th>
+                  <th className="px-3 py-3 text-left font-medium text-white/40">Действия</th>
                 </tr></thead>
                 <tbody>
                   {filteredUsers.map((u) => (
                     <tr key={u.id} className="hover:bg-white/5 transition">
-                      <td className="px-4 py-3 text-white/60">{u.id}</td>
-                      <td className="px-4 py-3 font-medium text-white">{u.first_name} {u.last_name}</td>
-                      <td className="px-4 py-3 text-white/60">{u.telegram_id}</td>
-                      <td className="px-4 py-3">{u.is_subscribed ? <span className="px-2.5 py-1 bg-green-500/20 text-green-300 rounded-full text-xs font-semibold border border-green-500/20">✅ Подписан</span> : <span className="px-2.5 py-1 bg-white/5 text-white/40 rounded-full text-xs font-semibold">⏳ Ожидает</span>}</td>
-                      <td className="px-4 py-3 text-white/60">{u.is_super_admin ? '👑 Супер-админ' : u.is_admin ? '⭐ Админ' : '👤 Пользователь'}</td>
-                      <td className="px-4 py-3 space-x-2">
+                      <td className="px-3 py-3 text-white/60">{u.id}</td>
+                      <td className="px-3 py-3 font-medium text-white">{u.first_name} {u.last_name}</td>
+                      <td className="px-3 py-3 text-white/60 text-xs">{u.telegram_id}</td>
+                      <td className="px-3 py-3 text-white/60 text-xs">{u.email || '—'}</td>
+                      <td className="px-3 py-3 text-white/60 text-xs">{u.phone || '—'}</td>
+                      <td className="px-3 py-3 text-white/60 text-xs">{u.city || '—'}</td>
+                      <td className="px-3 py-3">
+                        {u.is_approved ? (
+                          <span className="px-2 py-1 bg-green-500/20 text-green-300 rounded-full text-xs font-semibold border border-green-500/20">✅ Одобрен</span>
+                        ) : u.is_subscribed ? (
+                          <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/20">📱 Подписан</span>
+                        ) : (
+                          <span className="px-2 py-1 bg-white/5 text-white/40 rounded-full text-xs font-semibold">⏳ Ожидает</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-3 text-white/60 text-xs">{u.is_super_admin ? '👑' : u.is_admin ? '⭐' : '👤'}</td>
+                      <td className="px-3 py-3 space-x-1">
                         {!u.is_super_admin && (
                           <>
-                            <button onClick={() => handleEditUser(u)} className="text-blue-400 hover:text-blue-300 transition font-medium">✏️ Редактировать</button>
-                            <button onClick={() => handleDeleteUser(u.id)} className="text-red-400 hover:text-red-300 transition font-medium">🗑️ Удалить</button>
+                            <button onClick={() => handleEditUser(u)} className="text-blue-400 hover:text-blue-300 transition font-medium text-xs">✏️</button>
+                            <button onClick={() => handleDeleteUser(u.id)} className="text-red-400 hover:text-red-300 transition font-medium text-xs">🗑️</button>
                           </>
                         )}
                       </td>
@@ -570,16 +596,19 @@ const Admin: React.FC = () => {
 
       {showEditModal && editingUser && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="glass-card p-8 max-w-md w-full">
+          <div className="glass-card p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-2xl font-bold text-white mb-4">✏️ Редактирование пользователя</h3>
             <form onSubmit={handleSaveUser} className="space-y-4">
               <div><label className="block text-sm font-medium text-white/70">Имя</label><input type="text" value={editForm.first_name} onChange={(e) => setEditForm({...editForm, first_name: e.target.value})} className="glass-input w-full" required /></div>
               <div><label className="block text-sm font-medium text-white/70">Фамилия</label><input type="text" value={editForm.last_name} onChange={(e) => setEditForm({...editForm, last_name: e.target.value})} className="glass-input w-full" /></div>
-              <div><label className="block text-sm font-medium text-white/70">Имя пользователя</label><input type="text" value={editForm.username} onChange={(e) => setEditForm({...editForm, username: e.target.value})} className="glass-input w-full" required /></div>
+              <div><label className="block text-sm font-medium text-white/70">Email</label><input type="email" value={editForm.email} onChange={(e) => setEditForm({...editForm, email: e.target.value})} className="glass-input w-full" /></div>
+              <div><label className="block text-sm font-medium text-white/70">Телефон</label><input type="tel" value={editForm.phone} onChange={(e) => setEditForm({...editForm, phone: e.target.value})} className="glass-input w-full" /></div>
+              <div><label className="block text-sm font-medium text-white/70">Город</label><input type="text" value={editForm.city} onChange={(e) => setEditForm({...editForm, city: e.target.value})} className="glass-input w-full" /></div>
               <div><label className="block text-sm font-medium text-white/70">Новый пароль</label><input type="text" placeholder="Оставьте пустым" value={editForm.new_password} onChange={(e) => setEditForm({...editForm, new_password: e.target.value})} className="glass-input w-full" /></div>
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 cursor-pointer text-white/70"><input type="checkbox" checked={editForm.is_subscribed} onChange={(e) => setEditForm({...editForm, is_subscribed: e.target.checked})} className="w-4 h-4 accent-indigo-500" /> Подписан</label>
-                <label className="flex items-center gap-2 cursor-pointer text-white/70"><input type="checkbox" checked={editForm.is_admin} onChange={(e) => setEditForm({...editForm, is_admin: e.target.checked})} className="w-4 h-4 accent-indigo-500" disabled={editingUser.is_super_admin} /> Администратор</label>
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 cursor-pointer text-white/70"><input type="checkbox" checked={editForm.is_approved} onChange={(e) => setEditForm({...editForm, is_approved: e.target.checked})} className="w-4 h-4 accent-green-500" /> ✅ Одобрен (доступ к клубу)</label>
+                <label className="flex items-center gap-2 cursor-pointer text-white/70"><input type="checkbox" checked={editForm.is_subscribed} onChange={(e) => setEditForm({...editForm, is_subscribed: e.target.checked})} className="w-4 h-4 accent-indigo-500" /> 📱 Подписан (доступ к сайту)</label>
+                <label className="flex items-center gap-2 cursor-pointer text-white/70"><input type="checkbox" checked={editForm.is_admin} onChange={(e) => setEditForm({...editForm, is_admin: e.target.checked})} className="w-4 h-4 accent-indigo-500" disabled={editingUser.is_super_admin} /> ⭐ Администратор</label>
               </div>
               <div className="flex gap-3 mt-4">
                 <button type="submit" disabled={loading} className="flex-1 glass-btn glass-btn-primary">{loading ? 'Сохранение...' : '💾 Сохранить'}</button>

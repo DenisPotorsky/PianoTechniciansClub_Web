@@ -40,15 +40,14 @@ def decode_access_token(token: str) -> dict:
 
 
 async def get_current_user(
-        credentials: HTTPAuthorizationCredentials = Depends(security),
-        db: Session = Depends(get_db)
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
 ) -> User:
     token = credentials.credentials
     payload = decode_access_token(token)
     user_id = payload.get("sub")
     if user_id is None:
         raise HTTPException(status_code=401, detail="Неверный токен")
-
     user = db.query(User).filter(User.id == int(user_id)).first()
     if user is None:
         raise HTTPException(status_code=401, detail="Пользователь не найден")
@@ -70,7 +69,6 @@ async def require_super_admin(current_user: User = Depends(get_current_user)) ->
 
 
 async def require_member(current_user: User = Depends(get_current_user)) -> User:
-    # ИСПРАВЛЕНО: доступ по подписке ИЛИ по одобрению в боте
     if not current_user.is_subscribed and not current_user.is_approved:
         raise HTTPException(status_code=403, detail="Требуется подписка или одобрение")
     return current_user

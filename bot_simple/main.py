@@ -1,6 +1,6 @@
-import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ConversationHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+
 from app.config import config
 from app.database import SessionLocal
 from repositories.user_repo import UserRepository
@@ -20,24 +20,21 @@ from handlers.admin import AdminHandler
 from handlers.profile import ProfileHandler
 from app.logger import setup_logger
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = setup_logger("main")
 
 
 class ScopedUserRepository:
     def get_by_telegram_id(self, tid):
         db = SessionLocal()
         try:
-            repo = UserRepository(db)
-            return repo.get_by_telegram_id(tid)
+            return UserRepository(db).get_by_telegram_id(tid)
         finally:
             db.close()
 
     def create(self, data):
         db = SessionLocal()
         try:
-            repo = UserRepository(db)
-            return repo.create(data)
+            return UserRepository(db).create(data)
         finally:
             db.close()
 
@@ -46,32 +43,13 @@ class ScopedSubscriptionRepository:
     def get_by_user_id(self, uid):
         db = SessionLocal()
         try:
-            repo = SubscriptionRepository(db)
-            return repo.get_by_user_id(uid)
-        finally:
-            db.close()
-
-    def create(self, data):
-        db = SessionLocal()
-        try:
-            repo = SubscriptionRepository(db)
-            return repo.create(data)
-        finally:
-            db.close()
-
-    def update(self, id, data):
-        db = SessionLocal()
-        try:
-            repo = SubscriptionRepository(db)
-            return repo.update(id, data)
+            return SubscriptionRepository(db).get_by_user_id(uid)
         finally:
             db.close()
 
 
 def main():
     config.validate()
-    logger = setup_logger()
-    logger.info("Конфигурация загружена успешно")
 
     user_repo = ScopedUserRepository()
     sub_repo = ScopedSubscriptionRepository()
@@ -83,7 +61,6 @@ def main():
     user_mgmt_service = UserManagementService()
 
     application = Application.builder().token(config.BOT_TOKEN).build()
-
     notification_service = NotificationService(application.bot)
 
     start_handler = StartHandler(user_service, access_service, notification_service, user_mgmt_service)
@@ -94,211 +71,232 @@ def main():
     profile_handler = ProfileHandler(user_service, access_service, notification_service, user_mgmt_service)
     admin_handler = AdminHandler(admin_service, user_mgmt_service, access_service, user_service)
 
+    # ── КОМАНДЫ ──
     application.add_handler(CommandHandler("start", start_handler.handle))
     application.add_handler(CommandHandler("calc", calc_handler.handle))
     application.add_handler(CommandHandler("age", age_handler.handle))
     application.add_handler(CommandHandler("mensur", mensur_handler.handle))
     application.add_handler(CommandHandler("reg", regulating_handler.handle))
     application.add_handler(CommandHandler("profile", profile_handler.handle))
-    application.add_handler(profile_handler.get_conversation_handler())
     application.add_handler(CommandHandler("admin", admin_handler.handle))
 
+    # ── CONVERSATION HANDLERS ──
+    application.add_handler(profile_handler.get_conversation_handler())
+    application.add_handler(admin_handler.get_edit_conversation_handler())
     application.add_handler(calc_handler.get_conversation_handler())
     application.add_handler(age_handler.get_conversation_handler())
     application.add_handler(mensur_handler.get_conversation_handler())
     application.add_handler(regulating_handler.get_conversation_handler())
-    application.add_handler(admin_handler.get_edit_conversation_handler())
 
+    # ── ГЛОБАЛЬНЫЙ CALLBACK ROUTER ──
     async def global_callback_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
+        if not query or not query.data:
+            return
+
         data = query.data
         user = update.effective_user
         db_user = user_service.get_by_telegram_id(user.id)
 
-        # === ЗАЯВКА НА ВСТУПЛЕНИЕ ===
-        if data == "apply_membership":
-            existing = user_service.get_by_telegram_id(user.id)
-            if existing:
-                if not existing.is_approved:
-                    await query.answer("⏳ Заявка уже подана!", show_alert=True)
+        if data == "noop":
+            await query.answer()
+            return
+
+        # ── НАВИГАЦИЯ ──
+        if data == "back_menu":
+            await query.answer()
+            if db_user:
+                has_access, _ = access_service.has_access(db_user)
+                if has_access:
+                    await start_handler._send_main_menu(update, db_user)
                 else:
-                    await query.answer("✅ Вы уже участник!", show_alert=True)
-                return
+                    await query.edit_message_text("⏳ Ваша заявка ожидает одобрения.")
+            else:
+                await start_handler.handle(update, context)
+            return
 
-            user_service.create_user(
-                telegram_id=user.id,
-                username=user.username,
-                first_name=user.first_name
-            )
-
-            admin_ids = user_mgmt_service.get_admin_ids()
-            await notification_service.notify_admins_new_request(
-                user_name=user.first_name or user.username or "Без имени",
-                telegram_id=user.id,
-                admin_ids=admin_ids
-            )
-
+        # ── ЗАЯВКА НА ВСТУПЛЕНИЕ ──
+        if data == "apply_membership":
+            await query.answer()
+            if not db_user:
+                user_service.create_user(telegram_id=user.id, username=user.username, first_name=user.first_name)
             await query.edit_message_text(
-                f"✅ **Заявка отправлена!**\n\n"
-                f"Администратор получил уведомление и скоро рассмотрит вашу заявку.\n"
-                f"Вы получите сообщение, когда вас одобрят.",
+                "📝 **Заявка отправлена!**\n\n"
+                "Администратор рассмотрит вашу заявку.\n"
+                "Вы получите уведомление о решении.\n\n"
+                "Ожидайте ⏳",
                 parse_mode="Markdown"
             )
-            await query.answer()
-
-        # === ОДОБРЕНИЕ / ОТКЛОНЕНИЕ ИЗ УВЕДОМЛЕНИЯ ===
-        elif data.startswith("approve_"):
-            if not access_service.can_approve_users(db_user):
-                await query.answer("❌ Нет прав", show_alert=True)
-                return
-
-            tid = int(data.split("_")[1])
-            success = user_mgmt_service.approve_user(tid)
-            if success:
-                await query.answer("✅ Пользователь одобрен!")
-                await notification_service.notify_user_approved(tid)
-                admin_ids = user_mgmt_service.get_admin_ids()
-                approver_name = user.first_name or "Админ"
-                await notification_service.notify_admins_user_approved(
-                    user_name=f"ID:{tid}",
-                    telegram_id=tid,
-                    approved_by=approver_name,
-                    admin_ids=admin_ids
+            admin_ids = user_mgmt_service.get_admin_ids()
+            if admin_ids:
+                await notification_service.notify_admins_new_request(
+                    user_name=user.first_name, telegram_id=user.id, admin_ids=admin_ids
                 )
-                try:
-                    await admin_handler.show_pending_users(update, context)
-                except Exception:
-                    pass
-            else:
-                await query.answer("❌ Ошибка одобрения")
+            return
 
-        elif data.startswith("reject_"):
-            if not access_service.can_approve_users(db_user):
-                await query.answer("❌ Нет прав", show_alert=True)
-                return
-
+        # ── ОДОБРЕНИЕ / ОТКЛОНЕНИЕ ──
+        if data.startswith("approve_"):
             tid = int(data.split("_")[1])
-            success = user_mgmt_service.reject_user(tid)
-            if success:
-                await query.answer("🚫 Заявка отклонена")
+            if user_mgmt_service.approve_user(tid):
+                await query.answer("✅ Одобрен")
+                await notification_service.notify_user_approved(tid)
+                au = user_mgmt_service.get_user_by_telegram_id(tid)
+                nm = au["name"] if au else str(tid)
+                aids = user_mgmt_service.get_admin_ids()
+                await notification_service.notify_admins_user_approved(
+                    user_name=nm, telegram_id=tid, approved_by=user.first_name,
+                    admin_ids=[a for a in aids if a != user.id]
+                )
+            else:
+                await query.answer("❌ Ошибка", show_alert=True)
+            return
+
+        if data.startswith("reject_"):
+            tid = int(data.split("_")[1])
+            if user_mgmt_service.reject_user(tid):
+                await query.answer("🚫 Отклонено")
                 await notification_service.notify_user_rejected(tid)
-                try:
-                    await admin_handler.show_pending_users(update, context)
-                except Exception:
-                    pass
             else:
-                await query.answer("❌ Ошибка отклонения")
+                await query.answer("❌ Ошибка", show_alert=True)
+            return
 
-        # === АДМИНКА ===
-        elif data == "admin_refresh":
-            stats = admin_service.get_statistics()
-            text = (f"**Обновленная статистика:**\n"
-                    f"• Всего пользователей: `{stats.get('total_users', 0)}`\n"
-                    f"• Ожидают одобрения: `{stats.get('pending_users', 0)}`\n"
-                    f"• Одобренных: `{stats.get('approved_users', 0)}`\n"
-                    f"• Расчётов: `{stats.get('calculations', 0)}`")
-            await query.edit_message_text(text, parse_mode="Markdown")
-            await query.answer("✅ Статистика обновлена")
-
-        elif data == "admin_panel":
-            if not access_service.is_admin_panel_visible(db_user):
-                await query.answer("❌ Нет прав", show_alert=True)
-                return
+        # ── АДМИН-ПАНЕЛЬ ──
+        if data == "admin_panel":
+            await query.answer()
             await admin_handler.handle(update, context)
-            await query.answer()
+            return
 
-        elif data == "admin_pending":
-            if not access_service.can_approve_users(db_user):
-                await query.answer("❌ Нет прав", show_alert=True)
-                return
-            await admin_handler.show_pending_users(update, context)
-            await query.answer()
+        if data == "admin_refresh":
+            await query.answer("🔄 Обновлено")
+            await admin_handler.handle(update, context)
+            return
 
-        elif data == "admin_users":
-            if not access_service.is_admin_panel_visible(db_user):
-                await query.answer("❌ Нет прав", show_alert=True)
-                return
-            await admin_handler.show_users_list(update, context)
+        if data == "admin_back":
             await query.answer()
-
-        elif data == "admin_admins":
-            if not access_service.can_manage_admins(db_user):
-                await query.answer("❌ Только супер-админ", show_alert=True)
-                return
-            await admin_handler.show_admins_management(update, context)
-            await query.answer()
-
-        elif data == "admin_back":
             await admin_handler.back_to_admin(update, context)
+            return
 
-        elif data.startswith("user_detail_"):
-            if not access_service.is_admin_panel_visible(db_user):
-                await query.answer("❌ Нет прав", show_alert=True)
-                return
+        if data == "admin_users":
+            await query.answer()
+            await admin_handler.show_users_list(update, context, page=0)
+            return
+
+        if data.startswith("users_page_"):
+            page = int(data.split("_")[2])
+            await query.answer()
+            await admin_handler.show_users_list(update, context, page=page)
+            return
+
+        if data == "admin_pending":
+            await query.answer()
+            await admin_handler.show_pending_users(update, context)
+            return
+
+        if data == "admin_admins":
+            await query.answer()
+            await admin_handler.show_admins_management(update, context)
+            return
+
+        # ── КАРТОЧКА ПОЛЬЗОВАТЕЛЯ ──
+        if data.startswith("user_detail_"):
+            await query.answer()
             await admin_handler.show_user_detail(update, context)
-            await query.answer()
+            return
 
-        elif data.startswith("confirm_delete_"):
-            if not access_service.is_admin_panel_visible(db_user):
-                await query.answer("❌ Нет прав", show_alert=True)
-                return
+        if data.startswith("toggle_approve_"):
+            await admin_handler.toggle_user_approval(update, context)
+            return
+
+        if data.startswith("confirm_delete_"):
+            await query.answer()
             await admin_handler.confirm_delete(update, context)
-            await query.answer()
+            return
 
-        elif data.startswith("do_delete_"):
-            if not access_service.is_admin_panel_visible(db_user):
-                await query.answer("❌ Нет прав", show_alert=True)
-                return
+        if data.startswith("do_delete_"):
             await admin_handler.do_delete(update, context)
+            return
 
-        elif data.startswith("toggle_admin_"):
-            if not access_service.can_manage_admins(db_user):
-                await query.answer("❌ Только супер-админ", show_alert=True)
-                return
+        # ── РОЛИ ──
+        if data.startswith("toggle_admin_"):
             tid = int(data.split("_")[2])
-            new_status = user_mgmt_service.toggle_admin(tid)
-            if new_status is not None:
-                role = "админом" if new_status else "пользователем"
-                await query.answer(f"✅ Теперь {role}")
+            r = user_mgmt_service.toggle_admin(tid)
+            if r is not None:
+                s = "⭐ Админ" if r else "👤 Участник"
+                await query.answer(f"Роль: {s}")
                 await admin_handler.show_admins_management(update, context)
             else:
-                await query.answer("❌ Пользователь не найден")
+                await query.answer("❌ Ошибка", show_alert=True)
+            return
 
-        elif data.startswith("toggle_super_"):
-            if not access_service.can_manage_admins(db_user):
-                await query.answer("❌ Только супер-админ", show_alert=True)
-                return
+        if data.startswith("toggle_super_"):
             tid = int(data.split("_")[2])
-            new_status = user_mgmt_service.toggle_super_admin(tid)
-            if new_status is not None:
-                role = "супер-админом" if new_status else "обычным админом"
-                await query.answer(f"✅ Теперь {role}")
+            r = user_mgmt_service.toggle_super_admin(tid)
+            if r is not None:
+                s = "👑 Супер-админ" if r else "⭐ Админ"
+                await query.answer(f"Роль: {s}")
                 await admin_handler.show_admins_management(update, context)
             else:
-                await query.answer("❌ Пользователь не найден")
+                await query.answer("❌ Ошибка", show_alert=True)
+            return
 
-        # === ПРОФИЛЬ ===
-        elif data == "profile_show":
+        # ── ПРОФИЛЬ ──
+        if data == "profile_show":
+            await query.answer()
             await profile_handler.show_profile(update, context)
+            return
 
-        elif data == "profile_logout":
+        if data == "profile_logout":
             await profile_handler.logout_confirm(update, context)
+            return
 
-        elif data == "profile_do_logout":
+        if data == "profile_do_logout":
             await profile_handler.do_logout(update, context)
+            return
 
-        elif data == "profile_delete_confirm":
+        if data == "profile_delete_confirm":
             await profile_handler.delete_confirm(update, context)
+            return
 
-        elif data == "profile_delete_final":
+        if data == "profile_delete_final":
             await profile_handler.delete_final(update, context)
+            return
 
-        # === ГЛАВНОЕ МЕНЮ ===
-        elif data == "back_menu":
-            await start_handler.handle(update, context)
+        # ── ИНСТРУМЕНТЫ ──
+        if data == "calc_start":
+            await calc_handler.start(update, context)
+            return
 
-        elif data == "about":
-            await query.answer("Раздел в разработке", show_alert=True)
+        if data == "age_start":
+            await age_handler.handle(update, context)
+            return
+
+        if data == "mensur_start":
+            await mensur_handler.handle(update, context)
+            return
+
+        if data == "reg_start":
+            await regulating_handler.handle(update, context)
+            return
+
+        # ── О КЛУБЕ ──
+        if data == "about":
+            await query.answer()
+            text = (
+                "**ℹ️ О клубе**\n\n"
+                "**Piano Technicians Club** — закрытое сообщество\n"
+                "профессиональных фортепианных мастеров.\n\n"
+                "🔹 Калькулятор басовых струн\n"
+                "🔹 Атлас возрастов\n"
+                "🔹 База мензур\n"
+                "🔹 Регулировочные параметры\n\n"
+                "🌐 piano-technicians.club"
+            )
+            kb = [
+                [InlineKeyboardButton("🌐 Сайт клуба", url="https://piano-technicians.club")],
+                [InlineKeyboardButton("◀️ Назад", callback_data="back_menu")],
+            ]
+            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+            return
 
     application.add_handler(CallbackQueryHandler(global_callback_router))
 

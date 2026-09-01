@@ -3,8 +3,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime
 import secrets
-import os
-
 from app.database import get_db
 from app.models import User, AccessRequest, Brand, SerialRange
 from app.core.security import require_admin, require_super_admin, get_password_hash
@@ -26,18 +24,32 @@ async def get_stats(current_user: User = Depends(require_admin), db: Session = D
 @router.get("/users")
 async def get_users(current_user: User = Depends(require_admin), db: Session = Depends(get_db)):
     users = db.query(User).all()
-    return [{"id": u.id, "telegram_id": u.telegram_id, "username": u.username, "first_name": u.first_name,
-             "last_name": u.last_name, "email": u.email, "is_subscribed": u.is_subscribed, "is_admin": u.is_admin,
-             "is_super_admin": u.is_super_admin, "created_at": u.created_at} for u in users]
+    return [{
+        "id": u.id,
+        "telegram_id": u.telegram_id,
+        "username": u.username,
+        "first_name": u.first_name,
+        "last_name": u.last_name,
+        "email": u.email,
+        "phone": u.phone,
+        "city": u.city,
+        "is_subscribed": u.is_subscribed,
+        "is_approved": u.is_approved,
+        "is_admin": u.is_admin,
+        "is_super_admin": u.is_super_admin,
+        "created_at": u.created_at
+    } for u in users]
 
 
 @router.put("/users/{user_id}")
 async def update_user(user_id: int, user_data: dict, current_user: User = Depends(require_super_admin),
                       db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
-    if not user: raise HTTPException(status_code=404, detail="Пользователь не найден")
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
     for key, value in user_data.items():
-        if hasattr(user, key) and value is not None: setattr(user, key, value)
+        if hasattr(user, key) and value is not None:
+            setattr(user, key, value)
     db.commit()
     return {"message": "Пользователь обновлён"}
 
@@ -45,8 +57,10 @@ async def update_user(user_id: int, user_data: dict, current_user: User = Depend
 @router.delete("/users/{user_id}")
 async def delete_user(user_id: int, current_user: User = Depends(require_super_admin), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
-    if not user: raise HTTPException(status_code=404, detail="Пользователь не найден")
-    if user.is_super_admin: raise HTTPException(status_code=403, detail="Нельзя удалить супер-админа")
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+    if user.is_super_admin:
+        raise HTTPException(status_code=403, detail="Нельзя удалить супер-админа")
     db.delete(user)
     db.commit()
     return {"message": "Пользователь удалён"}
@@ -55,15 +69,23 @@ async def delete_user(user_id: int, current_user: User = Depends(require_super_a
 @router.get("/whitelist")
 async def get_whitelist(current_user: User = Depends(require_admin), db: Session = Depends(get_db)):
     admins = db.query(User).filter((User.is_admin == True) | (User.is_super_admin == True)).all()
-    return [{"id": a.id, "telegram_id": a.telegram_id, "username": a.username, "first_name": a.first_name,
-             "last_name": a.last_name, "is_admin": a.is_admin, "is_super_admin": a.is_super_admin} for a in admins]
+    return [{
+        "id": a.id,
+        "telegram_id": a.telegram_id,
+        "username": a.username,
+        "first_name": a.first_name,
+        "last_name": a.last_name,
+        "is_admin": a.is_admin,
+        "is_super_admin": a.is_super_admin
+    } for a in admins]
 
 
 @router.post("/whitelist/add")
 async def add_to_whitelist(telegram_id: int, current_user: User = Depends(require_super_admin),
                            db: Session = Depends(get_db)):
     user = db.query(User).filter(User.telegram_id == telegram_id).first()
-    if not user: raise HTTPException(status_code=404, detail="Пользователь не найден")
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
     user.is_admin = True
     db.commit()
     return {"message": "Добавлен в белый список"}
@@ -73,8 +95,10 @@ async def add_to_whitelist(telegram_id: int, current_user: User = Depends(requir
 async def remove_from_whitelist(telegram_id: int, current_user: User = Depends(require_super_admin),
                                 db: Session = Depends(get_db)):
     user = db.query(User).filter(User.telegram_id == telegram_id).first()
-    if not user: raise HTTPException(status_code=404, detail="Пользователь не найден")
-    if user.is_super_admin: raise HTTPException(status_code=403, detail="Нельзя удалить супер-админа")
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+    if user.is_super_admin:
+        raise HTTPException(status_code=403, detail="Нельзя удалить супер-админа")
     user.is_admin = False
     db.commit()
     return {"message": "Удалён из белого списка"}
@@ -83,31 +107,46 @@ async def remove_from_whitelist(telegram_id: int, current_user: User = Depends(r
 @router.get("/requests")
 async def get_requests(current_user: User = Depends(require_admin), db: Session = Depends(get_db)):
     requests = db.query(AccessRequest).order_by(AccessRequest.created_at.desc()).all()
-    return [{"id": r.id, "full_name": r.full_name, "email": r.email, "message": r.message, "status": r.status,
-             "created_at": r.created_at} for r in requests]
+    return [{
+        "id": r.id,
+        "full_name": r.full_name,
+        "email": r.email,
+        "message": r.message,
+        "status": r.status,
+        "created_at": r.created_at
+    } for r in requests]
 
 
 @router.post("/requests/{request_id}/approve")
 async def approve_request(request_id: int, current_user: User = Depends(require_admin), db: Session = Depends(get_db)):
     request = db.query(AccessRequest).filter(AccessRequest.id == request_id).first()
-    if not request: raise HTTPException(status_code=404, detail="Заявка не найдена")
-    if request.status != "pending": raise HTTPException(status_code=400, detail="Заявка уже обработана")
-
+    if not request:
+        raise HTTPException(status_code=404, detail="Заявка не найдена")
+    if request.status != "pending":
+        raise HTTPException(status_code=400, detail="Заявка уже обработана")
     request.status = "approved"
     request.processed_by = current_user.id
     request.processed_at = datetime.utcnow()
-
     user = db.query(User).filter(func.lower(User.email) == func.lower(request.email)).first()
     if not user:
         temp_password = secrets.token_urlsafe(10)[:64]
-        user = User(email=request.email, username=request.full_name.lower().replace(" ", "_"),
-                    first_name=request.full_name, hashed_password=get_password_hash(temp_password), is_subscribed=True,
-                    is_active=True, is_admin=False, is_super_admin=False, created_at=datetime.utcnow())
+        user = User(
+            email=request.email,
+            username=request.full_name.lower().replace(" ", "_"),
+            first_name=request.full_name,
+            hashed_password=get_password_hash(temp_password),
+            is_subscribed=True,
+            is_approved=True,
+            is_active=True,
+            is_admin=False,
+            is_super_admin=False,
+            created_at=datetime.utcnow()
+        )
         db.add(user)
     else:
         user.is_subscribed = True
+        user.is_approved = True
         user.is_active = True
-
     db.commit()
     return {"message": "Заявка одобрена"}
 
@@ -115,7 +154,8 @@ async def approve_request(request_id: int, current_user: User = Depends(require_
 @router.post("/requests/{request_id}/reject")
 async def reject_request(request_id: int, current_user: User = Depends(require_admin), db: Session = Depends(get_db)):
     request = db.query(AccessRequest).filter(AccessRequest.id == request_id).first()
-    if not request: raise HTTPException(status_code=404, detail="Заявка не найдена")
+    if not request:
+        raise HTTPException(status_code=404, detail="Заявка не найдена")
     request.status = "rejected"
     request.processed_by = current_user.id
     request.processed_at = datetime.utcnow()
@@ -151,7 +191,8 @@ async def add_range(brand_id: int, range_data: dict, current_user: User = Depend
 @router.delete("/brands/{brand_id}")
 async def delete_brand(brand_id: int, current_user: User = Depends(require_admin), db: Session = Depends(get_db)):
     brand = db.query(Brand).filter(Brand.id == brand_id).first()
-    if not brand: raise HTTPException(status_code=404, detail="Бренд не найден")
+    if not brand:
+        raise HTTPException(status_code=404, detail="Бренд не найден")
     db.delete(brand)
     db.commit()
     return {"message": "Бренд удалён"}

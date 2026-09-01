@@ -10,35 +10,43 @@ const AgeDetection: React.FC = () => {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setResult(null);
+    setDebugInfo('');
 
     try {
+      setDebugInfo(`Запрос: POST ${api.defaults.baseURL}/age/detect\nДанные: ${JSON.stringify(form)}`);
+
       const response = await api.post('/age/detect', form);
+
+      setDebugInfo(prev => prev + `\n\nОтвет (${response.status}): ${JSON.stringify(response.data, null, 2)}`);
       console.log('Ответ сервера:', response.data);
 
-      // Проверяем на ошибку
       if (response.data && response.data.detail) {
         setError(response.data.detail);
         return;
       }
 
-      // Если есть данные — сохраняем
       if (response.data && Object.keys(response.data).length > 0) {
         setResult(response.data);
       } else {
-        setError('Ничего не найдено');
+        setError('Ничего не найдено. Проверьте бренд и серийный номер.');
       }
     } catch (error: any) {
       console.error('Ошибка:', error);
+      setDebugInfo(prev => prev + `\n\nОшибка: ${error.message}\nКод: ${error.response?.status}\nДетали: ${JSON.stringify(error.response?.data)}`);
+
       if (error.response?.data?.detail) {
         setError(error.response.data.detail);
       } else if (error.response?.data?.message) {
         setError(error.response.data.message);
+      } else if (error.code === 'ERR_NETWORK') {
+        setError('Ошибка сети. Проверьте подключение к интернету и что бэкенд запущен.');
       } else {
         setError('Ошибка при определении возраста');
       }
@@ -86,8 +94,9 @@ const AgeDetection: React.FC = () => {
             <label className="block text-sm font-medium text-white/70 mb-1">Серийный номер</label>
             <input
               type="text"
+              inputMode="numeric"
               value={form.serial_number}
-              onChange={(e) => setForm({...form, serial_number: e.target.value})}
+              onChange={(e) => setForm({...form, serial_number: e.target.value.replace(/\D/g, '')})}
               placeholder="Введите серийный номер (только цифры)"
               className="glass-input w-full"
             />
@@ -95,7 +104,7 @@ const AgeDetection: React.FC = () => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !form.brand_name || !form.serial_number}
             className="w-full glass-btn glass-btn-primary py-3 text-lg disabled:opacity-50"
           >
             {loading ? '⏳ Поиск...' : '🔍 Определить возраст'}
@@ -149,14 +158,16 @@ const AgeDetection: React.FC = () => {
                 <span className="ml-2 text-white/70">{result.info}</span>
               </div>
             )}
-
-            {/*<details className="mt-4 text-xs text-white/30">*/}
-            {/*  <summary>🔍 Отладка</summary>*/}
-            {/*  <pre className="mt-2 p-2 glass rounded overflow-auto max-h-40">*/}
-            {/*    {JSON.stringify(result, null, 2)}*/}
-            {/*  </pre>*/}
-            {/*</details>*/}
           </div>
+        )}
+
+        {debugInfo && (
+          <details className="mt-6 glass p-4 rounded-xl">
+            <summary className="cursor-pointer text-white/50 text-sm">🔧 Отладка (для разработчика)</summary>
+            <pre className="mt-3 p-3 bg-black/30 rounded-lg overflow-auto max-h-60 text-xs text-green-300 whitespace-pre-wrap break-all">
+              {debugInfo}
+            </pre>
+          </details>
         )}
       </div>
     </div>
