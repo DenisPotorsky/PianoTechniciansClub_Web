@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime
@@ -6,8 +6,10 @@ import secrets
 from app.database import get_db
 from app.models import User, AccessRequest, Brand, SerialRange
 from app.core.security import require_admin, require_super_admin, get_password_hash
+from app.services.email_service import EmailService
 
 router = APIRouter()
+email_service = EmailService()
 
 
 @router.get("/stats")
@@ -118,18 +120,27 @@ async def get_requests(current_user: User = Depends(require_admin), db: Session 
 
 
 @router.post("/requests/{request_id}/approve")
-async def approve_request(request_id: int, current_user: User = Depends(require_admin), db: Session = Depends(get_db)):
+async def approve_request(
+    request_id: int,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
     request = db.query(AccessRequest).filter(AccessRequest.id == request_id).first()
     if not request:
         raise HTTPException(status_code=404, detail="Заявка не найдена")
     if request.status != "pending":
         raise HTTPException(status_code=400, detail="Заявка уже обработана")
+
     request.status = "approved"
     request.processed_by = current_user.id
     request.processed_at = datetime.utcnow()
+
     user = db.query(User).filter(func.lower(User.email) == func.lower(request.email)).first()
+    temp_password = None
+
     if not user:
-        temp_password = secrets.token_urlsafe(10)[:64]
+        temp_password = secrets.token_urlsafe(16)
         user = User(
             email=request.email,
             username=request.full_name.lower().replace(" ", "_"),
@@ -147,19 +158,48 @@ async def approve_request(request_id: int, current_user: User = Depends(require_
         user.is_subscribed = True
         user.is_approved = True
         user.is_active = True
+
     db.commit()
+
+    if temp_password:
+        background_tasks.add_task(
+            email_service.send_approval_email,
+            email=request.email,
+            full_name=request.full_name,
+            temp_password=temp_password
+        )
+    else:
+        background_tasks.add_task(
+            email_service.send_welcome_email,
+            email=request.email,
+            username=request.full_name
+        )
+
     return {"message": "Заявка одобрена"}
 
 
 @router.post("/requests/{request_id}/reject")
-async def reject_request(request_id: int, current_user: User = Depends(require_admin), db: Session = Depends(get_db)):
+async def reject_request(
+    request_id: int,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
     request = db.query(AccessRequest).filter(AccessRequest.id == request_id).first()
     if not request:
         raise HTTPException(status_code=404, detail="Заявка не найдена")
+
     request.status = "rejected"
     request.processed_by = current_user.id
     request.processed_at = datetime.utcnow()
     db.commit()
+
+    background_tasks.add_task(
+        email_service.send_rejection_email,
+        email=request.email,
+        full_name=request.full_name
+    )
+
     return {"message": "Заявка отклонена"}
 
 

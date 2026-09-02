@@ -130,3 +130,16 @@ class EmailVerification(Base):
     expires_at = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(hours=24))
 
     user = relationship("User", foreign_keys=[user_id])
+
+class PasswordReset(Base):
+    __tablename__ = "password_resets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    email = Column(String(255), nullable=False)
+    token = Column(String(255), nullable=False, unique=True, index=True)
+    is_used = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(hours=1))
+
+    user = relationship("User", foreign_keys=[user_id])
