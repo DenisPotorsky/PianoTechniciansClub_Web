@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class EmailService:
     def __init__(self):
         self.smtp_host = os.getenv("SMTP_HOST", "smtp.yandex.ru")
-        self.smtp_port = int(os.getenv("SMTP_PORT", 465))
+        self.smtp_port = int(os.getenv("SMTP_PORT", 587))
         self.smtp_user = os.getenv("SMTP_USER", "")
         self.smtp_password = os.getenv("SMTP_PASSWORD", "")
         self.frontend_url = os.getenv("APP_URL", "http://localhost:3000")
