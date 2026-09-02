@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    container_name: ptc-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    volumes:
+      - backend_data:/app/data
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    container_name: ptc-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  bot:
+    build: ./bot_simple
+    container_name: ptc-bot
+    restart: unless-stopped
+    env_file:
+      - ./bot_simple/.env
+    volumes:
+      - bot_data:/app/data
+    depends_on:
+      - backend
+
+volumes:
+  backend_data:
+  bot_data:
