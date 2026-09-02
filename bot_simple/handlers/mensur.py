@@ -16,7 +16,7 @@ logger = setup_logger("MensurHandler")
 
 MENSUR_BRAND, MENSUR_MODEL, MENSUR_CHOR = range(3)
 
-STRINGS_DB_PATH = os.path.join(os.path.dirname(config.AGE_DB_PATH), "piano_strings.db")
+STRINGS_DB_PATH = config.STRINGS_DB_PATH
 
 
 def normalize(text: str) -> str:
@@ -112,7 +112,7 @@ class MensurHandler(BaseHandler):
         try:
             conn = self.get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT DISTINCT brand FROM PIANO_STRINGS ORDER BY brand")
+            cursor.execute("SELECT DISTINCT brand FROM scales ORDER BY brand")
             brands = [row[0] for row in cursor.fetchall()]
             conn.close()
         except Exception as e:
@@ -157,7 +157,7 @@ class MensurHandler(BaseHandler):
             conn = self.get_db_connection()
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT DISTINCT model FROM PIANO_STRINGS WHERE brand = ? ORDER BY model",
+                "SELECT DISTINCT model FROM scales WHERE brand = ? ORDER BY model",
                 (selected_brand,)
             )
             models = [row[0] for row in cursor.fetchall()]
@@ -201,7 +201,7 @@ class MensurHandler(BaseHandler):
             cursor = conn.cursor()
             cursor.execute(
                 """SELECT DISTINCT chor_nummer
-                   FROM PIANO_STRINGS
+                   FROM scales
                    WHERE brand = ?
                      AND model = ?
                    ORDER BY chor_nummer""",
@@ -254,7 +254,7 @@ class MensurHandler(BaseHandler):
             cursor = conn.cursor()
             cursor.execute(
                 """SELECT laenge_mm, kern_mm, erste_wicklung_mm, zweite_wicklung_mm, typ, year, saiten_im_chor
-                   FROM PIANO_STRINGS
+                   FROM scales
                    WHERE brand = ? AND model = ? AND chor_nummer = ?""",
                 (brand, model, chor)
             )
