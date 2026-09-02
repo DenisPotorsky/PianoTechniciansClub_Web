@@ -1,34 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import text
 from typing import List, Optional
 from pydantic import BaseModel
 import csv
 import io
 
 from app.database import get_db
-from app.models import User, Scale
+from app.models import User
 from app.core.security import require_member, require_admin
 
 router = APIRouter()
 
-# Подключение к базе piano_strings.db
-STRING_DB_URL = "sqlite:///./piano_strings.db"
-string_engine = create_engine(STRING_DB_URL, connect_args={"check_same_thread": False})
-StringSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=string_engine)
 
-
-def get_string_db():
-    db = StringSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-# ============ СХЕМЫ ============
 class ScaleCreate(BaseModel):
     brand: str
     model: str
@@ -69,26 +54,24 @@ class ScaleResponse(BaseModel):
     year: Optional[str]
 
 
-# ============ ПОЛУЧЕНИЕ ДАННЫХ (ДЛЯ ВСЕХ УЧАСТНИКОВ) ============
 @router.get("/brands")
 async def get_brands(
-        current_user: User = Depends(require_member),
-        db: Session = Depends(get_string_db)
+    current_user: User = Depends(require_member),
+    db: Session = Depends(get_db)
 ):
     result = db.execute(
-        text("SELECT DISTINCT brand FROM PIANO_STRINGS WHERE brand IS NOT NULL AND brand != '' ORDER BY brand"))
+        text("SELECT DISTINCT brand FROM scales WHERE brand IS NOT NULL AND brand != '' ORDER BY brand"))
     return [{"brand": row[0]} for row in result.fetchall()]
 
 
 @router.get("/models/{brand}")
 async def get_models(
-        brand: str,
-        current_user: User = Depends(require_member),
-        db: Session = Depends(get_string_db)
+    brand: str,
+    current_user: User = Depends(require_member),
+    db: Session = Depends(get_db)
 ):
     result = db.execute(
-        text(
-            "SELECT DISTINCT model FROM PIANO_STRINGS WHERE LOWER(brand) = LOWER(:brand) AND model IS NOT NULL AND model != '' ORDER BY model"),
+        text("SELECT DISTINCT model FROM scales WHERE LOWER(brand) = LOWER(:brand) AND model IS NOT NULL AND model != '' ORDER BY model"),
         {"brand": brand}
     )
     return [{"model": row[0]} for row in result.fetchall()]
@@ -96,14 +79,13 @@ async def get_models(
 
 @router.get("/choruses/{brand}/{model}")
 async def get_choruses(
-        brand: str,
-        model: str,
-        current_user: User = Depends(require_member),
-        db: Session = Depends(get_string_db)
+    brand: str,
+    model: str,
+    current_user: User = Depends(require_member),
+    db: Session = Depends(get_db)
 ):
     result = db.execute(
-        text(
-            "SELECT DISTINCT chor_nummer FROM PIANO_STRINGS WHERE LOWER(brand) = LOWER(:brand) AND LOWER(model) = LOWER(:model) AND chor_nummer IS NOT NULL ORDER BY chor_nummer"),
+        text("SELECT DISTINCT chor_nummer FROM scales WHERE LOWER(brand) = LOWER(:brand) AND LOWER(model) = LOWER(:model) AND chor_nummer IS NOT NULL ORDER BY chor_nummer"),
         {"brand": brand, "model": model}
     )
     return [{"chor_nummer": row[0]} for row in result.fetchall()]
@@ -111,16 +93,16 @@ async def get_choruses(
 
 @router.get("/data/{brand}/{model}/{chor_nummer}", response_model=List[ScaleResponse])
 async def get_string_data(
-        brand: str,
-        model: str,
-        chor_nummer: int,
-        current_user: User = Depends(require_member),
-        db: Session = Depends(get_string_db)
+    brand: str,
+    model: str,
+    chor_nummer: int,
+    current_user: User = Depends(require_member),
+    db: Session = Depends(get_db)
 ):
     result = db.execute(
         text("""SELECT id, brand, model, chor_nummer, saiten_im_chor, laenge_mm, kern_mm,
                erste_wicklung_mm, zweite_wicklung_mm, typ, year
-               FROM PIANO_STRINGS
+               FROM scales
                WHERE LOWER(brand) = LOWER(:brand) AND LOWER(model) = LOWER(:model) AND chor_nummer = :chor_nummer
                ORDER BY id"""),
         {"brand": brand, "model": model, "chor_nummer": chor_nummer}
@@ -128,35 +110,25 @@ async def get_string_data(
     rows = result.fetchall()
     return [
         {
-            "id": row[0],
-            "brand": row[1],
-            "model": row[2],
-            "chor_nummer": row[3],
-            "saiten_im_chor": row[4],
-            "laenge_mm": row[5],
-            "kern_mm": row[6],
-            "erste_wicklung_mm": row[7],
-            "zweite_wicklung_mm": row[8],
-            "typ": row[9],
-            "year": row[10]
+            "id": row[0], "brand": row[1], "model": row[2], "chor_nummer": row[3],
+            "saiten_im_chor": row[4], "laenge_mm": row[5], "kern_mm": row[6],
+            "erste_wicklung_mm": row[7], "zweite_wicklung_mm": row[8],
+            "typ": row[9], "year": row[10]
         }
         for row in rows
     ]
 
 
-# ============ АДМИНСКИЕ ЭНДПОИНТЫ ============
 @router.post("/data")
 async def create_string_data(
-        data: ScaleCreate,
-        current_user: User = Depends(require_admin),
-        db: Session = Depends(get_string_db)
+    data: ScaleCreate,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
 ):
     db.execute(
-        text("""INSERT INTO PIANO_STRINGS
-                (brand, model, chor_nummer, saiten_im_chor, laenge_mm, kern_mm, erste_wicklung_mm, zweite_wicklung_mm,
-                 typ, year)
-                VALUES (:brand, :model, :chor_nummer, :saiten_im_chor, :laenge_mm, :kern_mm, :erste_wicklung_mm,
-                        :zweite_wicklung_mm, :typ, :year)"""),
+        text("""INSERT INTO scales
+                (brand, model, chor_nummer, saiten_im_chor, laenge_mm, kern_mm, erste_wicklung_mm, zweite_wicklung_mm, typ, year)
+                VALUES (:brand, :model, :chor_nummer, :saiten_im_chor, :laenge_mm, :kern_mm, :erste_wicklung_mm, :zweite_wicklung_mm, :typ, :year)"""),
         data.model_dump()
     )
     db.commit()
@@ -165,78 +137,50 @@ async def create_string_data(
 
 @router.put("/data/{record_id}")
 async def update_string_data(
-        record_id: int,
-        data: ScaleUpdate,
-        current_user: User = Depends(require_admin),
-        db: Session = Depends(get_string_db)
+    record_id: int,
+    data: ScaleUpdate,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
 ):
-    check = db.execute(text("SELECT id FROM PIANO_STRINGS WHERE id = :id"), {"id": record_id}).fetchone()
+    check = db.execute(text("SELECT id FROM scales WHERE id = :id"), {"id": record_id}).fetchone()
     if not check:
         raise HTTPException(status_code=404, detail="Запись не найдена")
 
     updates = []
     params = {"id": record_id}
-
-    if data.brand is not None:
-        updates.append("brand = :brand")
-        params["brand"] = data.brand
-    if data.model is not None:
-        updates.append("model = :model")
-        params["model"] = data.model
-    if data.chor_nummer is not None:
-        updates.append("chor_nummer = :chor_nummer")
-        params["chor_nummer"] = data.chor_nummer
-    if data.saiten_im_chor is not None:
-        updates.append("saiten_im_chor = :saiten_im_chor")
-        params["saiten_im_chor"] = data.saiten_im_chor
-    if data.laenge_mm is not None:
-        updates.append("laenge_mm = :laenge_mm")
-        params["laenge_mm"] = data.laenge_mm
-    if data.kern_mm is not None:
-        updates.append("kern_mm = :kern_mm")
-        params["kern_mm"] = data.kern_mm
-    if data.erste_wicklung_mm is not None:
-        updates.append("erste_wicklung_mm = :erste_wicklung_mm")
-        params["erste_wicklung_mm"] = data.erste_wicklung_mm
-    if data.zweite_wicklung_mm is not None:
-        updates.append("zweite_wicklung_mm = :zweite_wicklung_mm")
-        params["zweite_wicklung_mm"] = data.zweite_wicklung_mm
-    if data.typ is not None:
-        updates.append("typ = :typ")
-        params["typ"] = data.typ
-    if data.year is not None:
-        updates.append("year = :year")
-        params["year"] = data.year
+    for field in ["brand", "model", "chor_nummer", "saiten_im_chor", "laenge_mm", "kern_mm", "erste_wicklung_mm", "zweite_wicklung_mm", "typ", "year"]:
+        value = getattr(data, field, None)
+        if value is not None:
+            updates.append(f"{field} = :{field}")
+            params[field] = value
 
     if not updates:
         raise HTTPException(status_code=400, detail="Нет данных для обновления")
 
-    query = f"UPDATE PIANO_STRINGS SET {', '.join(updates)} WHERE id = :id"
-    db.execute(text(query), params)
+    db.execute(text(f"UPDATE scales SET {', '.join(updates)} WHERE id = :id"), params)
     db.commit()
     return {"message": "Запись обновлена"}
 
 
 @router.delete("/data/{record_id}")
 async def delete_string_data(
-        record_id: int,
-        current_user: User = Depends(require_admin),
-        db: Session = Depends(get_string_db)
+    record_id: int,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
 ):
-    check = db.execute(text("SELECT id FROM PIANO_STRINGS WHERE id = :id"), {"id": record_id}).fetchone()
+    check = db.execute(text("SELECT id FROM scales WHERE id = :id"), {"id": record_id}).fetchone()
     if not check:
         raise HTTPException(status_code=404, detail="Запись не найдена")
-
-    db.execute(text("DELETE FROM PIANO_STRINGS WHERE id = :id"), {"id": record_id})
+    db.execute(text("DELETE FROM scales WHERE id = :id"), {"id": record_id})
     db.commit()
     return {"message": "Запись удалена"}
 
 
 @router.post("/import-csv")
 async def import_csv(
-        file: UploadFile = File(...),
-        current_user: User = Depends(require_admin),
-        db: Session = Depends(get_string_db)
+    file: UploadFile = File(...),
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
 ):
     if not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Только CSV файлы")
@@ -262,53 +206,35 @@ async def import_csv(
             year = row.get('year', '').strip() or None
 
             if not all([brand, model, chor_nummer, kern_mm]):
-                errors.append(
-                    f"Строка {reader.line_num}: пропущены обязательные поля (brand, model, chor_nummer, kern_mm)")
+                errors.append(f"Строка {reader.line_num}: пропущены обязательные поля")
                 continue
 
             db.execute(
-                text("""INSERT INTO PIANO_STRINGS
-                        (brand, model, chor_nummer, saiten_im_chor, laenge_mm, kern_mm, erste_wicklung_mm,
-                         zweite_wicklung_mm, typ, year)
-                        VALUES (:brand, :model, :chor_nummer, :saiten_im_chor, :laenge_mm, :kern_mm, :erste_wicklung_mm,
-                                :zweite_wicklung_mm, :typ, :year)"""),
-                {
-                    "brand": brand,
-                    "model": model,
-                    "chor_nummer": chor_nummer,
-                    "saiten_im_chor": saiten_im_chor,
-                    "laenge_mm": laenge_mm,
-                    "kern_mm": kern_mm,
-                    "erste_wicklung_mm": erste_wicklung_mm,
-                    "zweite_wicklung_mm": zweite_wicklung_mm,
-                    "typ": typ,
-                    "year": year
-                }
+                text("""INSERT INTO scales
+                        (brand, model, chor_nummer, saiten_im_chor, laenge_mm, kern_mm, erste_wicklung_mm, zweite_wicklung_mm, typ, year)
+                        VALUES (:brand, :model, :chor_nummer, :saiten_im_chor, :laenge_mm, :kern_mm, :erste_wicklung_mm, :zweite_wicklung_mm, :typ, :year)"""),
+                {"brand": brand, "model": model, "chor_nummer": chor_nummer, "saiten_im_chor": saiten_im_chor,
+                 "laenge_mm": laenge_mm, "kern_mm": kern_mm, "erste_wicklung_mm": erste_wicklung_mm,
+                 "zweite_wicklung_mm": zweite_wicklung_mm, "typ": typ, "year": year}
             )
             added += 1
-
         except Exception as e:
             errors.append(f"Строка {reader.line_num}: ошибка - {str(e)}")
 
     db.commit()
-
-    return {
-        "added": added,
-        "errors": errors[:10]
-    }
+    return {"added": added, "errors": errors[:10]}
 
 
 @router.get("/export-csv")
 async def export_csv(
-        current_user: User = Depends(require_admin),
-        db: Session = Depends(get_string_db)
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
 ):
     result = db.execute(text(
-        "SELECT id, brand, model, chor_nummer, saiten_im_chor, laenge_mm, kern_mm, erste_wicklung_mm, zweite_wicklung_mm, typ, year FROM PIANO_STRINGS ORDER BY brand, model, chor_nummer"))
+        "SELECT id, brand, model, chor_nummer, saiten_im_chor, laenge_mm, kern_mm, erste_wicklung_mm, zweite_wicklung_mm, typ, year FROM scales ORDER BY brand, model, chor_nummer"))
     rows = result.fetchall()
 
-    columns = ['id', 'brand', 'model', 'chor_nummer', 'saiten_im_chor', 'laenge_mm', 'kern_mm', 'erste_wicklung_mm',
-               'zweite_wicklung_mm', 'typ', 'year']
+    columns = ['id', 'brand', 'model', 'chor_nummer', 'saiten_im_chor', 'laenge_mm', 'kern_mm', 'erste_wicklung_mm', 'zweite_wicklung_mm', 'typ', 'year']
 
     output = io.StringIO()
     writer = csv.writer(output)
