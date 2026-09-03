@@ -41,3 +41,5 @@ htmlcov/
 
 # === Логи ===
 *.log
+all_data_export.json
+users_export.json
