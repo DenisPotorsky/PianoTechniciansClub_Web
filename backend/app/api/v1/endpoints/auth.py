@@ -29,8 +29,8 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str
     id: int
-    email: str
-    username: str
+    email: Optional[str] = None
+    username: Optional[str] = None
     first_name: str
     last_name: Optional[str]
     phone: Optional[str]
