@@ -5,8 +5,10 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/.env
+    environment:
+      - DATABASE_URL=sqlite:///./data/piano_club.db
     volumes:
-      - ./backend/piano_club.db:/app/piano_club.db
+      - db_data:/app/data
     ports:
       - "8000:8000"
 
@@ -25,7 +27,12 @@ services:
     restart: unless-stopped
     env_file:
       - ./bot_simple/.env
+    environment:
+      - DATABASE_URL=sqlite:///./data/piano_club.db
     volumes:
-      - ./backend/piano_club.db:/app/../backend/piano_club.db
+      - db_data:/app/data
     depends_on:
       - backend
+
+volumes:
+  db_data:

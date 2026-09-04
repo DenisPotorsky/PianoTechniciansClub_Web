@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+// ЛОКАЛЬНО: frontend работает на localhost:3000
+const API_BASE = 'http://localhost:3000/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -10,21 +11,17 @@ const api = axios.create({
   withCredentials: false,
 });
 
-// ===== ПЕРЕХВАТЧИК ЗАПРОСОВ =====
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token') || localStorage.getItem('access_token');
-
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ===== ПЕРЕХВАТЧИК ОТВЕТОВ =====
 api.interceptors.response.use(
   (response) => response,
   (error) => {
