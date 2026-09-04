@@ -107,6 +107,7 @@ const Regulating: React.FC = () => {
     } catch (e) { console.error(e); }
   };
 
+  // @ts-ignore
   return (
     <div className="min-h-screen p-4 md:p-8">
       {/* Прозрачная карточка как во всём проекте */}
