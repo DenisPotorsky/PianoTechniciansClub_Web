@@ -28,7 +28,7 @@ def normalize(text: str) -> str:
 class MensurHandler(BaseHandler):
     def __init__(self, user_service: UserService):
         self.user_service = user_service
-        self.db_path = STRINGS_DB_PATH
+        self.db_path = "/app/data/piano_club.db"
 
     def get_command(self) -> str:
         return "mensur"

@@ -27,7 +27,7 @@ def normalize(text: str) -> str:
 class AgeHandler(BaseHandler):
     def __init__(self, user_service: UserService):
         self.user_service = user_service
-        self.db_path = config.AGE_DB_PATH
+        self.db_path = "/app/data/piano_club.db"
 
     def get_command(self) -> str:
         return "age"
@@ -261,7 +261,7 @@ class AgeHandler(BaseHandler):
             conn = self.get_db_connection()
             cursor = conn.cursor()
             cursor.execute(
-                """SELECT year, model, info, serial_start, serial_end 
+                """SELECT year, serial_start, serial_end 
                    FROM serial_ranges 
                    WHERE brand_id = ? AND serial_start <= ? AND serial_end >= ?""",
                 (brand_id, serial, serial)
@@ -270,15 +270,11 @@ class AgeHandler(BaseHandler):
             conn.close()
 
             if result:
-                year, model, info, s_start, s_end = result
+                year, s_start, s_end = result
 
                 text = f"🎹 **{brand_name}**\n\n"
                 text += f"📅 **Год выпуска: {year}**\n"
                 text += f"🔢 Серийный: {serial} (диапазон {s_start}–{s_end})\n"
-                if model:
-                    text += f"📋 Модель: {model}\n"
-                if info:
-                    text += f"ℹ️ {info}\n"
 
                 logger.info(f"✅ Найден год: {year} для {brand_name} #{serial}")
             else:

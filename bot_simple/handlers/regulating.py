@@ -26,7 +26,7 @@ def normalize(text: str) -> str:
 class RegulatingHandler(BaseHandler):
     def __init__(self, user_service: UserService):
         self.user_service = user_service
-        self.db_path = os.path.join(os.path.dirname(config.AGE_DB_PATH), "piano_club.db")
+        self.db_path = "/app/data/piano_club.db"
 
     def get_command(self) -> str:
         return "reg"
