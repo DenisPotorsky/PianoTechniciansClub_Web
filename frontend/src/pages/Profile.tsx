@@ -11,6 +11,7 @@ const Profile: React.FC = () => {
   const [stats, setStats] = useState<{ count: number; last_date: string | null }>({ count: 0, last_date: null });
   const [form, setForm] = useState({
     first_name: '',
+    last_name: '',
     email: '',
     phone: '',
     city: '',
@@ -21,6 +22,7 @@ const Profile: React.FC = () => {
     if (user) {
       setForm({
         first_name: user.first_name || '',
+        last_name: user.last_name || '',
         email: user.email || '',
         phone: user.phone || '',
         city: user.city || '',
@@ -160,6 +162,18 @@ const Profile: React.FC = () => {
               title="Синхронизируется с Telegram"
             />
             <p className="text-xs text-white/30 mt-1">Синхронизируется с Telegram</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1">Фамилия</label>
+            <input
+              type="text"
+              name="last_name"
+              value={form.last_name}
+              onChange={handleChange}
+              className="glass-input w-full"
+              placeholder="Иванов"
+            />
           </div>
 
           <div>

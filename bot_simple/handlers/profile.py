@@ -16,7 +16,7 @@ from app.logger import setup_logger
 
 logger = setup_logger("ProfileHandler")
 
-EDIT_EMAIL, EDIT_PHONE, EDIT_CITY = range(3)
+EDIT_EMAIL, EDIT_PHONE, EDIT_CITY, EDIT_LASTNAME = range(4)
 
 
 class ProfileHandler(BaseHandler):
@@ -37,11 +37,13 @@ class ProfileHandler(BaseHandler):
     def get_conversation_handler(self):
         return ConversationHandler(
             entry_points=[
+                CallbackQueryHandler(self.edit_lastname_start, pattern="^profile_edit_lastname$"),
                 CallbackQueryHandler(self.edit_email_start, pattern="^profile_edit_email$"),
                 CallbackQueryHandler(self.edit_phone_start, pattern="^profile_edit_phone$"),
                 CallbackQueryHandler(self.edit_city_start, pattern="^profile_edit_city$"),
             ],
             states={
+                EDIT_LASTNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.process_edit_lastname)],
                 EDIT_EMAIL: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.process_edit_email)],
                 EDIT_PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.process_edit_phone)],
                 EDIT_CITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.process_edit_city)],
@@ -76,6 +78,7 @@ class ProfileHandler(BaseHandler):
         text = (
             f"👤 **Ваш профиль**\n\n"
             f"Имя: {db_user.first_name or '—'}\n"
+            f"Фамилия: {db_user.last_name or 'не указана'}\n"
             f"Email: {db_user.email or 'не указан'}\n"
             f"Телефон: {db_user.phone or 'не указан'}\n"
             f"Город: {db_user.city or 'не указан'}\n"
@@ -85,6 +88,7 @@ class ProfileHandler(BaseHandler):
         )
 
         rows = [
+            [InlineKeyboardButton("✏️ Редактировать фамилию", callback_data="profile_edit_lastname")],
             [InlineKeyboardButton("✏️ Редактировать email", callback_data="profile_edit_email")],
             [InlineKeyboardButton("✏️ Редактировать телефон", callback_data="profile_edit_phone")],
             [InlineKeyboardButton("✏️ Редактировать город", callback_data="profile_edit_city")],
@@ -111,6 +115,43 @@ class ProfileHandler(BaseHandler):
             db.close()
 
     # === РЕДАКТИРОВАНИЕ ===
+
+
+    async def edit_lastname_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        query = update.callback_query
+        await query.answer()
+        db_user = self.user_service.get_by_telegram_id(update.effective_user.id)
+        current = db_user.last_name or "не указана"
+        await query.edit_message_text(
+            f"Текущая фамилия: {current}\n\nВведите новую фамилию:",
+            reply_markup=InlineKeyboardMarkup(get_nav_rows(back_callback="profile_show"))
+        )
+        return EDIT_LASTNAME
+
+    async def process_edit_lastname(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        new_lastname = update.message.text.strip()
+        db_user = self.user_service.get_by_telegram_id(update.effective_user.id)
+        
+        # Обновляем через user_service
+        from app.database import SessionLocal
+        from models.db_models import User
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.telegram_id == update.effective_user.id).first()
+            if user:
+                user.last_name = new_lastname
+                db.commit()
+                await update.message.reply_text(f"✅ Фамилия обновлена: {new_lastname}")
+            else:
+                await update.message.reply_text("❌ Пользователь не найден")
+        except Exception as e:
+            await update.message.reply_text(f"❌ Ошибка: {e}")
+            db.rollback()
+        finally:
+            db.close()
+        
+        context.user_data.clear()
+        return ConversationHandler.END
 
     async def edit_email_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
