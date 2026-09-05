@@ -11,15 +11,20 @@ class User(Base):
     telegram_id = Column(Integer, unique=True, index=True, nullable=True)
     username = Column(String, nullable=True)
     first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=True)
     email = Column(String, nullable=True)
     phone = Column(String, nullable=True)
     city = Column(String, nullable=True)
+    hashed_password = Column(String, nullable=True)
 
+    is_subscribed = Column(Boolean, default=False)
     is_approved = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
     is_super_admin = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
+    last_login = Column(DateTime, nullable=True)
 
     calculations = relationship("Calculation", back_populates="user", cascade="all, delete-orphan")
     subscription = relationship("Subscription", back_populates="user", uselist=False, cascade="all, delete-orphan")
