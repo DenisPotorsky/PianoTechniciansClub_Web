@@ -15,6 +15,7 @@ class ProfileUpdate(BaseModel):
     first_name: str
     email: str
     phone: Optional[str] = None
+    last_name: Optional[str] = None
     city: Optional[str] = None
 
 
@@ -35,6 +36,7 @@ async def update_profile(
             raise HTTPException(status_code=400, detail="Email уже используется")
 
     current_user.first_name = data.first_name
+    current_user.last_name = data.last_name
     current_user.email = data.email
     current_user.phone = data.phone
     current_user.city = data.city
