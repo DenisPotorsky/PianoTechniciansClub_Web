@@ -71,7 +71,7 @@ const Regulating: React.FC = () => {
   const loadParams = async () => {
     setLoading(true);
     try {
-      const data = await fetchData(API + '/regulating/?search=' + search + '&brand=' + selectedBrand + '&limit=200');
+      const data = await fetchData(API + '/regulating/?search=' + encodeURIComponent(search) + '&brand=' + encodeURIComponent(selectedBrand) + '&limit=200');
       setParams(data);
     } catch (e) { console.error('Ошибка загрузки параметров:', e); }
     finally { setLoading(false); }
