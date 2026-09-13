@@ -32,8 +32,8 @@ const WhitelistLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 py-12 px-4">
-      <div className="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-white/20">
+    <div className="max-w-2xl mx-auto py-8">
+      <div className="glass-card p-8 max-w-md mx-auto">
         <div className="text-center">
           <div className="text-5xl mb-3">👑</div>
           <h2 className="text-3xl font-bold text-white">Вход для избранных</h2>
@@ -53,7 +53,7 @@ const WhitelistLogin: React.FC = () => {
               required
               value={telegram_id}
               onChange={(e) => setTelegramId(e.target.value)}
-              className="mt-1 w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+              className="glass-input w-full mt-1"
               placeholder="Введите ваш Telegram ID"
             />
           </div>
@@ -67,7 +67,7 @@ const WhitelistLogin: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+            className="w-full glass-btn glass-btn-primary py-3 text-lg disabled:opacity-50"
           >
             {loading ? 'Вход...' : '👑 Войти по Telegram ID'}
           </button>
