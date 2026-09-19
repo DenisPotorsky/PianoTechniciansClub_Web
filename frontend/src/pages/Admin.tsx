@@ -61,7 +61,7 @@ const Admin: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'whitelist' | 'requests' | 'brands'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'whitelist' | 'requests' | 'brands' | 'masters'>('stats');
   const [stats, setStats] = useState<Stats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [whitelist, setWhitelist] = useState<WhitelistUser[]>([]);
@@ -349,6 +349,29 @@ const Admin: React.FC = () => {
     String(u.telegram_id).includes(search)
   );
 
+
+  // Masters management
+  const [mastersList, setMastersList] = useState<any[]>([]);
+  const [mastersLoading, setMastersLoading] = useState(false);
+
+  const loadMasters = async () => {
+    setMastersLoading(true);
+    try {
+      const res = await api.get('/masters/');
+      setMastersList(res.data);
+    } catch (err) { console.error(err); }
+    finally { setMastersLoading(false); }
+  };
+
+  const toggleVerify = async (masterId: number, current: boolean) => {
+    try {
+      await api.patch(`/masters/${masterId}/verify`, { is_verified: !current });
+      setMastersList(prev => prev.map(m => m.id === masterId ? { ...m, is_verified: !current } : m));
+    } catch (err) { console.error(err); }
+  };
+
+  useEffect(() => { if (activeTab === 'masters') loadMasters(); }, [activeTab]);
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="glass-card p-8">
@@ -360,8 +383,9 @@ const Admin: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap gap-2 mb-6 border-b border-white/10 pb-2">
-          {['stats', 'users', 'whitelist', 'requests', 'brands'].map((tab) => {
+          {['stats', 'users', 'whitelist', 'requests', 'brands', 'masters'].map((tab) => {
             const labels: Record<string, string> = {
+              masters: '🗺️ Мастера',
               stats: '📊 Статистика',
               users: '👥 Пользователи',
               whitelist: '🔓 Белый список',
@@ -593,6 +617,45 @@ const Admin: React.FC = () => {
           </div>
         )}
       </div>
+
+
+        {activeTab === 'masters' && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-white">Управление мастерами</h3>
+            {mastersLoading ? <p className="text-white/50">Загрузка...</p> : (
+              <div className="overflow-x-auto glass-table">
+                <table className="min-w-full divide-y divide-white/5 text-sm">
+                  <thead><tr className="text-left text-white/60">
+                    <th className="px-4 py-3">Имя</th>
+                    <th className="px-4 py-3">Город</th>
+                    <th className="px-4 py-3">Специализация</th>
+                    <th className="px-4 py-3">Рейтинг</th>
+                    <th className="px-4 py-3">Верификация</th>
+                  </tr></thead>
+                  <tbody className="divide-y divide-white/5">
+                    {mastersList.map((m: any) => (
+                      <tr key={m.id} className="hover:bg-white/5">
+                        <td className="px-4 py-3 text-white">{m.first_name} {m.last_name || ''}</td>
+                        <td className="px-4 py-3 text-white/70">{m.city || '-'}</td>
+                        <td className="px-4 py-3 text-white/70">{m.specialization || '-'}</td>
+                        <td className="px-4 py-3 text-yellow-400">⭐ {m.rating?.toFixed(1)}</td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => toggleVerify(m.id, m.is_verified)}
+                            className={`px-3 py-1 rounded-lg text-xs font-medium transition ${m.is_verified ? 'bg-green-500/20 text-green-400 hover:bg-red-500/20 hover:text-red-400' : 'bg-white/10 text-white/60 hover:bg-green-500/20 hover:text-green-400'}`}
+                          >
+                            {m.is_verified ? '✓ Верифицирован' : 'Не верифицирован'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {mastersList.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-white/40">Нет мастеров</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
       {showEditModal && editingUser && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">

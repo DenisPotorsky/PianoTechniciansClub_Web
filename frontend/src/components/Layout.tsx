@@ -143,7 +143,7 @@ const Layout: React.FC = () => {
             {/* ЗАТЕМНЕНИЕ */}
             {isMenuOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[999]"
                     onClick={() => setIsMenuOpen(false)}
                 />
             )}
@@ -151,7 +151,7 @@ const Layout: React.FC = () => {
             {/* ВЫЕЗЖАЮЩЕЕ МЕНЮ СПРАВА */}
             <div
                 ref={menuRef}
-                className={`fixed top-0 right-0 h-full w-80 glass-card rounded-l-2xl z-50 transition-transform duration-300 ease-in-out ${
+                className={`fixed top-0 right-0 h-full w-80 glass-card rounded-l-2xl z-[1000] transition-transform duration-300 ease-in-out ${
                     isMenuOpen ? 'translate-x-0' : 'translate-x-full'
                 }`}
                 style={{
@@ -182,12 +182,23 @@ const Layout: React.FC = () => {
                         <span className="text-xl">🏠</span> Главная
                     </Link>
 
+                    <Link
+                        to="/masters"
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl text-white transition ${
+                            isActive('/masters') ? 'bg-white/15' : 'hover:bg-white/10'
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                    >
+                        <span className="text-xl">🗺️</span> Мастера
+                    </Link>
+
                     {/* Telegram-бот в меню */}
                     <a
                         href={TELEGRAM_BOT_URL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-3 px-4 py-3 rounded-xl text-white hover:bg-white/10 transition"
+                        onClick={() => setIsMenuOpen(false)}
                     >
                         <span className="text-xl">🤖</span> Telegram-бот
                     </a>
@@ -232,6 +243,18 @@ const Layout: React.FC = () => {
                             </Link>
                         </>
                     )}
+
+                            {user?.is_master && (
+                                <Link
+                                    to="/master-dashboard"
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-white transition ${
+                                        isActive('/master-dashboard') ? 'bg-white/15' : 'hover:bg-white/10'
+                                    }`}
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    <span className="text-xl">🔧</span> Мой кабинет
+                                </Link>
+                            )}
 
                     {(user?.is_admin || user?.is_super_admin) && (
                         <Link

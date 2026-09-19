@@ -12,6 +12,7 @@ interface User {
   city: string | null;       // <-- ДОБАВЛЕНО
   telegram_id: number | null;
   is_subscribed: boolean;
+  is_master: boolean;
   is_approved: boolean;      // <-- ДОБАВЛЕНО
   is_admin: boolean;
   is_super_admin: boolean;

@@ -143,3 +143,94 @@ class PasswordReset(Base):
     expires_at = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(hours=1))
 
     user = relationship("User", foreign_keys=[user_id])
+
+
+class Case(Base):
+    __tablename__ = "cases"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    title = Column(String(255), nullable=False)
+    symptom = Column(Text, nullable=False)
+    diagnosis = Column(Text, nullable=True)
+    solution = Column(Text, nullable=False)
+    tools_used = Column(Text, nullable=True)
+    difficulty = Column(String(20), default="medium")  # easy/medium/hard
+    is_verified = Column(Boolean, default=False)
+    view_count = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", foreign_keys=[user_id])
+    tags = relationship("CaseTag", back_populates="case", cascade="all, delete-orphan")
+    media = relationship("CaseMedia", back_populates="case", cascade="all, delete-orphan")
+
+
+class CaseTag(Base):
+    __tablename__ = "case_tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    case_id = Column(Integer, ForeignKey("cases.id"), nullable=False)
+    tag = Column(String(50), nullable=False, index=True)
+
+    case = relationship("Case", back_populates="tags")
+
+
+class CaseMedia(Base):
+    __tablename__ = "case_media"
+
+    id = Column(Integer, primary_key=True, index=True)
+    case_id = Column(Integer, ForeignKey("cases.id"), nullable=False)
+    media_type = Column(String(10), nullable=False)  # photo/video
+    url = Column(String(500), nullable=False)
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    case = relationship("Case", back_populates="media")
+
+
+class MasterProfile(Base):
+    __tablename__ = "master_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    
+    specialization = Column(String, nullable=True)  # настройка, регулировка, ремонт, реставрация
+    city = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    
+    bio = Column(Text, nullable=True)
+    photo_url = Column(String, nullable=True)
+    
+    phone = Column(String, nullable=True)
+    telegram = Column(String, nullable=True)
+    
+    rating = Column(Float, default=0.0)
+    review_count = Column(Integer, default=0)
+    
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", backref="master_profile")
+
+
+class MasterReview(Base):
+    __tablename__ = "master_reviews"
+
+    id = Column(Integer, primary_key=True, index=True)
+    master_id = Column(Integer, ForeignKey("master_profiles.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
+    rating = Column(Integer, nullable=False)  # 1-5
+    text = Column(Text, nullable=True)
+    photo_url = Column(String, nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    master = relationship("MasterProfile", backref="reviews")
+    user = relationship("User")

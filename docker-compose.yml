@@ -1,16 +1,38 @@
 services:
+  # === НОВАЯ БАЗА ДАННЫХ ===
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: ptc-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: piano_user
+      POSTGRES_PASSWORD: piano_pass  # В проде замени на переменную из .env!
+      POSTGRES_DB: piano_club
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"  # Для доступа из PyCharm Database Tool
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U piano_user -d piano_club"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build: ./backend
     container_name: ptc-backend
     restart: unless-stopped
-    env_file:
-      - ./backend/.env
+    env_file: ./backend/.env
     environment:
-      - DATABASE_URL=sqlite:////app/data/piano_club.db
+      # === ИЗМЕНЕНИЕ: Подключаемся к Postgres вместо SQLite ===
+      DATABASE_URL: postgresql://piano_user:piano_pass@db:5432/piano_club
     volumes:
-      - db_data:/app/data
+      - ./backend:/app  # Для разработки (hot-reload)
     ports:
       - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy  # Ждем пока БД готова
 
   frontend:
     build: ./frontend
@@ -25,14 +47,14 @@ services:
     build: ./bot_simple
     container_name: ptc-bot
     restart: unless-stopped
-    env_file:
-      - ./bot_simple/.env
+    env_file: ./bot_simple/.env
     environment:
-      - DATABASE_URL=sqlite:////app/data/piano_club.db
-    volumes:
-      - db_data:/app/data
+      # === ИЗМЕНЕНИЕ: Бот тоже подключается к Postgres ===
+      DATABASE_URL: postgresql://piano_user:piano_pass@db:5432/piano_club
     depends_on:
-      - backend
+      db:
+        condition: service_healthy
 
 volumes:
-  db_data:
+  pg_data:  # Постоянное хранилище для БД
+  db_data:  # Оставляем старый volume на всякий случай

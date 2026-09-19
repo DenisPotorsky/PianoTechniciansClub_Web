@@ -1,3 +1,4 @@
+from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -24,6 +25,29 @@ def init_db():
     # Импорт данных из JSON если таблицы пустые
     export_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "all_data_export.json")
     users_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "users_export.json")
+
+    # Импорт пользователей (ДО остальных данных из-за foreign key)
+    if db.query(User).count() == 0 and os.path.exists(users_file):
+        with open(users_file, "r") as f:
+            users_data = json.load(f)
+        for u in users_data:
+            db.add(User(
+                telegram_id=u["telegram_id"],
+                username=u.get("username"),
+                first_name=u.get("first_name") or u.get("username") or "User",
+                last_name=u.get("last_name"),
+                email=u.get("email"),
+                phone=u.get("phone"),
+                city=u.get("city"),
+                hashed_password=u.get("hashed_password"),
+                is_subscribed=bool(u.get("is_subscribed")),
+                is_approved=bool(u.get("is_approved")),
+                is_admin=bool(u.get("is_admin")),
+                is_super_admin=bool(u.get("is_super_admin")),
+                is_active=bool(u.get("is_active"))
+            ))
+        db.commit()
+        print(f"✅ Пользователи импортированы: {db.query(User).count()}")
 
     if db.query(Brand).count() == 0 and os.path.exists(export_file):
         with open(export_file, "r") as f:
@@ -58,33 +82,13 @@ def init_db():
         db.commit()
         print(f"✅ Данные импортированы: brands={db.query(Brand).count()}, scales={db.query(Scale).count()}")
 
-    # Импорт пользователей
-    if db.query(User).count() == 0 and os.path.exists(users_file):
-        with open(users_file, "r") as f:
-            users_data = json.load(f)
-        for u in users_data:
-            db.add(User(
-                telegram_id=u["telegram_id"],
-                username=u.get("username"),
-                first_name=u.get("first_name") or u.get("username") or "User",
-                last_name=u.get("last_name"),
-                email=u.get("email"),
-                phone=u.get("phone"),
-                city=u.get("city"),
-                hashed_password=u.get("hashed_password"),
-                is_subscribed=bool(u.get("is_subscribed")),
-                is_approved=bool(u.get("is_approved")),
-                is_admin=bool(u.get("is_admin")),
-                is_super_admin=bool(u.get("is_super_admin")),
-                is_active=bool(u.get("is_active"))
-            ))
-        db.commit()
-        print(f"✅ Пользователи импортированы: {db.query(User).count()}")
 
     db.close()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    os.makedirs("uploads", exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
     init_db()
     yield
 

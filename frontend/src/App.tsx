@@ -9,6 +9,9 @@ import AgeDetection from './pages/AgeDetection';
 import Regulating from './pages/Regulating';
 import Strings from './pages/Strings';
 import Admin from './pages/Admin';
+import MastersMap from './pages/MastersMap';
+import MasterProfile from './pages/MasterProfile';
+import MasterDashboard from './pages/MasterDashboard';
 import Login from './pages/Login';
 import RequestAccess from './pages/RequestAccess';
 import WhitelistLogin from './pages/WhitelistLogin';
@@ -51,6 +54,9 @@ function App() {
             <Route path="regulating" element={<ProtectedRoute requireMember><Regulating /></ProtectedRoute>} />
             <Route path="strings" element={<ProtectedRoute requireMember><Strings /></ProtectedRoute>} />
             <Route path="admin" element={<ProtectedRoute requireAdmin><Admin /></ProtectedRoute>} />
+            <Route path="masters" element={<MastersMap />} />
+            <Route path="masters/:id" element={<MasterProfile />} />
+            <Route path="master-dashboard" element={<MasterDashboard />} />
           </Route>
         </Routes>
       </Router>

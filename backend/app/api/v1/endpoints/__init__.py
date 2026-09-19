@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, admin, calculator, age, regulating, strings, users
+from app.api.v1.endpoints import auth, admin, calculator, age, regulating, strings, users, cases, upload, masters, upload
 
 router = APIRouter()
 router.include_router(auth.router, prefix="/auth", tags=["auth"])
@@ -9,3 +9,7 @@ router.include_router(age.router, prefix="/age", tags=["age"])
 router.include_router(regulating.router, prefix="/regulating", tags=["regulating"])
 router.include_router(strings.router, prefix="/strings", tags=["strings"])
 router.include_router(users.router, prefix="/users", tags=["users"])
+router.include_router(cases.router)
+router.include_router(upload.router)
+router.include_router(upload.router)
+router.include_router(masters.router)

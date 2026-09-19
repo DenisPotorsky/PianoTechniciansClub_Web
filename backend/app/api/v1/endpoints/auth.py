@@ -68,6 +68,7 @@ def _build_token_response(user: User) -> dict:
         "is_approved": user.is_approved,
         "is_admin": user.is_admin,
         "is_super_admin": user.is_super_admin,
+        "is_master": hasattr(user, "master_profile") and user.master_profile is not None,
         "created_at": user.created_at
     }
 
@@ -99,6 +100,7 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
         "is_approved": current_user.is_approved,
         "is_admin": current_user.is_admin,
         "is_super_admin": current_user.is_super_admin,
+        "is_master": hasattr(current_user, "master_profile") and current_user.master_profile is not None,
         "is_active": current_user.is_active,
         "created_at": current_user.created_at
     }

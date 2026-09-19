@@ -27,6 +27,11 @@ const Home: React.FC = () => {
         <div className="font-semibold text-white text-sm md:text-base">Регулировка</div>
         <div className="text-xs md:text-sm text-white/50 mt-1">Параметры роялей</div>
       </Link>
+      <Link to="/masters" className="glass-card p-4 md:p-6 hover:bg-white/20 transition">
+        <div className="text-3xl md:text-4xl mb-2 md:mb-3">🗺️</div>
+        <div className="font-semibold text-white text-sm md:text-base">Мастера</div>
+        <div className="text-xs md:text-sm text-white/50 mt-1">Карта и отзывы</div>
+      </Link>
       <Link to="/strings" className="glass-card p-4 md:p-6 hover:bg-white/20 transition">
         <div className="text-3xl md:text-4xl mb-2 md:mb-3">🎵</div>
         <div className="font-semibold text-white text-sm md:text-base">Мензуры струн</div>
