@@ -2,7 +2,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from app.api.v1.endpoints import router
+from app.api.v1.endpoints import ai_search, router
 from app.config import get_settings
 from app.database import engine, Base, SessionLocal
 from app.models import User, Brand, SerialRange, Scale, RegulatingParam, Calculation
@@ -103,6 +103,7 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/api/v1")
+app.include_router(ai_search.router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

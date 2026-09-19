@@ -1,5 +1,5 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, InlineQueryHandler, ContextTypes
 
 from app.config import config
 from app.database import SessionLocal
@@ -18,6 +18,7 @@ from handlers.mensur import MensurHandler
 from handlers.regulating import RegulatingHandler
 from handlers.admin import AdminHandler
 from handlers.profile import ProfileHandler
+from handlers.cases import CasesHandler
 from app.logger import setup_logger
 
 logger = setup_logger("main")
@@ -60,7 +61,20 @@ def main():
     admin_service = AdminService()
     user_mgmt_service = UserManagementService()
 
-    application = Application.builder().token(config.BOT_TOKEN).build()
+    async def post_init(application):
+        from telegram import BotCommand
+        commands = [
+            BotCommand("start", "Запустить бота"),
+            BotCommand("search", "Поиск кейсов по симптому"),
+            BotCommand("ai", "AI-ассистент умный поиск"),
+            BotCommand("add_case", "Добавить новый кейс"),
+            BotCommand("admin", "Админ панель"),
+            BotCommand("help", "Помощь"),
+        ]
+        await application.bot.set_my_commands(commands)
+        print("Команды меню зарегистрированы")
+
+    application = Application.builder().token(config.BOT_TOKEN).post_init(post_init).build()
     notification_service = NotificationService(application.bot)
 
     start_handler = StartHandler(user_service, access_service, notification_service, user_mgmt_service)
@@ -69,6 +83,7 @@ def main():
     mensur_handler = MensurHandler(user_service)
     regulating_handler = RegulatingHandler(user_service)
     profile_handler = ProfileHandler(user_service, access_service, notification_service, user_mgmt_service)
+    cases_handler = CasesHandler()
     admin_handler = AdminHandler(admin_service, user_mgmt_service, access_service, user_service)
 
     # ── КОМАНДЫ ──
@@ -78,6 +93,10 @@ def main():
     application.add_handler(CommandHandler("mensur", mensur_handler.handle))
     application.add_handler(CommandHandler("reg", regulating_handler.handle))
     application.add_handler(CommandHandler("profile", profile_handler.handle))
+    application.add_handler(CommandHandler("search", cases_handler.search))
+    application.add_handler(CommandHandler("add_case", cases_handler.add_case_wizard))
+    application.add_handler(CommandHandler("ai", cases_handler.ai_assistant))
+    application.add_handler(InlineQueryHandler(cases_handler.inline_query))
     application.add_handler(CommandHandler("admin", admin_handler.handle))
 
     # ── CONVERSATION HANDLERS ──

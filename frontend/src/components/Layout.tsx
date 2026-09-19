@@ -192,6 +192,16 @@ const Layout: React.FC = () => {
                         <span className="text-xl">🗺️</span> Мастера
                     </Link>
 
+                    <Link
+                        to="/cases"
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl text-white transition ${
+                            isActive('/cases') ? 'bg-white/15' : 'hover:bg-white/10'
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                    >
+                        <span className="text-xl">📚</span> База знаний
+                    </Link>
+
                     {/* Telegram-бот в меню */}
                     <a
                         href={TELEGRAM_BOT_URL}

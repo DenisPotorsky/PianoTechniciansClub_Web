@@ -1,5 +1,5 @@
 from app.database import Base
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, Text, ForeignKey, func
 from sqlalchemy.orm import relationship
 from datetime import datetime, timedelta
 
@@ -234,3 +234,23 @@ class MasterReview(Base):
 
     master = relationship("MasterProfile", backref="reviews")
     user = relationship("User")
+
+
+class CaseVersion(Base):
+    __tablename__ = "case_versions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    case_id = Column(Integer, ForeignKey("cases.id", ondelete="CASCADE"), nullable=False)
+    version = Column(Integer, nullable=False)
+    title = Column(String(255), nullable=False)
+    symptom = Column(Text, nullable=False)
+    diagnosis = Column(Text)
+    solution = Column(Text, nullable=False)
+    tools_used = Column(Text)
+    difficulty = Column(String(20), default="medium")
+    edited_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    change_summary = Column(String(500))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    case = relationship("Case", backref="versions")
+    editor = relationship("User")

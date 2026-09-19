@@ -10,6 +10,9 @@ import Regulating from './pages/Regulating';
 import Strings from './pages/Strings';
 import Admin from './pages/Admin';
 import MastersMap from './pages/MastersMap';
+import CasesList from './pages/CasesList';
+import CaseCreate from './pages/CaseCreate';
+import CaseDetail from './pages/CaseDetail';
 import MasterProfile from './pages/MasterProfile';
 import MasterDashboard from './pages/MasterDashboard';
 import Login from './pages/Login';
@@ -56,6 +59,9 @@ function App() {
             <Route path="admin" element={<ProtectedRoute requireAdmin><Admin /></ProtectedRoute>} />
             <Route path="masters" element={<MastersMap />} />
             <Route path="masters/:id" element={<MasterProfile />} />
+            <Route path="cases" element={<CasesList />} />
+            <Route path="cases/new" element={<CaseCreate />} />
+            <Route path="cases/:id" element={<CaseDetail />} />
             <Route path="master-dashboard" element={<MasterDashboard />} />
           </Route>
         </Routes>

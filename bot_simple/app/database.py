@@ -2,11 +2,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from app.config import config
 
-# Создаем движок. check_same_thread=False важен для SQLite в async окружении
-engine = create_engine(
-    config.DATABASE_URL,
-    connect_args={"check_same_thread": False}
-)
+# Создаем движок для PostgreSQL
+connect_args = {}
+if "sqlite" in config.DATABASE_URL:
+    connect_args["check_same_thread"] = False
+engine = create_engine(config.DATABASE_URL, connect_args=connect_args)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
