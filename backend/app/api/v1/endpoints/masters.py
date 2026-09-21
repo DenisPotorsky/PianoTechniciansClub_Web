@@ -1,7 +1,8 @@
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
 from sqlalchemy.orm import Session
-import math
+from geoalchemy2.functions import ST_DWithin, ST_SetSRID, ST_MakePoint, ST_Distance
+from geoalchemy2.shape import to_shape
 import os
 import uuid
 import shutil
@@ -80,7 +81,11 @@ def create_master_profile(
     if existing:
         raise HTTPException(400, "Master profile already exists")
 
-    profile = MasterProfile(user_id=current_user.id, **data.model_dump(exclude_unset=True))
+    profile_data = data.model_dump(exclude_unset=True)
+    if profile_data.get("latitude") and profile_data.get("longitude"):
+        from geoalchemy2.elements import WKTElement
+        profile_data["geom"] = WKTElement(f"POINT({profile_data['longitude']} {profile_data['latitude']})", srid=4326)
+    profile = MasterProfile(user_id=current_user.id, **profile_data)
     db.add(profile)
     db.commit()
     db.refresh(profile)
@@ -104,29 +109,35 @@ def list_masters(
     if specialization:
         query = query.filter(MasterProfile.specialization.ilike(f"%{specialization}%"))
     
-    # Geo filtering using Haversine in Python
+    # Geo filtering using PostGIS ST_DWithin (fast spatial index)
     if lat is not None and lng is not None and radius_km is not None:
+        from geoalchemy2.elements import WKTElement
+        user_point = WKTElement(f"POINT({lng} {lat})", srid=4326)
+        radius_deg = radius_km / 111.0  # approx km to degrees
         query = query.filter(
-            MasterProfile.latitude.isnot(None),
-            MasterProfile.longitude.isnot(None)
+            MasterProfile.geom.isnot(None),
+            ST_DWithin(MasterProfile.geom, ST_SetSRID(ST_MakePoint(lng, lat), 4326), radius_deg)
         )
-        profiles = query.order_by(MasterProfile.is_verified.desc(), MasterProfile.rating.desc()).all()
-        
-        R = 6371.0
-        lat_rad = math.radians(lat)
-        lng_rad = math.radians(lng)
+        profiles = query.order_by(
+            ST_Distance(MasterProfile.geom, ST_SetSRID(ST_MakePoint(lng, lat), 4326)),
+            MasterProfile.is_verified.desc(),
+            MasterProfile.rating.desc()
+        ).offset(skip).limit(limit).all()
         
         response = []
         for p in profiles:
-            dlat = math.radians(p.latitude - lat)
-            dlng = math.radians(p.longitude - lng)
-            a = math.sin(dlat/2)**2 + math.cos(lat_rad) * math.cos(math.radians(p.latitude)) * math.sin(dlng/2)**2
-            distance = R * 2 * math.asin(math.sqrt(a))
-            if distance <= radius_km:
-                resp = profile_to_response(p)
-                resp["distance_km"] = round(distance, 1)
-                response.append(resp)
-        return response[skip:skip+limit]
+            resp = profile_to_response(p)
+            if p.latitude and p.longitude:
+                import math
+                R = 6371.0
+                dlat = math.radians(p.latitude - lat)
+                dlng = math.radians(p.longitude - lng)
+                a = math.sin(dlat/2)**2 + math.cos(math.radians(lat)) * math.cos(math.radians(p.latitude)) * math.sin(dlng/2)**2
+                resp["distance_km"] = round(R * 2 * math.asin(math.sqrt(a)), 1)
+            else:
+                resp["distance_km"] = None
+            response.append(resp)
+        return response
     
     profiles = query.order_by(MasterProfile.is_verified.desc(), MasterProfile.rating.desc()).offset(skip).limit(limit).all()
     return [profile_to_response(p) for p in profiles]

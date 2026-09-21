@@ -1,4 +1,5 @@
 from app.database import Base
+from geoalchemy2 import Geometry
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, Text, ForeignKey, func
 from sqlalchemy.orm import relationship
 from datetime import datetime, timedelta
@@ -200,6 +201,7 @@ class MasterProfile(Base):
     address = Column(String, nullable=True)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
+    geom = Column(Geometry("POINT", srid=4326), nullable=True)
     
     bio = Column(Text, nullable=True)
     photo_url = Column(String, nullable=True)
