@@ -1,8 +1,23 @@
 from app.database import Base
 from geoalchemy2 import Geometry
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, Text, ForeignKey, func
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, Text, ForeignKey, Table, func
 from sqlalchemy.orm import relationship
 from datetime import datetime, timedelta
+
+
+# ===== Связь many-to-many Case ↔ Symptom =====
+case_symptoms = Table(
+    "case_symptoms", Base.metadata,
+    Column("case_id", Integer, ForeignKey("cases.id", ondelete="CASCADE"), primary_key=True),
+    Column("symptom_id", Integer, ForeignKey("symptoms.id", ondelete="CASCADE"), primary_key=True),
+)
+
+# ===== Связь many-to-many Case ↔ Tag =====
+case_tag_links = Table(
+    "case_tag_links", Base.metadata,
+    Column("case_id", Integer, ForeignKey("cases.id", ondelete="CASCADE"), primary_key=True),
+    Column("tag_id", Integer, ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True),
+)
 
 
 class User(Base):
@@ -29,6 +44,7 @@ class User(Base):
 
     access_requests = relationship("AccessRequest", foreign_keys="AccessRequest.user_id", back_populates="user")
     calculations = relationship("Calculation", back_populates="user", cascade="all, delete-orphan")
+    cases = relationship("Case", back_populates="author", cascade="all, delete-orphan")
 
 
 class AccessRequest(Base):
@@ -132,6 +148,7 @@ class EmailVerification(Base):
 
     user = relationship("User", foreign_keys=[user_id])
 
+
 class PasswordReset(Base):
     __tablename__ = "password_resets"
 
@@ -146,35 +163,90 @@ class PasswordReset(Base):
     user = relationship("User", foreign_keys=[user_id])
 
 
+# ===== WIKI: Кейсы =====
+
+class Symptom(Base):
+    """Справочник симптомов/проблем"""
+    __tablename__ = "symptoms"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200), unique=True, nullable=False, index=True)
+    category = Column(String(100), nullable=True)  # механика, струны, педали, корпус, звук
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    cases = relationship("Case", secondary=case_symptoms, back_populates="symptoms")
+
+
+class Tag(Base):
+    """Справочник тегов"""
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False, index=True)
+    category = Column(String(100), nullable=True)  # бренд, тип_работы, инструмент, модель
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    cases = relationship("Case", secondary=case_tag_links, back_populates="tags")
+
+
 class Case(Base):
     __tablename__ = "cases"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     title = Column(String(255), nullable=False)
-    symptom = Column(Text, nullable=False)
+    description = Column(Text, nullable=True)  # общее описание ситуации
+    symptom_text = Column(Text, nullable=True)  # свободный текст симптома (для поиска)
     diagnosis = Column(Text, nullable=True)
-    solution = Column(Text, nullable=False)
     tools_used = Column(Text, nullable=True)
     difficulty = Column(String(20), default="medium")  # easy/medium/hard
     is_verified = Column(Boolean, default=False)
     view_count = Column(Integer, default=0)
+    helpful_count = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    user = relationship("User", foreign_keys=[user_id])
-    tags = relationship("CaseTag", back_populates="case", cascade="all, delete-orphan")
+    author = relationship("User", back_populates="cases")
+    symptoms = relationship("Symptom", secondary=case_symptoms, back_populates="cases")
+    tags = relationship("Tag", secondary=case_tag_links, back_populates="cases")
+    solutions = relationship("Solution", back_populates="case", cascade="all, delete-orphan")
     media = relationship("CaseMedia", back_populates="case", cascade="all, delete-orphan")
+    versions = relationship("CaseVersion", back_populates="case", cascade="all, delete-orphan")
+
+    # Старые теги (строки) — оставляем для обратной совместимости
+    old_tags = relationship("CaseTag", back_populates="case", cascade="all, delete-orphan")
+
+
+class Solution(Base):
+    """Решение проблемы (у кейса может быть несколько решений от разных мастеров)"""
+    __tablename__ = "solutions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    case_id = Column(Integer, ForeignKey("cases.id", ondelete="CASCADE"), nullable=False)
+    author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    text = Column(Text, nullable=False)
+    tools_used = Column(Text, nullable=True)
+    difficulty = Column(String(20), default="medium")
+    is_best = Column(Boolean, default=False)  # лучшее решение (выбирает автор кейса)
+    upvotes = Column(Integer, default=0)
+    downvotes = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    case = relationship("Case", back_populates="solutions")
+    author = relationship("User")
 
 
 class CaseTag(Base):
+    """Старые теги (строки) — обратная совместимость"""
     __tablename__ = "case_tags"
 
     id = Column(Integer, primary_key=True, index=True)
     case_id = Column(Integer, ForeignKey("cases.id"), nullable=False)
     tag = Column(String(50), nullable=False, index=True)
 
-    case = relationship("Case", back_populates="tags")
+    case = relationship("Case", back_populates="old_tags")
 
 
 class CaseMedia(Base):
@@ -188,54 +260,6 @@ class CaseMedia(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     case = relationship("Case", back_populates="media")
-
-
-class MasterProfile(Base):
-    __tablename__ = "master_profiles"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
-    
-    specialization = Column(String, nullable=True)  # настройка, регулировка, ремонт, реставрация
-    city = Column(String, nullable=True)
-    address = Column(String, nullable=True)
-    latitude = Column(Float, nullable=True)
-    longitude = Column(Float, nullable=True)
-    geom = Column(Geometry("POINT", srid=4326), nullable=True)
-    
-    bio = Column(Text, nullable=True)
-    photo_url = Column(String, nullable=True)
-    
-    phone = Column(String, nullable=True)
-    telegram = Column(String, nullable=True)
-    
-    rating = Column(Float, default=0.0)
-    review_count = Column(Integer, default=0)
-    
-    is_active = Column(Boolean, default=True)
-    is_verified = Column(Boolean, default=False)
-    
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    user = relationship("User", backref="master_profile")
-
-
-class MasterReview(Base):
-    __tablename__ = "master_reviews"
-
-    id = Column(Integer, primary_key=True, index=True)
-    master_id = Column(Integer, ForeignKey("master_profiles.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    
-    rating = Column(Integer, nullable=False)  # 1-5
-    text = Column(Text, nullable=True)
-    photo_url = Column(String, nullable=True)
-    
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    master = relationship("MasterProfile", backref="reviews")
-    user = relationship("User")
 
 
 class CaseVersion(Base):
@@ -254,5 +278,55 @@ class CaseVersion(Base):
     change_summary = Column(String(500))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    case = relationship("Case", backref="versions")
+    case = relationship("Case", back_populates="versions")
     editor = relationship("User")
+
+
+# ===== Мастера =====
+
+class MasterProfile(Base):
+    __tablename__ = "master_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+
+    specialization = Column(String, nullable=True)
+    city = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    geom = Column(Geometry("POINT", srid=4326), nullable=True)
+
+    bio = Column(Text, nullable=True)
+    photo_url = Column(String, nullable=True)
+
+    phone = Column(String, nullable=True)
+    telegram = Column(String, nullable=True)
+
+    rating = Column(Float, default=0.0)
+    review_count = Column(Integer, default=0)
+
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", backref="master_profile")
+
+
+class MasterReview(Base):
+    __tablename__ = "master_reviews"
+
+    id = Column(Integer, primary_key=True, index=True)
+    master_id = Column(Integer, ForeignKey("master_profiles.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    rating = Column(Integer, nullable=False)  # 1-5
+    text = Column(Text, nullable=True)
+    photo_url = Column(String, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    master = relationship("MasterProfile", backref="reviews")
+    user = relationship("User")
