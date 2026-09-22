@@ -180,6 +180,23 @@ def main():
             return
 
         # ── АДМИН-ПАНЕЛЬ ──
+        # ── БАЗА ЗНАНИЙ ──
+        if data == "wiki_search":
+            await query.answer()
+            keyboard = [
+                [InlineKeyboardButton("🔍 Поиск по симптому", switch_inline_query_current_chat="")],
+                [InlineKeyboardButton("➕ Добавить кейс", url="https://piano-technicians.club/cases/new")],
+                [InlineKeyboardButton("📖 Открыть базу знаний", url="https://piano-technicians.club/cases")],
+                [InlineKeyboardButton("◀️ Назад", callback_data="back_menu")],
+            ]
+            await query.edit_message_text(
+                "📚 **База знаний**\n\n"
+                "Выберите действие:",
+                reply_markup=InlineKeyboardMarkup(keyboard),
+                parse_mode="Markdown"
+            )
+            return
+
         if data == "admin_panel":
             await query.answer()
             await admin_handler.handle(update, context)

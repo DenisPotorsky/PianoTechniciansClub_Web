@@ -78,6 +78,7 @@ class StartHandler(BaseHandler):
             [InlineKeyboardButton("📅 Возраст фортепиано", callback_data="age_start")],
             [InlineKeyboardButton("📏 Мензуры", callback_data="mensur_start")],
             [InlineKeyboardButton("🔧 Регулировка", callback_data="reg_start")],
+            [InlineKeyboardButton("📚 База знаний", callback_data="wiki_search")],
             [InlineKeyboardButton("👤 Мой профиль", callback_data="profile_show")],
             [InlineKeyboardButton("🌐 Сайт клуба", url="https://piano-technicians.club")],
             [

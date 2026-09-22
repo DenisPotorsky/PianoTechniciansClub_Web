@@ -8,7 +8,7 @@ from app.config import config
 class CasesHandler:
     def __init__(self):
         self.api_base = "http://backend:8000/api/v1"
-        self.web_base = "http://localhost:3000"
+        self.web_base = "https://piano-technicians.club"
 
     def _api_get(self, path: str) -> dict | list:
         """GET запрос к API"""
@@ -52,7 +52,7 @@ class CasesHandler:
 
                 text = (
                     f"📚 *{case['title']}*\n\n"
-                    f"🔍 {case.get('symptom_text', '')[:150]}\n"
+                    f"🔍 {(case.get('symptom_text') or 'Нет описания')[:150]}\n"
                 )
                 if symptoms:
                     text += f"🔧 Симптомы: {symptoms}\n"
@@ -108,7 +108,7 @@ class CasesHandler:
 
         articles = []
         for case in items[:10]:
-            symptom_text = case.get("symptom_text", "")[:80]
+            symptom_text = (case.get("symptom_text") or "")[:80]
             symptoms = ", ".join(s["name"] for s in case.get("symptoms", []))
             description = symptom_text or symptoms or "Нет описания"
 
@@ -176,7 +176,7 @@ class CasesHandler:
             symptoms = ", ".join(s["name"] for s in case.get("symptoms", []))
             response += (
                 f"*{i}. {case['title']}*\n"
-                f"🔍 {case.get('symptom_text', '')[:100]}\n"
+                f"🔍 {(case.get('symptom_text') or 'Нет описания')[:100]}\n"
             )
             if symptoms:
                 response += f"🔧 {symptoms}\n"
