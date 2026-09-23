@@ -28,6 +28,7 @@ services:
       DATABASE_URL: postgresql://piano_user:piano_pass@db:5432/piano_club
     volumes:
       - ./backend:/app  # Для разработки (hot-reload)
+      - uploads_data:/app/uploads
     ports:
       - "8000:8000"
     depends_on:
@@ -68,5 +69,6 @@ services:
 
 volumes:
   pg_data:
-  qdrant_data:  # Постоянное хранилище для БД
+  qdrant_data:
+  uploads_data:  # Постоянное хранилище для БД
   db_data:  # Оставляем старый volume на всякий случай

@@ -10,7 +10,7 @@ from app.core.security import get_current_user
 
 router = APIRouter(prefix="/upload", tags=["upload"])
 
-UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "uploads")
+UPLOAD_DIR = "/app/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 ALLOWED_TYPES = {

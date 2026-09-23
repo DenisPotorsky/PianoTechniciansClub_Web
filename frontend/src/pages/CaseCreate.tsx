@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
 interface Symptom { id: number; name: string; category?: string; }
-interface Tag { id: number; name: string; category?: string; }
+interface UploadedMedia { url: string; media_type: string; filename: string; }
 
 const CaseCreate: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [symptoms, setSymptoms] = useState<Symptom[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
   const [form, setForm] = useState({
     title: '',
     symptom_text: '',
@@ -19,18 +18,15 @@ const CaseCreate: React.FC = () => {
     difficulty: 'medium',
   });
   const [selectedSymptoms, setSelectedSymptoms] = useState<number[]>([]);
-  const [selectedTags, setSelectedTags] = useState<number[]>([]);
+  const [photos, setPhotos] = useState<UploadedMedia[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => { loadFilters(); }, []);
 
   const loadFilters = async () => {
     try {
-      const [symRes, tagRes] = await Promise.all([
-        api.get('/symptoms/'),
-        api.get('/tags/'),
-      ]);
+      const symRes = await api.get('/symptoms/');
       setSymptoms(symRes.data);
-      setTags(tagRes.data);
     } catch (err) { console.error('Failed to load filters'); }
   };
 
@@ -38,20 +34,51 @@ const CaseCreate: React.FC = () => {
     setSelectedSymptoms(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
   };
 
-  const toggleTag = (id: number) => {
-    setSelectedTags(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]);
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await api.post('/upload/media', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        setPhotos(prev => [...prev, res.data]);
+      }
+    } catch (err) {
+      alert('Ошибка загрузки файла');
+    } finally {
+      setUploading(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/cases/', {
+      const caseRes = await api.post('/cases/', {
         ...form,
         symptom_ids: selectedSymptoms,
-        tag_ids: selectedTags,
       });
-      navigate('/cases');
+      const caseId = caseRes.data.id;
+
+      for (const photo of photos) {
+        await api.post(`/cases/${caseId}/media`, {
+          media_type: photo.media_type,
+          url: photo.url,
+          description: '',
+        });
+      }
+
+      navigate(`/cases/${caseId}`);
     } catch (err) {
       alert('Ошибка создания кейса');
     } finally {
@@ -65,13 +92,6 @@ const CaseCreate: React.FC = () => {
     acc[cat].push(s);
     return acc;
   }, {} as Record<string, Symptom[]>);
-
-  const tagsByCategory = tags.reduce((acc, t) => {
-    const cat = t.category || 'другое';
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(t);
-    return acc;
-  }, {} as Record<string, Tag[]>);
 
   return (
     <div className="max-w-3xl mx-auto px-4">
@@ -89,6 +109,48 @@ const CaseCreate: React.FC = () => {
             required minLength={3}
             placeholder="Например: Западание клавиши Yamaha U3"
           />
+        </div>
+
+        {/* Фото */}
+        <div>
+          <label className="block text-white/80 mb-2">📸 Фото проблемы / решения</label>
+          <div className="flex flex-wrap gap-3 mb-3">
+            {photos.map((photo, i) => (
+              <div key={i} className="relative group">
+                <img
+                  src={photo.url}
+                  alt={`Фото ${i + 1}`}
+                  className="w-24 h-24 object-cover rounded-xl border border-white/10"
+                />
+                <button
+                  type="button"
+                  onClick={() => removePhoto(i)}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <label className={`w-24 h-24 border-2 border-dashed border-white/20 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-orange-500/50 transition ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+              {uploading ? (
+                <span className="text-white/50 text-xs">⏳</span>
+              ) : (
+                <>
+                  <span className="text-2xl text-white/30">+</span>
+                  <span className="text-white/30 text-xs mt-1">Фото</span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime"
+                multiple
+                onChange={handleFileUpload}
+                className="hidden"
+                disabled={uploading}
+              />
+            </label>
+          </div>
+          <p className="text-white/30 text-xs">JPG, PNG, WebP, MP4 · до 10 МБ · можно несколько</p>
         </div>
 
         {/* Симптомы из справочника */}
@@ -181,36 +243,6 @@ const CaseCreate: React.FC = () => {
             <option value="hard">🔴 Сложно</option>
           </select>
         </div>
-
-        {/* Теги из справочника */}
-        {tags.length > 0 && (
-          <div>
-            <label className="block text-white/80 mb-2">🏷️ Теги</label>
-            <div className="space-y-2">
-              {Object.entries(tagsByCategory).map(([cat, items]) => (
-                <div key={cat}>
-                  <span className="text-white/40 text-xs uppercase">{cat}</span>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {items.map(t => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => toggleTag(t.id)}
-                        className={`px-3 py-1.5 rounded-lg text-sm border transition ${
-                          selectedTags.includes(t.id)
-                            ? 'bg-blue-500/20 border-blue-500/40 text-blue-300'
-                            : 'bg-white/5 border-white/10 text-white/60 hover:border-white/30'
-                        }`}
-                      >
-                        {t.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         <button
           type="submit"
