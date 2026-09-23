@@ -197,6 +197,36 @@ class CasesHandler:
             )
             return
 
+        query = " ".join(context.args)
+
+        # Пробуем RAG-поиск (не требует авторизации для самого поиска)
+        try:
+            params = urllib.parse.urlencode({"q": query})
+            token = self._get_token(telegram_id)
+            if not token:
+                await update.message.reply_text("❌ Нет доступа. Войдите на сайт: " + self.web_base)
+                return
+            rag_data = self._api_get(f"/ai/search?{params}", token=token)
+            rag_results = rag_data.get("results", [])
+        except Exception:
+            rag_results = []
+
+        if rag_results:
+            response = f"🤖 *AI-поиск по запросу:* «{query}»\n\n"
+            for i, r in enumerate(rag_results[:3], 1):
+                score_pct = int(r.get("score", 0) * 100)
+                response += (
+                    f"*{i}. {r['title']}* (совпадение {score_pct}%)\n"
+                    f"🔍 {r.get('symptom', '')[:100]}\n"
+                )
+                tags = ", ".join(r.get("tags", []))
+                if tags:
+                    response += f"🏷 {tags}\n"
+                response += f"🔗 {self.web_base}/cases/{r['case_id']}\n\n"
+            await update.message.reply_text(response, parse_mode="Markdown")
+            return
+
+        # Fallback: обычный поиск с авторизацией
         token = self._get_token(telegram_id)
         if not token:
             await update.message.reply_text(
@@ -204,7 +234,6 @@ class CasesHandler:
             )
             return
 
-        query = " ".join(context.args)
         try:
             params = urllib.parse.urlencode({"search": query, "limit": 3})
             data = self._api_get(f"/cases/?{params}", token=token)

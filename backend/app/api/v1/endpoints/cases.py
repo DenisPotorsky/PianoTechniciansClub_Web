@@ -17,6 +17,7 @@ from app.schemas.case import (
     CaseVersionResponse,
 )
 from app.core.security import get_current_user, require_member
+from app.services.rag_service import rag_service
 
 router = APIRouter(prefix="/cases", tags=["cases"])
 
@@ -130,6 +131,21 @@ def create_case(
 
     db.commit()
     db.refresh(case)
+
+    # Индексируем в RAG
+    try:
+        tags_list = [t.name for t in case.tags] if case.tags else []
+        solution_text = data.solution_text or ""
+        rag_service.index_case(
+            case_id=case.id,
+            title=case.title,
+            symptom=case.symptom_text or "",
+            solution=solution_text,
+            tags=tags_list
+        )
+    except Exception as e:
+        print(f"[RAG] Ошибка индексации кейса {case.id}: {e}")
+
     return build_case_response(case)
 
 
@@ -252,6 +268,21 @@ def update_case(
 
     db.commit()
     db.refresh(case)
+
+    # Переиндексируем в RAG
+    try:
+        tags_list = [t.name for t in case.tags] if case.tags else []
+        solutions_text = " ".join(s.text for s in case.solutions) if case.solutions else ""
+        rag_service.index_case(
+            case_id=case.id,
+            title=case.title,
+            symptom=case.symptom_text or "",
+            solution=solutions_text,
+            tags=tags_list
+        )
+    except Exception as e:
+        print(f"[RAG] Ошибка переиндексации кейса {case.id}: {e}")
+
     return build_case_response(case)
 
 

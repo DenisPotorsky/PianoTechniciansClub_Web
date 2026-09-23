@@ -11,7 +11,7 @@ class RAGService:
                 from qdrant_client import QdrantClient
                 from qdrant_client.models import Distance, VectorParams
                 self._qdrant = QdrantClient(host="qdrant", port=6333)
-                
+
                 collections = [c.name for c in self._qdrant.get_collections().collections]
                 if self.collection_name not in collections:
                     self._qdrant.create_collection(
@@ -36,10 +36,10 @@ class RAGService:
         import uuid
         text = f"{title} {symptom} {solution} {' '.join(tags)}"
         embedding = self._get_model().encode(text).tolist()
-        
+
         from qdrant_client.models import PointStruct
         point = PointStruct(
-            id=str(uuid.uuid4()),
+            id=case_id,
             vector=embedding,
             payload={"case_id": case_id, "title": title, "symptom": symptom[:200], "tags": tags}
         )
@@ -48,16 +48,16 @@ class RAGService:
     def search(self, query: str, limit: int = 5) -> list[dict]:
         self._ensure_initialized()
         embedding = self._get_model().encode(query).tolist()
-        
-        results = self._qdrant.query_points(
+
+        results = self._qdrant.search(
             collection_name=self.collection_name,
-            query=embedding,
+            query_vector=embedding,
             limit=limit,
             score_threshold=0.3
-        ).points
-        
+        )
+
         return [
-            {"case_id": r.payload["case_id"], "title": r.payload["title"], 
+            {"case_id": r.payload["case_id"], "title": r.payload["title"],
              "symptom": r.payload["symptom"], "score": round(r.score, 3), "tags": r.payload.get("tags", [])}
             for r in results
         ]
