@@ -1,5 +1,5 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle, InputTextMessageContent
-from telegram.ext import ContextTypes
+from telegram.ext import ContextTypes, ConversationHandler, MessageHandler, filters, CommandHandler
 import urllib.request, urllib.parse, json
 
 class CasesHandler:
@@ -32,7 +32,15 @@ class CasesHandler:
 
     def _api_get(self, path: str, token: str = None) -> dict | list:
         """GET запрос к API с авторизацией"""
-        url = f"{self.api_base}{path}"
+        # Кодируем только query-параметры (после ?), путь оставляем как есть
+        if '?' in path:
+            base, qs = path.split('?', 1)
+            # Перекодируем значения параметров
+            pairs = urllib.parse.parse_qsl(qs)
+            qs_encoded = urllib.parse.urlencode(pairs)
+            url = f"{self.api_base}{base}?{qs_encoded}"
+        else:
+            url = f"{self.api_base}{path}"
         headers = {}
         if token:
             headers["Authorization"] = f"Bearer {token}"
@@ -208,7 +216,8 @@ class CasesHandler:
                 return
             rag_data = self._api_get(f"/ai/search?{params}", token=token)
             rag_results = rag_data.get("results", [])
-        except Exception:
+        except Exception as e:
+            print(f"[CasesHandler] RAG ошибка: {e}")
             rag_results = []
 
         if rag_results:
@@ -261,3 +270,68 @@ class CasesHandler:
             response += f"🔗 {self.web_base}/cases/{case['id']}\n\n"
 
         await update.message.reply_text(response, parse_mode="Markdown")
+
+    # ── CONVERSATION HANDLERS ──
+    from telegram.ext import ConversationHandler, MessageHandler, filters
+
+    WAITING_AI_QUERY = 1
+    WAITING_SEARCH_QUERY = 2
+
+    def get_ai_conversation_handler(self):
+        """ConversationHandler для /ai — ждёт следующее сообщение как запрос"""
+        async def ai_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            if context.args:
+                await self.ai_assistant(update, context)
+                return ConversationHandler.END
+            await update.message.reply_text(
+                "🤖 *AI-ассистент*\n\n"
+                "Опишите проблему — я найду подходящие кейсы:",
+                parse_mode="Markdown",
+                reply_markup=InlineKeyboardMarkup([[
+                    InlineKeyboardButton("🤖 Начать поиск", callback_data="ai_prompt")
+                ]])
+            )
+            return self.WAITING_AI_QUERY
+
+        async def ai_receive_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            # Подделываем context.args из текста сообщения
+            context.args = update.message.text.split()
+            await self.ai_assistant(update, context)
+            return ConversationHandler.END
+
+        return ConversationHandler(
+            entry_points=[CommandHandler("ai", ai_start)],
+            states={
+                self.WAITING_AI_QUERY: [MessageHandler(filters.TEXT & ~filters.COMMAND, ai_receive_query)],
+            },
+            fallbacks=[],
+        )
+
+    def get_search_conversation_handler(self):
+        """ConversationHandler для /search — ждёт следующее сообщение как запрос"""
+        async def search_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            if context.args:
+                await self.search(update, context)
+                return ConversationHandler.END
+            await update.message.reply_text(
+                "🔍 *Поиск по базе знаний*\n\n"
+                "Напишите симптом — я найду похожие кейсы:",
+                parse_mode="Markdown",
+                reply_markup=InlineKeyboardMarkup([[
+                    InlineKeyboardButton("🔍 Найти симптом", callback_data="search_prompt")
+                ]])
+            )
+            return self.WAITING_SEARCH_QUERY
+
+        async def search_receive_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            context.args = update.message.text.split()
+            await self.search(update, context)
+            return ConversationHandler.END
+
+        return ConversationHandler(
+            entry_points=[CommandHandler("search", search_start)],
+            states={
+                self.WAITING_SEARCH_QUERY: [MessageHandler(filters.TEXT & ~filters.COMMAND, search_receive_query)],
+            },
+            fallbacks=[],
+        )

@@ -1,5 +1,5 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, InlineQueryHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, InlineQueryHandler, ContextTypes, ConversationHandler, MessageHandler, filters
 
 from app.config import config
 from app.database import SessionLocal
@@ -93,9 +93,9 @@ def main():
     application.add_handler(CommandHandler("mensur", mensur_handler.handle))
     application.add_handler(CommandHandler("reg", regulating_handler.handle))
     application.add_handler(CommandHandler("profile", profile_handler.handle))
-    application.add_handler(CommandHandler("search", cases_handler.search))
+    application.add_handler(cases_handler.get_search_conversation_handler())
     application.add_handler(CommandHandler("add_case", cases_handler.add_case_wizard))
-    application.add_handler(CommandHandler("ai", cases_handler.ai_assistant))
+    application.add_handler(cases_handler.get_ai_conversation_handler())
     application.add_handler(InlineQueryHandler(cases_handler.inline_query))
     application.add_handler(CommandHandler("admin", admin_handler.handle))
 
