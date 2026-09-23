@@ -2,22 +2,48 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InlineQ
 from telegram.ext import ContextTypes
 import urllib.request, urllib.parse, json
 
-from app.config import config
-
-
 class CasesHandler:
     def __init__(self):
         self.api_base = "http://backend:8000/api/v1"
         self.web_base = "https://piano-technicians.club"
+        self._tokens = {}  # кэш токенов: telegram_id -> token
 
-    def _api_get(self, path: str) -> dict | list:
-        """GET запрос к API"""
+    def _get_token(self, telegram_id: int) -> str | None:
+        """Получить JWT токен для пользователя по telegram_id"""
+        if telegram_id in self._tokens:
+            return self._tokens[telegram_id]
+        try:
+            data = json.dumps({"telegram_id": telegram_id}).encode()
+            req = urllib.request.Request(
+                f"{self.api_base}/auth/whitelist-login",
+                data=data,
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            resp = urllib.request.urlopen(req, timeout=10)
+            result = json.loads(resp.read())
+            token = result.get("access_token")
+            if token:
+                self._tokens[telegram_id] = token
+            return token
+        except Exception as e:
+            print(f"[CasesHandler] Ошибка авторизации tg_id={telegram_id}: {e}")
+            return None
+
+    def _api_get(self, path: str, token: str = None) -> dict | list:
+        """GET запрос к API с авторизацией"""
         url = f"{self.api_base}{path}"
-        resp = urllib.request.urlopen(url, timeout=10)
+        headers = {}
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        req = urllib.request.Request(url, headers=headers)
+        resp = urllib.request.urlopen(req, timeout=10)
         return json.loads(resp.read())
 
     async def search(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Поиск кейсов: /search <запрос>"""
+        telegram_id = update.effective_user.id
+
         if not context.args:
             await update.message.reply_text(
                 "🔍 *Поиск по базе знаний*\n\n"
@@ -30,11 +56,20 @@ class CasesHandler:
             )
             return
 
+        token = self._get_token(telegram_id)
+        if not token:
+            await update.message.reply_text(
+                "❌ У вас нет доступа к базе знаний.\n\n"
+                "Зайдите на сайт и войдите через Telegram: "
+                f"{self.web_base}"
+            )
+            return
+
         query = " ".join(context.args)
 
         try:
             params = urllib.parse.urlencode({"search": query, "limit": 5})
-            data = self._api_get(f"/cases/?{params}")
+            data = self._api_get(f"/cases/?{params}", token=token)
             items = data.get("items", []) if isinstance(data, dict) else data
 
             if not items:
@@ -50,10 +85,8 @@ class CasesHandler:
                 tags = ", ".join(t["name"] for t in case.get("tags", []))
                 solutions_count = case.get("solutions_count", 0)
 
-                text = (
-                    f"📚 *{case['title']}*\n\n"
-                    f"🔍 {(case.get('symptom_text') or 'Нет описания')[:150]}\n"
-                )
+                text = f"📚 *{case['title']}*\n\n"
+                text += f"🔍 {(case.get('symptom_text') or 'Нет описания')[:150]}\n"
                 if symptoms:
                     text += f"🔧 Симптомы: {symptoms}\n"
                 if tags:
@@ -73,6 +106,12 @@ class CasesHandler:
                     reply_markup=InlineKeyboardMarkup(keyboard)
                 )
 
+        except urllib.error.HTTPError as e:
+            if e.code == 401:
+                self._tokens.pop(telegram_id, None)
+                await update.message.reply_text("❌ Сессия истекла. Попробуйте ещё раз.")
+            else:
+                await update.message.reply_text(f"❌ Ошибка поиска: {e}")
         except Exception as e:
             await update.message.reply_text(f"❌ Ошибка поиска: {str(e)}")
 
@@ -84,27 +123,29 @@ class CasesHandler:
         )]]
         await update.message.reply_text(
             "➕ *Добавление нового кейса*\n\n"
-            "Для удобного создания кейса с выбором симптомов, тегов и загрузкой фото "
-            "используйте веб-интерфейс:",
+            "Для удобного создания кейса используйте веб-интерфейс:",
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
 
     async def inline_query(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Inline-режим: @bot <запрос> — поиск кейсов в любом чате"""
+        telegram_id = update.effective_user.id
         query = update.inline_query.query.strip()
 
         if not query or len(query) < 2:
             await update.inline_query.answer([], cache_time=1)
             return
 
-        try:
-            # Сначала пробуем обычный поиск
-            params = urllib.parse.urlencode({"search": query, "limit": 10})
-            data = self._api_get(f"/cases/?{params}")
-            items = data.get("items", []) if isinstance(data, dict) else data
-        except Exception:
-            items = []
+        token = self._get_token(telegram_id)
+        items = []
+        if token:
+            try:
+                params = urllib.parse.urlencode({"search": query, "limit": 10})
+                data = self._api_get(f"/cases/?{params}", token=token)
+                items = data.get("items", []) if isinstance(data, dict) else data
+            except Exception:
+                items = []
 
         articles = []
         for case in items[:10]:
@@ -144,6 +185,8 @@ class CasesHandler:
 
     async def ai_assistant(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """AI-ассистент (пока fallback на обычный поиск)"""
+        telegram_id = update.effective_user.id
+
         if not context.args:
             await update.message.reply_text(
                 "🤖 *AI-ассистент*\n\n"
@@ -154,11 +197,17 @@ class CasesHandler:
             )
             return
 
-        # Пока используем обычный поиск как fallback
+        token = self._get_token(telegram_id)
+        if not token:
+            await update.message.reply_text(
+                "❌ Нет доступа. Войдите на сайт: " + self.web_base
+            )
+            return
+
         query = " ".join(context.args)
         try:
             params = urllib.parse.urlencode({"search": query, "limit": 3})
-            data = self._api_get(f"/cases/?{params}")
+            data = self._api_get(f"/cases/?{params}", token=token)
             items = data.get("items", []) if isinstance(data, dict) else data
         except Exception as e:
             await update.message.reply_text(f"❌ Ошибка: {e}")

@@ -204,6 +204,7 @@ class Case(Base):
     is_verified = Column(Boolean, default=False)
     view_count = Column(Integer, default=0)
     helpful_count = Column(Integer, default=0)
+    status = Column(String(20), default="published")
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

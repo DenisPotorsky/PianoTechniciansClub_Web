@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 
 interface Symptom { id: number; name: string; category?: string; }
@@ -17,7 +18,7 @@ interface CaseData {
   id: number; user_id: number; author_name?: string;
   title: string; description?: string; symptom_text?: string;
   diagnosis?: string; tools_used?: string; difficulty: string;
-  is_verified: boolean; view_count: number; helpful_count: number;
+  status?: string; is_verified: boolean; view_count: number; helpful_count: number;
   created_at: string; updated_at: string;
   symptoms: Symptom[]; tags: Tag[]; solutions: Solution[]; media: CaseMedia[];
 }
@@ -30,8 +31,26 @@ const CaseDetail: React.FC = () => {
   const [versions, setVersions] = useState<CaseVersion[]>([]);
   const [newSolution, setNewSolution] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => { if (id) loadCase(); }, [id]);
+
+  const handleDelete = async () => {
+    if (!id || !confirm('Удалить этот кейс?')) return;
+    try {
+      await api.delete(`/cases/${id}`);
+      navigate('/cases');
+    } catch (err) { alert('Ошибка удаления'); }
+  };
+
+  const handlePublish = async () => {
+    if (!id) return;
+    try {
+      await api.put(`/cases/${id}`, { status: 'published', change_summary: 'Публикация кейса' });
+      await loadCase();
+    } catch (err) { alert('Ошибка публикации'); }
+  };
 
   const loadCase = async () => {
     try {
@@ -106,9 +125,22 @@ const CaseDetail: React.FC = () => {
               <p className="text-white/40 text-sm mt-1">Автор: {caseData.author_name} • {new Date(caseData.created_at).toLocaleDateString('ru-RU')}</p>
             )}
           </div>
-          <div className="flex items-center gap-4 text-sm text-white/40">
-            <span>👁️ {caseData.view_count}</span>
-            {caseData.helpful_count > 0 && <span className="text-green-400">👍 {caseData.helpful_count}</span>}
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex items-center gap-4 text-sm text-white/40">
+              <span>👁️ {caseData.view_count}</span>
+              {caseData.helpful_count > 0 && <span className="text-green-400">👍 {caseData.helpful_count}</span>}
+            </div>
+            {(user?.id === caseData.user_id || user?.is_admin) && (
+              <div className="flex gap-2 mt-1">
+                <Link to={`/cases/${caseData.id}/edit`} className="px-3 py-1.5 rounded-lg text-sm bg-blue-500/20 border border-blue-500/30 text-blue-300 hover:bg-blue-500/30 transition">✏️ Редактировать</Link>
+                {caseData.status !== 'published' && (
+                  <button onClick={handlePublish} className="px-3 py-1.5 rounded-lg text-sm bg-green-500/20 border border-green-500/30 text-green-300 hover:bg-green-500/30 transition">📤 Опубликовать</button>
+                )}
+                {(user?.is_super_admin || user?.id === caseData.user_id) && (
+                  <button onClick={handleDelete} className="px-3 py-1.5 rounded-lg text-sm bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30 transition">🗑️ Удалить</button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

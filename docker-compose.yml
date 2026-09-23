@@ -52,6 +52,8 @@ services:
       # === ИЗМЕНЕНИЕ: Бот тоже подключается к Postgres ===
       DATABASE_URL: postgresql://piano_user:piano_pass@db:5432/piano_club
     depends_on:
+      backend:
+        condition: service_started
       db:
         condition: service_healthy
 

@@ -12,6 +12,7 @@ import Admin from './pages/Admin';
 import MastersMap from './pages/MastersMap';
 import CasesList from './pages/CasesList';
 import CaseCreate from './pages/CaseCreate';
+import CaseEdit from './pages/CaseEdit';
 import CaseDetail from './pages/CaseDetail';
 import MasterProfile from './pages/MasterProfile';
 import MasterDashboard from './pages/MasterDashboard';
@@ -62,6 +63,7 @@ function App() {
             <Route path="cases" element={<CasesList />} />
             <Route path="cases/new" element={<CaseCreate />} />
             <Route path="cases/:id" element={<CaseDetail />} />
+            <Route path="cases/:id/edit" element={<CaseEdit />} />
             <Route path="master-dashboard" element={<MasterDashboard />} />
           </Route>
         </Routes>

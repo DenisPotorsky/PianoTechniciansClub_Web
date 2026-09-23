@@ -116,6 +116,7 @@ class CaseUpdate(BaseModel):
     diagnosis: Optional[str] = None
     tools_used: Optional[str] = None
     difficulty: Optional[str] = Field(None, pattern="^(easy|medium|hard)$")
+    status: Optional[str] = Field(None, pattern="^(draft|published)$")
     change_summary: Optional[str] = Field(None, max_length=500)
 
 class CaseResponse(BaseModel):
@@ -131,6 +132,7 @@ class CaseResponse(BaseModel):
     is_verified: bool
     view_count: int
     helpful_count: int
+    status: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     symptoms: List[SymptomResponse] = []
@@ -155,6 +157,7 @@ class CaseListItem(BaseModel):
     symptoms: List[SymptomResponse] = []
     tags: List[TagResponse] = []
     solutions_count: int = 0
+    status: Optional[str] = None
 
     class Config:
         from_attributes = True

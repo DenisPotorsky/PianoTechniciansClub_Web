@@ -38,6 +38,7 @@ def build_case_response(case: Case) -> dict:
         "is_verified": case.is_verified,
         "view_count": case.view_count,
         "helpful_count": case.helpful_count,
+        "status": getattr(case, "status", "published"),
         "created_at": case.created_at,
         "updated_at": case.updated_at,
         "symptoms": case.symptoms,
@@ -73,11 +74,13 @@ def build_case_list_item(case: Case) -> dict:
         "is_verified": case.is_verified,
         "view_count": case.view_count,
         "helpful_count": case.helpful_count,
+        "status": getattr(case, "status", "published"),
         "created_at": case.created_at,
         "author_name": case.author.first_name if case.author else None,
         "symptoms": case.symptoms,
         "tags": case.tags,
         "solutions_count": len(case.solutions),
+        "status": getattr(case, "status", "published"),
     }
 
 
@@ -139,6 +142,7 @@ def list_cases(
     tag_id: Optional[int] = Query(None, description="Фильтр по тегу"),
     difficulty: Optional[str] = Query(None, pattern="^(easy|medium|hard)$"),
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_member),  # ЗАКРЫТО
 ):
     """Список кейсов с фильтрацией"""
     query = db.query(Case).options(
@@ -169,7 +173,11 @@ def list_cases(
 
 
 @router.get("/{case_id}")
-def get_case(case_id: int, db: Session = Depends(get_db)):
+def get_case(
+    case_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_member),  # ЗАКРЫТО
+):
     """Детальная страница кейса"""
     case = db.query(Case).options(
         joinedload(Case.author),

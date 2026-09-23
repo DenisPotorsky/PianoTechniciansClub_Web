@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 
 interface Symptom {
@@ -27,6 +28,8 @@ interface CaseItem {
   symptoms: Symptom[];
   tags: Tag[];
   solutions_count: number;
+  status?: string;
+  user_id?: number;
 }
 
 const CasesList: React.FC = () => {
@@ -41,6 +44,8 @@ const CasesList: React.FC = () => {
   const [symptomFilter, setSymptomFilter] = useState(searchParams.get('symptom_id') || '');
   const [tagFilter, setTagFilter] = useState(searchParams.get('tag_id') || '');
   const [difficultyFilter, setDifficultyFilter] = useState(searchParams.get('difficulty') || '');
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadFilters();
@@ -207,7 +212,12 @@ const CasesList: React.FC = () => {
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    {c.status === 'published' ? (
+                      <span className="text-xs px-2 py-0.5 rounded-full border text-green-400 bg-green-500/10 border-green-500/20">✅ Опубликовано</span>
+                    ) : (
+                      <span className="text-xs px-2 py-0.5 rounded-full border text-yellow-400 bg-yellow-500/10 border-yellow-500/20">📝 Черновик</span>
+                    )}
                     {c.is_verified && <span className="text-green-400 text-sm" title="Верифицирован">✓ Проверено</span>}
                     <span className={`text-xs px-2 py-0.5 rounded-full border ${getDifficultyColor(c.difficulty)}`}>
                       {getDifficultyLabel(c.difficulty)}
@@ -217,6 +227,12 @@ const CasesList: React.FC = () => {
                     {c.title}
                   </h2>
                 </div>
+                {(user?.id === c.user_id || user?.is_admin) && (
+                  <div className="flex gap-1 ml-2 shrink-0">
+                    <Link to={`/cases/${c.id}/edit`} onClick={e => e.stopPropagation()} className="px-2 py-1 rounded-lg text-xs bg-blue-500/20 border border-blue-500/30 text-blue-300 hover:bg-blue-500/30 transition">✏️</Link>
+                    <button onClick={async (e) => { e.stopPropagation(); e.preventDefault(); if(confirm('Удалить кейс?')){ try{ await api.delete(`/cases/${c.id}`); loadCases(); }catch{alert('Ошибка')} }}} className="px-2 py-1 rounded-lg text-xs bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30 transition">🗑️</button>
+                  </div>
+                )}
               </div>
 
               {c.symptom_text && (
