@@ -62,5 +62,18 @@ class RAGService:
             for r in results
         ]
 
+    def delete_case(self, case_id: int):
+        """Удалить вектор кейса из Qdrant"""
+        try:
+            self._ensure_initialized()
+            from qdrant_client.models import PointIdsList
+            self._qdrant.delete(
+                collection_name=self.collection_name,
+                points_selector=PointIdsList(points=[case_id]),
+            )
+            print(f"[RAG] Удалён из Qdrant: case_id={case_id}")
+        except Exception as e:
+            print(f"[RAG] Ошибка удаления из Qdrant case_id={case_id}: {e}")
+
 
 rag_service = RAGService()

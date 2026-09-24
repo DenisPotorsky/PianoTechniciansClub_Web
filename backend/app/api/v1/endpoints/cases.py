@@ -299,6 +299,21 @@ def delete_case(
     if case.user_id != current_user.id and not current_user.is_super_admin:
         raise HTTPException(status_code=403, detail="Нет прав на удаление")
 
+    # Удалить из Qdrant
+    try:
+        from app.services.rag_service import RAGService
+        rag = RAGService()
+        rag.delete_case(case_id)
+    except Exception as e:
+        print(f"[Cases] Ошибка удаления из Qdrant: {e}")
+
+    # Удалить из Qdrant
+    try:
+        from app.services.rag_service import rag_service
+        rag_service.delete_case(case_id)
+    except Exception as e:
+        print(f"[Cases] Ошибка удаления из Qdrant: {e}")
+
     db.delete(case)
     db.commit()
 
